@@ -13,3 +13,4 @@ leftover-agent-garbage/
 
 # Dependency graph cache
 .humanify-cache/
+output
