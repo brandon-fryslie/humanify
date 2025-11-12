@@ -136,13 +136,13 @@ Within each batch from the dependency graph, API calls are parallelized:
 ### Usage
 ```bash
 # OpenAI with turbo mode
-humanify openai input.js --turbo --batch-size 20
+humanify unminify --provider openai input.js --turbo --max-concurrent 20
 
 # Gemini with turbo mode
-humanify gemini input.js --turbo
+humanify unminify --provider gemini input.js --turbo
 
 # Local LLM with turbo mode (lower concurrency recommended)
-humanify local input.js --turbo --batch-size 2
+humanify unminify --provider local input.js --turbo --max-concurrent 2
 ```
 
 ### Implementation Details

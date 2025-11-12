@@ -1,4 +1,7 @@
-import { visitAllIdentifiers } from "./local-llm-rename/visit-all-identifiers.js";
+import {
+  visitAllIdentifiers,
+  VisitOptions
+} from "./local-llm-rename/visit-all-identifiers.js";
 import { verbose } from "../verbose.js";
 import { showPercentage } from "../progress.js";
 import {
@@ -10,15 +13,27 @@ import {
 export function geminiRename({
   apiKey,
   model: modelName,
-  contextWindowSize
+  contextWindowSize,
+  turbo,
+  maxConcurrent,
+  dependencyMode
 }: {
   apiKey: string;
   model: string;
   contextWindowSize: number;
+  turbo?: boolean;
+  maxConcurrent?: number;
+  dependencyMode?: "strict" | "balanced" | "relaxed";
 }) {
   const client = new GoogleGenerativeAI(apiKey);
 
   return async (code: string): Promise<string> => {
+    const options: VisitOptions = {
+      turbo,
+      maxConcurrent,
+      dependencyMode
+    };
+
     return await visitAllIdentifiers(
       code,
       async (name, surroundingCode) => {
@@ -38,7 +53,8 @@ export function geminiRename({
         return renamed;
       },
       contextWindowSize,
-      showPercentage
+      showPercentage,
+      options
     );
   };
 }

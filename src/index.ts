@@ -1,17 +1,26 @@
 #!/usr/bin/env -S npx tsx
 import { version } from "../package.json";
 import { download } from "./commands/download.js";
-import { local } from "./commands/local.js";
-import { openai } from "./commands/openai.js";
+import { unminifyCommand } from "./commands/unminify.js";
 import { cli } from "./cli.js";
-import { azure } from "./commands/gemini.js";
+
+// Handle Ctrl+C gracefully
+process.on("SIGINT", () => {
+  console.log("\n\n⚠️  Interrupted by user (Ctrl+C)");
+  console.log("Cleaning up...");
+  process.exit(130); // Standard exit code for SIGINT
+});
+
+process.on("SIGTERM", () => {
+  console.log("\n\n⚠️  Terminated by system");
+  console.log("Cleaning up...");
+  process.exit(143); // Standard exit code for SIGTERM
+});
 
 cli()
   .name("humanify")
-  .description("Unminify code using OpenAI's API or a local LLM")
+  .description("Unminify code using OpenAI, Gemini, or a local LLM")
   .version(version)
-  .addCommand(local)
-  .addCommand(openai)
-  .addCommand(azure)
+  .addCommand(unminifyCommand)
   .addCommand(download())
   .parse(process.argv);

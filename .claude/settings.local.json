@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Read(//Users/bmf/Library/**)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(xargs rm:*)"
     ],
     "deny": [],
     "ask": []

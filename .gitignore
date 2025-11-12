@@ -1,5 +1,5 @@
 models
-output
+output-vue
 dist
 test-output
 .env
@@ -10,3 +10,6 @@ node_modules/
 .idea/
 benchmark/
 leftover-agent-garbage/
+
+# Dependency graph cache
+.humanify-cache/

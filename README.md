@@ -115,11 +115,11 @@ https://openai.com/.
 
 There are several ways to provide the API key to the tool:
 ```shell
-humanify openai --apiKey="your-token" obfuscated-file.js
+humanify unminify --provider openai --apiKey="your-token" obfuscated-file.js
 ```
 
 Alternatively you can also use an environment variable `OPENAI_API_KEY`. Use
-`humanify --help` to see all available options.
+`humanify unminify --help` to see all available options.
 
 ### Gemini mode
 
@@ -129,11 +129,11 @@ https://aistudio.google.com/.
 You need to provice the API key to the tool:
 
 ```shell
-humanify gemini --apiKey="your-token" obfuscated-file.js
+humanify unminify --provider gemini --apiKey="your-token" obfuscated-file.js
 ```
 
 Alternatively you can also use an environment variable `GEMINI_API_KEY`. Use
-`humanify --help` to see all available options.
+`humanify unminify --help` to see all available options.
 
 ### Local mode
 
@@ -152,7 +152,7 @@ resources. List the available models using `humanify download`.
 After downloading the model, you can run the tool with:
 
 ```shell
-humanify local obfuscated-file.js
+humanify unminify --provider local obfuscated-file.js
 ```
 
 This uses your local GPU to deobfuscate the code. If you don't have a GPU, the

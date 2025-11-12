@@ -3,10 +3,14 @@ import prettier from "../plugins/prettier.js";
 import { unminify } from "../unminify.js";
 import babel from "../plugins/babel/babel.js";
 import { openaiRename } from "../plugins/openai/openai-rename.js";
+import { geminiRename } from "../plugins/gemini-rename.js";
+import { localReanme } from "../plugins/local-llm-rename/local-llm-rename.js";
+import { llama } from "../plugins/local-llm-rename/llama.js";
 import { verbose } from "../verbose.js";
 import { env } from "../env.js";
 import { parseNumber } from "../number-utils.js";
 import { DEFAULT_CONTEXT_WINDOW_SIZE } from "./default-args.js";
+import { DEFAULT_MODEL } from "../local-models.js";
 import { instrumentation } from "../instrumentation.js";
 import { getCacheSize } from "../plugins/local-llm-rename/dependency-cache.js";
 import { dryRun, printDryRunResults } from "../dry-run.js";
@@ -14,20 +18,30 @@ import { memoryMonitor } from "../memory-monitor.js";
 import { validateOutput, printValidationResults } from "../output-validator.js";
 import * as fs from "fs/promises";
 
-export const openai = cli()
-  .name("openai")
-  .description("Use OpenAI's API to unminify code")
-  .option("-m, --model <model>", "The model to use", "gpt-4o-mini")
+export const unminifyCommand = cli()
+  .name("unminify")
+  .description("Unminify code using OpenAI, Gemini, or a local LLM")
+  .option(
+    "-p, --provider <provider>",
+    "LLM provider to use: openai, gemini, or local",
+    "openai"
+  )
+  .option(
+    "-m, --model <model>",
+    "The model to use (defaults: gpt-4o-mini for openai, gemini-1.5-flash for gemini, qwen2.5-coder-3b-instruct for local)"
+  )
   .option("-o, --outputDir <output>", "The output directory", "output")
   .option(
     "-k, --apiKey <apiKey>",
-    "The OpenAI API key. Alternatively use OPENAI_API_KEY environment variable"
+    "API key for OpenAI or Gemini (or use OPENAI_API_KEY/GEMINI_API_KEY env vars)"
   )
   .option(
     "--baseURL <baseURL>",
-    "The OpenAI base server URL.",
+    "OpenAI base server URL (for OpenAI provider only)",
     env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1"
   )
+  .option("-s, --seed <seed>", "Seed for reproduceable results (local LLM only)")
+  .option("--disableGpu", "Disable GPU acceleration (local LLM only)")
   .option("--verbose", "Show verbose output")
   .option(
     "--context-size <contextSize>",
@@ -45,7 +59,7 @@ export const openai = cli()
   )
   .option(
     "--min-batch-size <size>",
-    "Minimum batch size for parallelization (merges small batches for better throughput)",
+    "Minimum batch size for parallelization (merges small batches)",
     "3"
   )
   .option(
@@ -60,9 +74,14 @@ export const openai = cli()
   )
   .option(
     "--refine",
-    "Run a second pass with 2x parallelism to refine names (doubles cost, improves quality)"
+    "Run a second pass with 2x parallelism to refine names (doubles cost, improves quality, OpenAI only)"
   )
-  .option("--perf", "Enable detailed performance instrumentation and timing")
+  .option(
+    "--perf",
+    "Enable detailed performance instrumentation and timing",
+    true
+  )
+  .option("--no-perf", "Disable performance instrumentation")
   .option("--perf-json <file>", "Export performance data to JSON file")
   .option("--dry-run", "Estimate cost and time without making API calls")
   .option(
@@ -77,10 +96,7 @@ export const openai = cli()
     "Split files larger than this (chars). Set to 0 to disable chunking.",
     "100000"
   )
-  .option(
-    "--no-chunking",
-    "Disable automatic file chunking"
-  )
+  .option("--no-chunking", "Disable automatic file chunking")
   .option(
     "--debug-chunks",
     "Add comment markers between chunks for debugging",
@@ -94,13 +110,36 @@ export const openai = cli()
     memoryMonitor.checkpoint("initial");
 
     // Setup instrumentation
-    instrumentation.setEnabled(opts.perf ?? false);
+    instrumentation.setEnabled(opts.perf ?? true);
 
     if (opts.verbose) {
       verbose.enabled = true;
     }
 
-    const apiKey = opts.apiKey ?? env("OPENAI_API_KEY");
+    const provider = opts.provider.toLowerCase();
+    if (!["openai", "gemini", "local"].includes(provider)) {
+      console.error(
+        `❌ Invalid provider: ${provider}. Must be one of: openai, gemini, local`
+      );
+      process.exit(1);
+    }
+
+    // Set default models based on provider
+    const defaultModels = {
+      openai: "gpt-4o-mini",
+      gemini: "gemini-1.5-flash",
+      local: DEFAULT_MODEL
+    };
+    const model = opts.model ?? defaultModels[provider as keyof typeof defaultModels];
+
+    // Get API key based on provider
+    let apiKey: string | undefined;
+    if (provider === "openai") {
+      apiKey = opts.apiKey ?? env("OPENAI_API_KEY");
+    } else if (provider === "gemini") {
+      apiKey = opts.apiKey ?? env("GEMINI_API_KEY");
+    }
+
     const baseURL = opts.baseURL;
     const contextWindowSize = parseNumber(opts.contextSize);
     const maxConcurrent = parseNumber(opts.maxConcurrent);
@@ -109,6 +148,8 @@ export const openai = cli()
       | "balanced"
       | "relaxed";
 
+    verbose.log(`Starting ${provider} inference with options: `, opts);
+
     try {
       // Read input for validation later
       const inputCode = await fs.readFile(filename, "utf-8");
@@ -116,20 +157,24 @@ export const openai = cli()
       // Handle dry-run mode AFTER reading the file (for analysis)
       if (opts.dryRun) {
         const result = await dryRun(filename, {
-          provider: "openai",
-          model: opts.model,
+          provider,
+          model,
           batchSize: maxConcurrent,
           contextWindowSize,
           turbo: opts.turbo ?? false
         });
 
-        printDryRunResults(filename, {
-          provider: "openai",
-          model: opts.model,
-          batchSize: maxConcurrent,
-          contextWindowSize,
-          turbo: opts.turbo ?? false
-        }, result);
+        printDryRunResults(
+          filename,
+          {
+            provider,
+            model,
+            batchSize: maxConcurrent,
+            contextWindowSize,
+            turbo: opts.turbo ?? false
+          },
+          result
+        );
 
         // In dry-run mode, still process the file but skip LLM rename
         // This allows tests to verify output structure without making API calls
@@ -137,69 +182,112 @@ export const openai = cli()
 
         // Create a no-op rename plugin (passes through unchanged)
         const noopRename = async (code: string) => code;
-        Object.defineProperty(noopRename, 'name', { value: 'noopRename' });
+        Object.defineProperty(noopRename, "name", { value: "noopRename" });
 
-        await unminify(filename, opts.outputDir, [
-          babel,
-          noopRename,
-          prettier
-        ], {
-          chunkSize: parseInt(opts.chunkSize, 10),
-          enableChunking: opts.chunking !== false,
-          debugChunks: opts.debugChunks
-        });
+        await unminify(
+          filename,
+          opts.outputDir,
+          [babel, noopRename, prettier],
+          {
+            chunkSize: parseInt(opts.chunkSize, 10),
+            enableChunking: opts.chunking !== false,
+            debugChunks: opts.debugChunks
+          }
+        );
 
         return;
       }
 
-      // Pass 1: Initial rename
-      console.log("\n=== Pass 1: Initial renaming ===\n");
-      await unminify(filename, opts.outputDir, [
-        babel,
-        openaiRename({
+      // Create the appropriate rename plugin based on provider
+      let renamePlugin: (code: string) => Promise<string>;
+
+      if (provider === "openai") {
+        renamePlugin = openaiRename({
           apiKey,
           baseURL,
-          model: opts.model,
+          model,
           contextWindowSize,
           turbo: opts.turbo,
           maxConcurrent,
           minBatchSize: parseInt(opts.minBatchSize, 10),
           maxBatchSize: parseInt(opts.maxBatchSize, 10),
           dependencyMode
-        }),
-        prettier
-      ], {
-        chunkSize: parseInt(opts.chunkSize, 10),
-        enableChunking: opts.chunking !== false,
-        debugChunks: opts.debugChunks
-      });
+        });
+      } else if (provider === "gemini") {
+        renamePlugin = geminiRename({
+          apiKey,
+          model,
+          contextWindowSize,
+          turbo: opts.turbo,
+          maxConcurrent,
+          dependencyMode
+        });
+      } else {
+        // local
+        const prompt = await llama({
+          model,
+          disableGpu: opts.disableGpu,
+          seed: opts.seed ? parseInt(opts.seed) : undefined
+        });
+        renamePlugin = localReanme(
+          prompt,
+          contextWindowSize,
+          opts.turbo,
+          maxConcurrent,
+          dependencyMode
+        );
+      }
 
-      // Pass 2: Refinement (if enabled)
-      if (opts.refine) {
-        console.log("\n=== Pass 2: Refinement (2x parallelism) ===\n");
-
-        // Use the output from pass 1 as input for pass 2
-        const pass1OutputFile = `${opts.outputDir}/deobfuscated.js`;
-
-        await unminify(pass1OutputFile, opts.outputDir, [
-          babel, // Run babel again - cheap and may improve structure with better names
-          openaiRename({
-            apiKey,
-            baseURL,
-            model: opts.model,
-            contextWindowSize,
-            turbo: opts.turbo,
-            maxConcurrent: maxConcurrent * 2, // 2x parallelism
-            minBatchSize: parseInt(opts.minBatchSize, 10),
-            maxBatchSize: parseInt(opts.maxBatchSize, 10),
-            dependencyMode: "relaxed" // More aggressive parallelism
-          }),
-          prettier
-        ], {
+      // Pass 1: Initial rename
+      console.log("\n=== Pass 1: Initial renaming ===\n");
+      await unminify(
+        filename,
+        opts.outputDir,
+        [babel, renamePlugin, prettier],
+        {
           chunkSize: parseInt(opts.chunkSize, 10),
           enableChunking: opts.chunking !== false,
           debugChunks: opts.debugChunks
-        });
+        }
+      );
+
+      // Pass 2: Refinement (if enabled, OpenAI only)
+      if (opts.refine) {
+        if (provider !== "openai") {
+          console.warn(
+            "⚠️  --refine is only supported for OpenAI provider, skipping refinement pass"
+          );
+        } else {
+          console.log("\n=== Pass 2: Refinement (2x parallelism) ===\n");
+
+          // Use the output from pass 1 as input for pass 2
+          const pass1OutputFile = `${opts.outputDir}/deobfuscated.js`;
+
+          await unminify(
+            pass1OutputFile,
+            opts.outputDir,
+            [
+              babel, // Run babel again - cheap and may improve structure with better names
+              openaiRename({
+                apiKey,
+                baseURL,
+                model,
+                contextWindowSize,
+                turbo: opts.turbo,
+                maxConcurrent: maxConcurrent * 2, // 2x parallelism
+                minBatchSize: parseInt(opts.minBatchSize, 10),
+                maxBatchSize: parseInt(opts.maxBatchSize, 10),
+                dependencyMode: "relaxed" // More aggressive parallelism
+              }),
+              prettier
+            ],
+            {
+              chunkSize: parseInt(opts.chunkSize, 10),
+              enableChunking: opts.chunking !== false,
+              debugChunks: opts.debugChunks
+            }
+          );
+        }
       }
 
       // Print performance summary if enabled
