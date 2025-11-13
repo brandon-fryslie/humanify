@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync, readdirSync } from "fs";
 import { createHash } from "crypto";
 import { join } from "path";
 
@@ -9,10 +9,11 @@ export interface Checkpoint {
   completedBatches: number;
   totalBatches: number;
   renames: Record<string, string>; // old name -> new name
-  partialCode: string; // AST transformed to code with renames applied so far
+  partialCode: string; // Transformed code with all renames from completed batches applied
 }
 
 const CHECKPOINT_DIR = ".humanify-checkpoints";
+export const CHECKPOINT_VERSION = "2.0.0"; // Version with transformed code support
 
 /**
  * Generate a unique checkpoint ID based on input file content
@@ -56,6 +57,23 @@ export function loadCheckpoint(checkpointId: string): Checkpoint | null {
     const data = readFileSync(path, "utf-8");
     const checkpoint = JSON.parse(data) as Checkpoint;
 
+    // Version validation
+    if (checkpoint.version !== CHECKPOINT_VERSION) {
+      console.warn(`\n⚠️  Checkpoint version mismatch:`);
+      console.warn(`   Checkpoint: ${checkpoint.version}`);
+      console.warn(`   Current:    ${CHECKPOINT_VERSION}`);
+      console.warn(`   This checkpoint cannot be loaded. Deleting stale checkpoint.`);
+
+      // Delete incompatible checkpoint
+      try {
+        unlinkSync(path);
+      } catch {
+        // Ignore deletion errors
+      }
+
+      return null;
+    }
+
     console.log(`\n📂 Found checkpoint: ${checkpoint.completedBatches}/${checkpoint.totalBatches} batches already completed`);
     console.log(`   Timestamp: ${new Date(checkpoint.timestamp).toLocaleString()}`);
 
@@ -85,7 +103,7 @@ export function listCheckpoints(): Checkpoint[] {
     return [];
   }
 
-  const files = require("fs").readdirSync(CHECKPOINT_DIR);
+  const files = readdirSync(CHECKPOINT_DIR);
   const checkpoints: Checkpoint[] = [];
 
   for (const file of files) {

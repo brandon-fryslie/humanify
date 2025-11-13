@@ -6,21 +6,31 @@ import {
 import { showPercentage } from "../../progress.js";
 import { verbose } from "../../verbose.js";
 import { instrumentation } from "../../instrumentation.js";
+import { RateLimitCoordinator } from "../../rate-limit-coordinator.js";
 
 /**
  * Retry an API call with exponential backoff on rate limits.
  * Handles both request-per-minute (RPM) and tokens-per-minute (TPM) limits.
+ *
+ * Uses a shared RateLimitCoordinator to synchronize rate limit handling
+ * across all parallel requests, preventing "thundering herd" where each
+ * request independently hits the rate limit.
  *
  * With 500 retries and 60s max backoff, this allows up to ~8 hours of retrying
  * before giving up - essentially unlimited for practical purposes.
  */
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
+  coordinator: RateLimitCoordinator,
   maxRetries: number = 500
 ): Promise<T> {
   let lastError: any;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    // Check global rate limit state before attempting
+    // This prevents all parallel requests from simultaneously hitting rate limits
+    await coordinator.checkAndWait();
+
     try {
       return await fn();
     } catch (error: any) {
@@ -57,27 +67,15 @@ async function retryWithBackoff<T>(
         }
 
         if (attempt < maxRetries) {
-          const delaySeconds = (delayMs / 1000).toFixed(1);
+          // Notify coordinator to pause ALL parallel requests
+          // This is the key to preventing thundering herd
+          coordinator.notifyRateLimit(delayMs);
 
-          // Only show message every 10 attempts to avoid spam
-          if (attempt % 10 === 0 || attempt < 3) {
-            console.log(`\n⚠️  Rate limit hit (retry ${attempt + 1}/${maxRetries})`);
-            console.log(`    Waiting ${delaySeconds}s before retry...`);
+          // Wait for coordinator's pause to expire (all requests wait together)
+          // NOTE: We don't log here to avoid interfering with progress bars
+          // Rate limit stats are shown in the final summary
+          await coordinator.checkAndWait();
 
-            // Show rate limit details if available
-            if (error.headers?.["x-ratelimit-remaining-tokens"] !== undefined) {
-              console.log(`    Tokens remaining: ${error.headers["x-ratelimit-remaining-tokens"]}/${error.headers["x-ratelimit-limit-tokens"]}`);
-            }
-            if (error.headers?.["x-ratelimit-remaining-requests"] !== undefined) {
-              console.log(`    Requests remaining: ${error.headers["x-ratelimit-remaining-requests"]}/${error.headers["x-ratelimit-limit-requests"]}`);
-            }
-          }
-
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-
-          if (attempt % 10 === 0 || attempt < 3) {
-            console.log(`    Resuming...`);
-          }
           continue;
         } else {
           console.error(`\n❌ FATAL: Max retries (${maxRetries}) exceeded after rate limiting.`);
@@ -121,6 +119,10 @@ export function openaiRename({
   let totalCost = 0;
 
   return async (code: string): Promise<string> => {
+    // Create rate limit coordinator for this processing run
+    // Shared across all parallel API requests to coordinate backoff
+    const rateLimitCoordinator = new RateLimitCoordinator();
+
     const options: VisitOptions = {
       turbo,
       maxConcurrent,
@@ -138,10 +140,12 @@ export function openaiRename({
         const response = await instrumentation.measure(
           "openai-api-call",
           () =>
-            retryWithBackoff(() =>
-              client.chat.completions.create(
-                toRenamePrompt(name, surroundingCode, model)
-              )
+            retryWithBackoff(
+              () =>
+                client.chat.completions.create(
+                  toRenamePrompt(name, surroundingCode, model)
+                ),
+              rateLimitCoordinator
             ),
           {
             model,
@@ -175,8 +179,9 @@ export function openaiRename({
     ).then((result) => {
       // Log final stats
       if (instrumentation.isEnabled()) {
+        const stats = rateLimitCoordinator.getStats();
         console.log(
-          `\n=== OpenAI Usage ===\nTotal tokens: ${totalTokens.toLocaleString()}\nEstimated cost: $${totalCost.toFixed(4)}\n`
+          `\n=== OpenAI Usage ===\nTotal tokens: ${totalTokens.toLocaleString()}\nEstimated cost: $${totalCost.toFixed(4)}\nRate limits hit: ${stats.totalRateLimits}\n`
         );
       }
       return result;
