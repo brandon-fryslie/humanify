@@ -21,20 +21,14 @@ HumanifyJS includes a comprehensive, zero-overhead instrumentation system for pe
 All commands support these instrumentation flags:
 
 ```bash
-# Silent mode (default) - no instrumentation overhead
-humanify openai input.js
+# Performance mode is now enabled by default
+humanify unminify --provider openai input.js
 
-# Summary mode - print aggregated stats at the end
-humanify openai input.js --perf summary
-
-# Detailed mode - print each operation as it completes with hierarchy
-humanify openai input.js --perf detailed
-
-# Track memory usage (adds slight overhead)
-humanify openai input.js --perf detailed --perf-memory
+# Disable performance instrumentation
+humanify unminify --provider openai input.js --no-perf
 
 # Export raw data to JSON for custom analysis
-humanify openai input.js --perf summary --perf-json perf-data.json
+humanify unminify --provider openai input.js --perf-json perf-data.json
 ```
 
 ### Output Examples
@@ -227,8 +221,8 @@ grep "build-dependency-graph" seq.log turbo.log
 ### Exporting for Analysis
 
 ```bash
-# Export JSON data
-humanify openai input.js --perf summary --perf-json data.json
+# Export JSON data (perf is enabled by default)
+humanify unminify --provider openai input.js --perf-json data.json
 
 # Analyze with jq
 jq '.spans[] | select(.name == "build-dependency-graph") | .duration' data.json
@@ -237,8 +231,8 @@ jq '.spans[] | select(.name == "build-dependency-graph") | .duration' data.json
 ### Memory Profiling
 
 ```bash
-# Track memory usage
-humanify openai large-file.js --perf detailed --perf-memory
+# Track memory usage (enabled by default, use --max-memory to set limits)
+humanify unminify --provider openai large-file.js --max-memory 4096
 ```
 
 Example output:
@@ -255,11 +249,11 @@ Example output:
 # benchmark.sh
 
 echo "=== Phase 1 (with cache) ==="
-time humanify openai input.js --perf summary --perf-json phase1.json
+time humanify unminify --provider openai input.js --perf-json phase1.json
 
 echo "=== Phase 2 (with reference index) ==="
 # After implementing Phase 2
-time humanify openai input.js --perf summary --perf-json phase2.json
+time humanify unminify --provider openai input.js --perf-json phase2.json
 
 # Compare
 echo "Cache hit improvement:"
@@ -271,16 +265,16 @@ jq '.spans[] | select(.name == "check-references") | .duration' phase1.json phas
 
 ## Cache Monitoring
 
-The instrumentation system tracks cache usage:
+The instrumentation system tracks cache usage (enabled by default):
 
 ```bash
-# View cache size
-humanify openai input.js --perf summary
+# View cache size (perf is enabled by default)
+humanify unminify --provider openai input.js
 # Output includes: Cache size: 2.34MB
 
 # Monitor cache growth
 for file in *.js; do
-  humanify openai "$file" --perf silent
+  humanify unminify --provider openai "$file" --no-perf
   du -sh .humanify-cache/
 done
 ```
@@ -293,7 +287,7 @@ done
 - name: Performance Benchmark
   run: |
     npm run build
-    humanify openai test-sample.js --perf summary --perf-json perf.json
+    humanify unminify --provider openai test-sample.js --perf-json perf.json
 
 - name: Check Performance Regression
   run: |

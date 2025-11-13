@@ -8,11 +8,12 @@ import { verbose } from "../../verbose.js";
 import { instrumentation } from "../../instrumentation.js";
 
 /**
- * Retry an API call with exponential backoff on rate limits
+ * Retry an API call with exponential backoff on rate limits.
+ * Handles both request-per-minute (RPM) and tokens-per-minute (TPM) limits.
  */
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
-  maxRetries: number = 5
+  maxRetries: number = 10
 ): Promise<T> {
   let lastError: any;
 
@@ -24,22 +25,53 @@ async function retryWithBackoff<T>(
 
       // Check if it's a rate limit error
       if (error?.status === 429 || error?.code === "rate_limit_exceeded") {
-        // Extract retry delay from headers or use exponential backoff
+        // Extract retry delay from headers
         let delayMs: number;
 
-        if (error.headers?.["retry-after-ms"]) {
+        // Check x-ratelimit-reset-tokens header (e.g., "59.696s")
+        const resetTokens = error.headers?.["x-ratelimit-reset-tokens"];
+        const resetRequests = error.headers?.["x-ratelimit-reset-requests"];
+
+        if (resetTokens && resetTokens.includes("s")) {
+          // Parse "59.696s" → 59696ms
+          const seconds = parseFloat(resetTokens.replace("s", ""));
+          delayMs = Math.ceil(seconds * 1000);
+        } else if (resetRequests && resetRequests.includes("s")) {
+          // Parse "12ms" or "1.5s"
+          if (resetRequests.includes("ms")) {
+            delayMs = parseInt(resetRequests.replace("ms", ""), 10);
+          } else {
+            const seconds = parseFloat(resetRequests.replace("s", ""));
+            delayMs = Math.ceil(seconds * 1000);
+          }
+        } else if (error.headers?.["retry-after-ms"]) {
           delayMs = parseInt(error.headers["retry-after-ms"], 10);
         } else if (error.headers?.["retry-after"]) {
           delayMs = parseInt(error.headers["retry-after"], 10) * 1000;
         } else {
-          // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-          delayMs = Math.min(1000 * Math.pow(2, attempt), 30000);
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s, 60s (capped at 60s)
+          delayMs = Math.min(1000 * Math.pow(2, attempt), 60000);
         }
 
         if (attempt < maxRetries) {
-          verbose.log(`Rate limit hit, retrying in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})...`);
+          const delaySeconds = (delayMs / 1000).toFixed(1);
+          console.log(`\n⚠️  Rate limit hit (attempt ${attempt + 1}/${maxRetries})`);
+          console.log(`    Waiting ${delaySeconds}s before retry...`);
+
+          // Show rate limit details if available
+          if (error.headers?.["x-ratelimit-remaining-tokens"] !== undefined) {
+            console.log(`    Tokens remaining: ${error.headers["x-ratelimit-remaining-tokens"]}/${error.headers["x-ratelimit-limit-tokens"]}`);
+          }
+          if (error.headers?.["x-ratelimit-remaining-requests"] !== undefined) {
+            console.log(`    Requests remaining: ${error.headers["x-ratelimit-remaining-requests"]}/${error.headers["x-ratelimit-limit-requests"]}`);
+          }
+
           await new Promise(resolve => setTimeout(resolve, delayMs));
+          console.log(`    Resuming...`);
           continue;
+        } else {
+          console.error(`\n❌ Max retries (${maxRetries}) exceeded after rate limiting.`);
+          console.error(`   Consider reducing --max-concurrent or processing in smaller batches.`);
         }
       }
 

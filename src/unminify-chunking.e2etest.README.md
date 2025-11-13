@@ -22,9 +22,9 @@ New flags that must work:
 - `--debug-chunks` - Add `// === Chunk N ===` markers to output
 
 Must work across all providers:
-- `humanify openai input.js --chunk-size 50000`
-- `humanify gemini input.js --no-chunking`
-- `humanify local input.js --debug-chunks`
+- `humanify unminify --provider openai input.js --chunk-size 50000`
+- `humanify unminify --provider gemini input.js --no-chunking`
+- `humanify unminify --provider local input.js --debug-chunks`
 
 ### 3. **Correctness Guarantees**
 
@@ -55,7 +55,7 @@ These tests are designed to be **impossible to game** or satisfy with stubs:
 ### 1. **Real Execution Path**
 ```typescript
 // Tests spawn REAL CLI processes
-const result = await runCLI(['openai', 'input.js', '--chunk-size', '10000']);
+const result = await runCLI(['unminify', '--provider', 'openai', 'input.js', '--chunk-size', '10000']);
 ```
 - Not in-memory mocks
 - Actual child process spawned
@@ -109,7 +109,7 @@ Each test verifies:
 
 ### Run All Integration Tests
 ```bash
-tsx --test src/unminify-chunking.e2etest.ts
+npm run test:e2e
 ```
 
 ### Run Specific Test
@@ -214,7 +214,7 @@ assert.ok(memoryTracker.reportLowMemory);
 **Good Test (Un-gameable):**
 ```typescript
 // GOOD: Measures actual memory
-const result = await runCLI(['openai', 'large-file.js']);
+const result = await runCLI(['unminify', '--provider', 'openai', 'large-file.js']);
 const actualMemory = process.memoryUsage().heapUsed / 1024 / 1024;
 assert.ok(actualMemory < 200); // Must be real memory reduction
 ```
@@ -231,7 +231,7 @@ assert.ok(result.success === true);
 **Good Test (Un-gameable):**
 ```typescript
 // GOOD: Verifies actual file on disk
-await runCLI(['openai', 'input.js', '--outputDir', 'output']);
+await runCLI(['unminify', '--provider', 'openai', 'input.js', '--outputDir', 'output']);
 const output = await fs.readFile('output/input.js', 'utf-8');
 const ast = parse(output); // Must be valid JavaScript
 assert.strictEqual(ast.program.body.length, expectedStatements);

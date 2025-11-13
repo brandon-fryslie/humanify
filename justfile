@@ -14,7 +14,7 @@ test:
 
 # Process TensorFlow.js test file (1.4MB, ~35K identifiers)
 test-tensorflow:
-    node --max-old-space-size=4096 ./dist/index.mjs openai test-samples/tensorflow.min.js \
+    node --max-old-space-size=4096 ./dist/index.mjs unminify --provider openai test-samples/tensorflow.min.js \
         --turbo \
         --max-concurrent 20 \
         --min-batch-size 10 \
@@ -22,12 +22,11 @@ test-tensorflow:
         --context-size 40000 \
         --dependency-mode balanced \
         --max-memory 2048 \
-        --perf \
         -o "output/tensorflow-humanified"
 
 # Dry-run on TensorFlow.js to estimate cost/time
 test-tensorflow-dry:
-    ./dist/index.mjs openai test-samples/tensorflow.min.js \
+    ./dist/index.mjs unminify --provider openai test-samples/tensorflow.min.js \
         --turbo \
         --max-concurrent 20 \
         --context-size 40000 \
@@ -36,7 +35,7 @@ test-tensorflow-dry:
 
 # Process Babylon.js test file (7.2MB, ~82K identifiers - LARGE!)
 test-babylon:
-    node --max-old-space-size=8192 ./dist/index.mjs openai test-samples/babylon.min.js \
+    node --max-old-space-size=8192 ./dist/index.mjs unminify --provider openai test-samples/babylon.min.js \
         --turbo \
         --max-concurrent 30 \
         --min-batch-size 10 \
@@ -44,12 +43,11 @@ test-babylon:
         --context-size 50000 \
         --dependency-mode relaxed \
         --max-memory 4096 \
-        --perf \
         -o "output/babylon-humanified"
 
 # Process large file (9.4MB deobfuscated.js)
 test-large:
-    node --max-old-space-size=20480 ./dist/index.mjs openai "output/webcrack-test/deobfuscated.js" \
+    node --max-old-space-size=20480 ./dist/index.mjs unminify --provider openai "output/webcrack-test/deobfuscated.js" \
         --turbo \
         --max-concurrent 30 \
         --min-batch-size 15 \
@@ -62,7 +60,7 @@ test-large:
 
 # Quick test on small sample
 test-small:
-    ./dist/index.mjs openai test-samples/tensorflow.min.js \
+    ./dist/index.mjs unminify --provider openai test-samples/tensorflow.min.js \
         --turbo \
         --max-concurrent 10 \
         --context-size 30000 \
@@ -85,7 +83,7 @@ download-babylon:
 clean:
     rm -rf output/tensorflow-humanified
     rm -rf output/babylon-humanified
-    rm -rf output/claude-code-cli-humanified
+    rm -rf output/claude-code-cli-humanifiedfas;kjdfckl;ajsdfvk;jlerfgijo;efrwqijo;
     rm -rf output/quick-test
 
 # Show file stats for test samples
@@ -100,4 +98,4 @@ stats:
 claude:
     npm run build
     @if [ -z "$$OPENAI_API_KEY" ]; then echo "Error: OPENAI_API_KEY environment variable not set"; exit 1; fi
-    node dist/index.mjs openai test-samples/claude-code-cli.js --turbo --max-concurrent 25 --chunk-size 300000 -o output-claude-$(date +"%Y-%m-%dT%H:%M:%S)
+    node dist/index.mjs unminify --provider openai test-samples/claude-code-cli.js --turbo --refine --max-concurrent 25 --chunk-size 300000 -o "output/claude-$(date +"%Y-%m-%dT%H:%M:%S")"
