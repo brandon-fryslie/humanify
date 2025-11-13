@@ -10,10 +10,13 @@ import { instrumentation } from "../../instrumentation.js";
 /**
  * Retry an API call with exponential backoff on rate limits.
  * Handles both request-per-minute (RPM) and tokens-per-minute (TPM) limits.
+ *
+ * With 500 retries and 60s max backoff, this allows up to ~8 hours of retrying
+ * before giving up - essentially unlimited for practical purposes.
  */
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
-  maxRetries: number = 10
+  maxRetries: number = 500
 ): Promise<T> {
   let lastError: any;
 
@@ -55,23 +58,32 @@ async function retryWithBackoff<T>(
 
         if (attempt < maxRetries) {
           const delaySeconds = (delayMs / 1000).toFixed(1);
-          console.log(`\n⚠️  Rate limit hit (attempt ${attempt + 1}/${maxRetries})`);
-          console.log(`    Waiting ${delaySeconds}s before retry...`);
 
-          // Show rate limit details if available
-          if (error.headers?.["x-ratelimit-remaining-tokens"] !== undefined) {
-            console.log(`    Tokens remaining: ${error.headers["x-ratelimit-remaining-tokens"]}/${error.headers["x-ratelimit-limit-tokens"]}`);
-          }
-          if (error.headers?.["x-ratelimit-remaining-requests"] !== undefined) {
-            console.log(`    Requests remaining: ${error.headers["x-ratelimit-remaining-requests"]}/${error.headers["x-ratelimit-limit-requests"]}`);
+          // Only show message every 10 attempts to avoid spam
+          if (attempt % 10 === 0 || attempt < 3) {
+            console.log(`\n⚠️  Rate limit hit (retry ${attempt + 1}/${maxRetries})`);
+            console.log(`    Waiting ${delaySeconds}s before retry...`);
+
+            // Show rate limit details if available
+            if (error.headers?.["x-ratelimit-remaining-tokens"] !== undefined) {
+              console.log(`    Tokens remaining: ${error.headers["x-ratelimit-remaining-tokens"]}/${error.headers["x-ratelimit-limit-tokens"]}`);
+            }
+            if (error.headers?.["x-ratelimit-remaining-requests"] !== undefined) {
+              console.log(`    Requests remaining: ${error.headers["x-ratelimit-remaining-requests"]}/${error.headers["x-ratelimit-limit-requests"]}`);
+            }
           }
 
           await new Promise(resolve => setTimeout(resolve, delayMs));
-          console.log(`    Resuming...`);
+
+          if (attempt % 10 === 0 || attempt < 3) {
+            console.log(`    Resuming...`);
+          }
           continue;
         } else {
-          console.error(`\n❌ Max retries (${maxRetries}) exceeded after rate limiting.`);
-          console.error(`   Consider reducing --max-concurrent or processing in smaller batches.`);
+          console.error(`\n❌ FATAL: Max retries (${maxRetries}) exceeded after rate limiting.`);
+          console.error(`   This should never happen with 500 retries!`);
+          console.error(`   Your OpenAI rate limits may be exhausted for an extended period.`);
+          console.error(`   Check your usage at: https://platform.openai.com/usage`);
         }
       }
 
