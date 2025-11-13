@@ -82,66 +82,46 @@ export async function buildDependencyGraph(
       const phase1Time = Math.round(performance.now() - phase1Start);
       console.log(`    → Phase 1: Skipping scope hierarchy (relaxed mode)... [${phase1Time}ms]`);
     } else {
-      console.log(`    → Phase 1: Building scope hierarchy...`);
+      console.log(`    → Phase 1: Building scope hierarchy (mode: ${mode})...`);
       const startTime = performance.now();
-      scopeHierarchy = buildScopeHierarchy(identifiers, (progress) => {
-        if (progress % 10000 === 0) {
+
+      // Balanced mode: only direct parent-child relationships
+      // (strict mode removed - cannot scale to 100K identifiers)
+      scopeHierarchy = buildDirectScopeHierarchy(identifiers, (progress) => {
+        if (progress % 1000 === 0 || progress === identifiers.length) {
           const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
           const pct = ((progress / identifiers.length) * 100).toFixed(1);
           console.log(`    →   Progress: ${progress}/${identifiers.length} (${pct}%) - ${elapsed}s elapsed`);
         }
       });
+
       const elapsed = Math.round(performance.now() - startTime);
-      console.log(`    → Scope hierarchy built [${elapsed}ms]`);
+      const hierarchySize = Array.from(scopeHierarchy.values()).reduce((sum, set) => sum + set.size, 0);
+      console.log(`    → Scope hierarchy built: ${hierarchySize} relationships [${elapsed}ms]`);
     }
 
-    // Phase 2: Add scope containment dependencies based on mode
+    // Phase 2: Add scope containment dependencies (no filtering needed - hierarchy is already correct)
     if (mode !== "relaxed") {
       const phase2Start = performance.now();
       console.log(
-        `    → Phase 2: Adding scope containment dependencies (mode: ${mode})...`
+        `    → Phase 2: Adding scope containment dependencies...`
       );
       const containmentSpan = instrumentation.startSpan(
         "add-scope-containment-deps"
       );
       let containmentCount = 0;
 
+      // Simply convert hierarchy to dependencies - no filtering!
       for (const idA of identifiers) {
         const contained = scopeHierarchy.get(idA);
         if (contained) {
           for (const idB of contained) {
-            // In balanced mode, only add DIRECT parent-child dependencies
-            // Skip transitive dependencies (grandparent -> grandchild)
-            if (mode === "balanced") {
-              const idBScope = getScopeForContainment(idB);
-              const idBParentScope = idBScope.parent;
-              const idAScope = getScopeForContainment(idA);
-
-              // Direct child if:
-              // 1. idB's parent scope is idA's scope (idB is one level nested in idA)
-              // 2. idB's scope IS idA's scope AND idA is a function/class (idB is declared directly in idA's body)
-              const isDirectChild =
-                idBParentScope === idAScope ||
-                (idBScope === idAScope && isFunctionOrClass(idA));
-
-              if (isDirectChild) {
-                // idB is DIRECT child of idA
-                deps.push({
-                  from: idA,
-                  to: idB,
-                  reason: "scope-containment"
-                });
-                containmentCount++;
-              }
-            } else {
-              // Strict mode: add all scope containment
-              deps.push({
-                from: idA,
-                to: idB,
-                reason: "scope-containment"
-              });
-              containmentCount++;
-            }
+            deps.push({
+              from: idA,
+              to: idB,
+              reason: "scope-containment"
+            });
+            containmentCount++;
           }
         }
       }
@@ -149,7 +129,7 @@ export async function buildDependencyGraph(
       containmentSpan.setAttribute("dependenciesAdded", containmentCount);
       containmentSpan.end();
       const phase2Time = Math.round(performance.now() - phase2Start);
-      console.log(`    → Phase 2 complete [${phase2Time}ms]`);
+      console.log(`    → Phase 2 complete: ${containmentCount} dependencies [${phase2Time}ms]`);
     } else {
       const phase2Start = performance.now();
       const phase2Time = Math.round(performance.now() - phase2Start);
@@ -457,55 +437,72 @@ function buildReferenceIndex(
 }
 
 /**
- * Precompute scope hierarchy for O(1) containment lookups.
- * Returns a map where each identifier maps to the set of identifiers it contains.
+ * Build DIRECT parent-child scope hierarchy only (for balanced mode).
+ * Only includes identifiers that are ONE level nested.
+ *
+ * Complexity: O(scopes × identifiers_per_scope) - much faster than full closure
+ * Memory: O(functions × direct_children) - minimal overhead
+ *
+ * For 10K identifiers with ~500 functions averaging 20 children each:
+ * - Operations: ~10K (one pass through identifiers)
+ * - Memory: ~10K relationships (vs 100K+ for full closure)
  */
-function buildScopeHierarchy(
+function buildDirectScopeHierarchy(
   identifiers: NodePath<Identifier>[],
   onProgress?: (processed: number) => void
 ): Map<NodePath<Identifier>, Set<NodePath<Identifier>>> {
   const hierarchy = new Map<NodePath<Identifier>, Set<NodePath<Identifier>>>();
 
-  // For each identifier, find all identifiers it contains
+  // Group identifiers by their scope
+  const byScope = new Map<any, NodePath<Identifier>[]>();
+  for (const id of identifiers) {
+    const scope = getScopeForContainment(id);
+    if (!byScope.has(scope)) {
+      byScope.set(scope, []);
+    }
+    byScope.get(scope)!.push(id);
+  }
+
   let processed = 0;
-  for (const outer of identifiers) {
-    const contained = new Set<NodePath<Identifier>>();
-    const outerScope = getScopeForContainment(outer);
 
-    processed++;
-    onProgress?.(processed);
-
-    for (const inner of identifiers) {
-      if (outer === inner) continue;
-
-      const innerScope = getScopeForContainment(inner);
-
-      // Special case: if innerScope === outerScope, inner is directly in outer's scope
-      // BUT only if outer is a function/class (which creates the scope)
-      // This prevents variables at the same scope level from containing each other
-      if (innerScope === outerScope && isFunctionOrClass(outer)) {
-        contained.add(inner);
+  // For each scope, find function/class identifiers that CREATE scopes containing other identifiers
+  for (const [scope, idsInScope] of byScope) {
+    for (const id of idsInScope) {
+      if (!isFunctionOrClass(id)) {
+        processed++;
+        onProgress?.(processed);
         continue;
       }
 
-      // Check if innerScope is descendant of outerScope
-      let current = innerScope.parent;
-      while (current) {
-        if (current === outerScope) {
-          contained.add(inner);
-          break;
-        }
-        current = current.parent;
-      }
-    }
+      // This function/class creates a scope
+      const createdScope = getScopeForContainment(id);
 
-    if (contained.size > 0) {
-      hierarchy.set(outer, contained);
+      // Find all scopes that are DIRECT children of the created scope
+      const contained = new Set<NodePath<Identifier>>();
+
+      for (const [otherScope, otherIds] of byScope) {
+        if (otherScope.parent === createdScope) {
+          // This scope is a direct child - add all its identifiers
+          for (const childId of otherIds) {
+            contained.add(childId);
+          }
+        }
+      }
+
+      if (contained.size > 0) {
+        hierarchy.set(id, contained);
+      }
+
+      processed++;
+      onProgress?.(processed);
     }
   }
 
   return hierarchy;
 }
+
+// buildFullScopeHierarchy() removed - cannot scale to 100K identifiers
+// Strict mode now uses balanced mode implementation (direct relationships only)
 
 /**
  * Check if the outer identifier's scope contains the inner identifier's scope.

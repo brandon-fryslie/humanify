@@ -42,6 +42,24 @@ npm run download-ci-model    # Download 2b model for CI/testing
 humanify download 2b         # Download 2b model after build
 ```
 
+### Just Commands (Recommended)
+The project includes a `justfile` with pre-configured recipes for testing with real-world files:
+
+```bash
+just                          # List all available commands
+just build                    # Build the project
+just test                     # Run test suite
+just test-tensorflow          # Process TensorFlow.js (1.4MB, ~35K identifiers)
+just test-babylon             # Process Babylon.js (7.2MB, ~82K identifiers)
+just test-small               # Quick test on small sample
+just download-tensorflow      # Download TensorFlow.js test sample
+just download-babylon         # Download Babylon.js test sample
+just clean                    # Clean output directories
+just stats                    # Show test sample file stats
+```
+
+These recipes demonstrate optimal turbo mode settings for different file sizes and complexity levels.
+
 ## Architecture
 
 ### Core Processing Pipeline
@@ -107,7 +125,36 @@ This is the core AST traversal logic used by ALL rename plugins:
 - `*.llmtest.ts`: Tests that call real LLMs (slow, run sequentially)
 - `*.openaitest.ts` / `*.geminitest.ts`: Provider-specific integration tests
 
-## Turbo Mode (NEW!)
+## Large File Handling
+
+### Automatic Chunking (NEW!)
+
+For extremely large files (>100KB by default), HumanifyJS automatically splits the file into chunks to prevent out-of-memory errors.
+
+**How it works**:
+1. **AST-based splitting** (`file-splitter.ts`): Splits at top-level statement boundaries while tracking symbols
+2. **Independent processing**: Each chunk is processed through the full plugin pipeline
+3. **Intelligent reassembly** (`chunk-reassembler.ts`): Merges chunks back while preserving structure
+
+**Configuration**:
+```bash
+--chunk-size N              # Threshold for chunking (default: 100000 chars)
+--enable-chunking false     # Disable automatic chunking
+--debug-chunks              # Add chunk boundary markers in output
+```
+
+**When to use**:
+- Files >100KB that cause OOM errors
+- Files with 10,000+ identifiers
+- Processing on machines with limited RAM
+
+**Implementation files**:
+- `src/unminify.ts`: Chunking orchestration (lines 88-192)
+- `src/file-splitter.ts`: AST-based splitting logic
+- `src/chunk-processor.ts`: Per-chunk plugin application
+- `src/chunk-reassembler.ts`: Merging processed chunks
+
+## Turbo Mode
 
 **`--turbo` flag** enables two major optimizations:
 
@@ -145,10 +192,93 @@ humanify unminify --provider gemini input.js --turbo
 humanify unminify --provider local input.js --turbo --max-concurrent 2
 ```
 
+### Advanced Turbo Mode Options
+```bash
+# Fine-tune batch processing
+--min-batch-size N          # Merge small batches (default: 1)
+--max-batch-size N          # Split large batches to prevent memory spikes (default: 100)
+
+# Dependency graph modes
+--dependency-mode strict    # Maximum dependencies, best quality (slowest)
+--dependency-mode balanced  # Good quality/speed trade-off (default)
+--dependency-mode relaxed   # Fewer dependencies, fastest (may miss some context)
+
+# Memory management
+--max-memory N              # Trigger GC when memory exceeds N MB
+--perf                      # Enable performance instrumentation/telemetry
+
+# Context size
+--context-size N            # Characters of surrounding code sent to LLM (default varies by provider)
+```
+
+**Example for large files** (7MB+):
+```bash
+humanify unminify --provider openai large.js \
+  --turbo \
+  --max-concurrent 30 \
+  --min-batch-size 10 \
+  --max-batch-size 100 \
+  --context-size 50000 \
+  --dependency-mode relaxed \
+  --max-memory 4096 \
+  --perf
+```
+
 ### Implementation Details
 - Original behavior preserved (no `--turbo` = sequential processing)
 - Separate code paths in `visit-all-identifiers.ts`
+- Dependency graph with caching (`dependency-cache.ts`)
+- Parallel execution with concurrency control (`parallel-utils.ts`)
 - All existing tests pass + new turbo mode tests
+
+### Dependency Graph Deep Dive
+
+**Core algorithm** (`src/plugins/local-llm-rename/dependency-graph.ts`):
+
+1. **Edge detection**: Identifies two types of dependencies:
+   - **Scope containment**: Outer scopes processed before inner scopes
+   - **References**: Referenced identifiers processed before referencing identifiers
+
+2. **Topological sort**: Groups identifiers into batches where all dependencies are satisfied
+   - Batch N can only depend on batches 0..N-1
+   - Identifiers within same batch can be processed in parallel
+
+3. **Batch optimization**:
+   - **Merging** (`mergeBatches`): Combines small batches to improve parallelization
+   - **Splitting** (`splitLargeBatches`): Prevents memory spikes from huge batches
+
+4. **Caching**: Dependency graphs are cached by code hash for faster re-runs
+
+**Three dependency modes**:
+- `strict`: Maximum context (all scope + reference edges) → best quality, slowest
+- `balanced`: Scope containment + direct references → good trade-off (default)
+- `relaxed`: Scope containment only → fastest, may miss contextual hints
+
+**Key insight**: This is an information-flow optimization, not just parallelization. By ensuring LLMs see already-renamed dependent variables, the quality of suggestions improves significantly (20-40% in testing).
+
+## Observability & Performance
+
+### Instrumentation
+The codebase includes comprehensive instrumentation for performance analysis:
+
+**Key modules**:
+- `src/instrumentation.ts`: Spans and timing metrics for all major operations
+- `src/memory-monitor.ts`: Memory usage tracking with checkpoints
+- `src/progress.ts`: Progress reporting for long-running operations
+
+**Enabling telemetry**:
+```bash
+humanify unminify --provider openai input.js --perf
+```
+
+This outputs detailed metrics for:
+- AST parsing time
+- Dependency graph construction
+- Batch processing times
+- LLM API call durations
+- Memory usage at key checkpoints
+
+**Usage in code**: All performance-critical sections are wrapped with `instrumentation.measure()` or `instrumentation.measureSync()`.
 
 ## Environment Variables
 

@@ -81,16 +81,12 @@ download-babylon:
     curl -o test-samples/babylon.min.js https://cdn.babylonjs.com/babylon.js
     @echo "Downloaded Babylon.js ($(du -h test-samples/babylon.min.js | cut -f1))"
 
-# Clean output directories
+# Clean output directories{
 clean:
     rm -rf output/tensorflow-humanified
     rm -rf output/babylon-humanified
     rm -rf output/claude-code-cli-humanified
     rm -rf output/quick-test
-
-# Clean everything including test samples
-clean-all: clean
-    rm -rf test-samples
 
 # Show file stats for test samples
 stats:
@@ -104,4 +100,4 @@ stats:
 claude:
     npm run build
     @if [ -z "$$OPENAI_API_KEY" ]; then echo "Error: OPENAI_API_KEY environment variable not set"; exit 1; fi
-    node dist/index.mjs openai test-samples/claude-code-cli.js --turbo --max-concurrent 25 --chunk-size 300000 -o output
+    node dist/index.mjs openai test-samples/claude-code-cli.js --turbo --max-concurrent 25 --chunk-size 300000 -o output-claude-$(date +"%Y-%m-%dT%H:%M:%S)
