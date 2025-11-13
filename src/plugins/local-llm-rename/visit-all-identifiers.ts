@@ -86,7 +86,15 @@ export async function visitAllIdentifiers(
     const scopes = instrumentation.measureSync("find-scopes", () =>
       findScopes(ast)
     );
-    const numRenamesExpected = scopes.length;
+
+    // Capture original names BEFORE any renames happen
+    // NodePath objects are live references, so path.node.name changes after scope.rename()
+    const scopesWithOriginalNames = scopes.map((path) => ({
+      path,
+      originalName: path.node.name
+    }));
+
+    const numRenamesExpected = scopesWithOriginalNames.length;
 
     rootSpan.setAttribute("identifierCount", numRenamesExpected);
 
@@ -102,7 +110,7 @@ export async function visitAllIdentifiers(
       await visitAllIdentifiersTurbo(
         code,
         ast,
-        scopes,
+        scopesWithOriginalNames,
         visitor,
         contextWindowSize,
         renames,
@@ -115,7 +123,7 @@ export async function visitAllIdentifiers(
     } else {
       console.log(`    → Mode: SEQUENTIAL (one identifier at a time)`);
       await visitAllIdentifiersSequential(
-        scopes,
+        scopesWithOriginalNames,
         visitor,
         contextWindowSize,
         renames,
@@ -154,23 +162,22 @@ export async function visitAllIdentifiers(
  * Original sequential processing (preserves existing behavior)
  */
 async function visitAllIdentifiersSequential(
-  scopes: NodePath<Identifier>[],
+  scopesWithNames: Array<{ path: NodePath<Identifier>; originalName: string }>,
   visitor: Visitor,
   contextWindowSize: number,
   renames: Set<string>,
   visited: Set<string>,
   onProgress?: (percentageDone: number) => void
 ) {
-  const numRenamesExpected = scopes.length;
+  const numRenamesExpected = scopesWithNames.length;
 
-  for (const [i, smallestScope] of scopes.entries()) {
-    const smallestScopeNode = smallestScope.node;
+  for (const [i, { path: smallestScope, originalName }] of scopesWithNames.entries()) {
     if (hasVisited(smallestScope, visited)) continue;
 
     const scopeString = await scopeToString(smallestScope, contextWindowSize);
-    const renamed = await visitor(smallestScopeNode.name, scopeString);
+    const renamed = await visitor(originalName, scopeString);
 
-    if (renamed !== smallestScopeNode.name) {
+    if (renamed !== originalName) {
       let safeRenamed = toIdentifier(renamed);
       while (
         renames.has(safeRenamed) ||
@@ -180,9 +187,9 @@ async function visitAllIdentifiersSequential(
       }
       renames.add(safeRenamed);
 
-      smallestScope.scope.rename(smallestScopeNode.name, safeRenamed);
+      smallestScope.scope.rename(originalName, safeRenamed);
     }
-    markVisited(smallestScope, smallestScopeNode.name, visited);
+    markVisited(smallestScope, originalName, visited);
 
     onProgress?.(visited.size / numRenamesExpected);
   }
@@ -194,7 +201,7 @@ async function visitAllIdentifiersSequential(
 async function visitAllIdentifiersTurbo(
   originalCode: string,
   ast: ParseResult,
-  scopes: NodePath<Identifier>[],
+  scopesWithNames: Array<{ path: NodePath<Identifier>; originalName: string }>,
   visitor: Visitor,
   contextWindowSize: number,
   renames: Set<string>,
@@ -205,9 +212,18 @@ async function visitAllIdentifiersTurbo(
   existingCheckpoint?: Checkpoint | null
 ) {
   const turboSpan = instrumentation.startSpan("turbo-mode", {
-    identifierCount: scopes.length,
+    identifierCount: scopesWithNames.length,
     maxConcurrent
   });
+
+  // Extract just the paths for dependency graph building
+  const scopes = scopesWithNames.map(s => s.path);
+
+  // Create mapping from NodePath to original name for later lookup
+  const scopeToOriginalName = new Map<NodePath<Identifier>, string>();
+  for (const { path, originalName } of scopesWithNames) {
+    scopeToOriginalName.set(path, originalName);
+  }
 
   // Checkpoint support (enabled by default in turbo mode)
   const enableCheckpoints = options?.enableCheckpoints ?? true;
@@ -324,11 +340,17 @@ async function visitAllIdentifiersTurbo(
 
         // Extract contexts at current AST state (before parallel API calls)
         const jobs = await Promise.all(
-          toProcess.map(async (scope) => ({
-            scope,
-            name: scope.node.name,
-            context: await scopeToString(scope, contextWindowSize)
-          }))
+          toProcess.map(async (scope) => {
+            const originalName = scopeToOriginalName.get(scope);
+            if (!originalName) {
+              throw new Error(`Original name not found for scope at ${scope.node.loc?.start}`);
+            }
+            return {
+              scope,
+              name: originalName,
+              context: await scopeToString(scope, contextWindowSize)
+            };
+          })
         );
 
         // Parallel API calls with concurrency limit
@@ -452,6 +474,13 @@ function findScopes(ast: Node): NodePath<Identifier>[] {
   const scopes: [nodePath: NodePath<Identifier>, scopeSize: number][] = [];
   traverse(ast, {
     BindingIdentifier(path) {
+      // Skip binding identifiers in assignment expressions (e.g., x += 1)
+      // These are not declarations, just updates to existing variables
+      // The variable was already captured at its declaration site
+      if (path.parent?.type === "AssignmentExpression") {
+        return;
+      }
+
       const bindingBlock = closestSurroundingContextPath(path).scope.block;
       const pathSize = bindingBlock.end! - bindingBlock.start!;
 
@@ -477,11 +506,12 @@ function isContextPath(path: NodePath<Node>) {
   return (
     path.isProgram() ||
     path.isFunction() ||
+    path.isClass() ||
     path.isForStatement() ||
     path.isForInStatement() ||
     path.isForOfStatement() ||
-    path.isBlockStatement() ||
     path.isCatchClause()
+    // Note: BlockStatement removed so we prefer Function/Class over bare blocks
   );
 }
 
@@ -491,8 +521,8 @@ async function scopeToString(
 ): Promise<string> {
   const surroundingContext = closestSurroundingContextPath(path);
 
-  // Use @babel/generator directly for node-to-code conversion
-  // This works for any AST node, not just File/Program (Babel 7.27+ is stricter)
+  // Use @babel/generator to get the current state of the AST (including renames)
+  // This ensures the LLM sees already-renamed identifiers for better context
   const contextCode = instrumentation.measureSync("generate-context", () =>
     generate(surroundingContext.node as any).code
   );
@@ -529,7 +559,7 @@ function markVisited(
 }
 
 function getVisitKey(scope: NodePath<Identifier>): string {
-  // Use node location as unique key
+  // Use node location as unique key (don't include name, as it changes after rename)
   const node = scope.node;
-  return `${node.start}-${node.end}-${node.name}`;
+  return `${node.start}-${node.end}`;
 }
