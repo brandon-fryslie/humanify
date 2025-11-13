@@ -11,7 +11,13 @@ export const localReanme = (
   contextWindowSize: number,
   turbo?: boolean,
   maxConcurrent?: number,
-  dependencyMode?: "strict" | "balanced" | "relaxed"
+  dependencyMode?: "strict" | "balanced" | "relaxed",
+  checkpointMetadata?: {
+    originalFile: string;
+    originalProvider: string;
+    originalModel?: string;
+    originalArgs: Record<string, any>;
+  }
 ) => {
   return async (code: string): Promise<string> => {
     const filename = await defineFilename(
@@ -22,7 +28,8 @@ export const localReanme = (
     const options: VisitOptions = {
       turbo,
       maxConcurrent,
-      dependencyMode
+      dependencyMode,
+      checkpointMetadata
     };
 
     return await visitAllIdentifiers(

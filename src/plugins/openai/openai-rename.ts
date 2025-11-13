@@ -102,7 +102,8 @@ export function openaiRename({
   maxConcurrent,
   minBatchSize,
   maxBatchSize,
-  dependencyMode
+  dependencyMode,
+  checkpointMetadata
 }: {
   apiKey: string;
   baseURL: string;
@@ -113,6 +114,12 @@ export function openaiRename({
   minBatchSize?: number;
   maxBatchSize?: number;
   dependencyMode?: "strict" | "balanced" | "relaxed";
+  checkpointMetadata?: {
+    originalFile: string;
+    originalProvider: string;
+    originalModel?: string;
+    originalArgs: Record<string, any>;
+  };
 }) {
   const client = new OpenAI({ apiKey, baseURL });
   let totalTokens = 0;
@@ -128,7 +135,8 @@ export function openaiRename({
       maxConcurrent,
       minBatchSize,
       maxBatchSize,
-      dependencyMode
+      dependencyMode,
+      checkpointMetadata
     };
 
     return await visitAllIdentifiers(

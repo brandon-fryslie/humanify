@@ -533,3 +533,89 @@ test("checkpoint should handle large renames map (100+ entries)", () => {
     console.log = originalLog;
   }
 });
+
+/**
+ * TEST: Metadata Fields (for resume command)
+ * Validates that optional metadata fields are saved and loaded
+ */
+test("checkpoint should preserve optional metadata fields", () => {
+  const code = "const x = 1;";
+  const checkpointId = getCheckpointId(code);
+
+  const checkpoint: Checkpoint = {
+    version: CHECKPOINT_VERSION,
+    timestamp: Date.now(),
+    inputHash: checkpointId,
+    completedBatches: 3,
+    totalBatches: 10,
+    renames: { x: "testVariable" },
+    partialCode: "const testVariable = 1;",
+    // Optional metadata fields
+    originalFile: "/path/to/input.js",
+    originalProvider: "openai",
+    originalModel: "gpt-4o-mini",
+    originalArgs: { turbo: true, maxConcurrent: 20 }
+  };
+
+  // Suppress console output
+  const originalLog = console.log;
+  console.log = () => {};
+
+  try {
+    saveCheckpoint(checkpointId, checkpoint);
+
+    const loaded = loadCheckpoint(checkpointId);
+    assert.ok(loaded, "Checkpoint should load successfully");
+    
+    // Verify metadata fields are preserved
+    assert.strictEqual(loaded.originalFile, "/path/to/input.js", "originalFile should be preserved");
+    assert.strictEqual(loaded.originalProvider, "openai", "originalProvider should be preserved");
+    assert.strictEqual(loaded.originalModel, "gpt-4o-mini", "originalModel should be preserved");
+    assert.deepStrictEqual(loaded.originalArgs, { turbo: true, maxConcurrent: 20 }, "originalArgs should be preserved");
+
+    deleteCheckpoint(checkpointId);
+  } finally {
+    console.log = originalLog;
+  }
+});
+
+/**
+ * TEST: Backwards Compatibility (metadata fields are optional)
+ * Validates that checkpoints without metadata still load correctly
+ */
+test("checkpoint should load without metadata fields (backwards compat)", () => {
+  const code = "const y = 2;";
+  const checkpointId = getCheckpointId(code);
+
+  const checkpoint: Checkpoint = {
+    version: CHECKPOINT_VERSION,
+    timestamp: Date.now(),
+    inputHash: checkpointId,
+    completedBatches: 2,
+    totalBatches: 5,
+    renames: { y: "someVar" },
+    partialCode: "const someVar = 2;"
+    // No metadata fields - simulating old checkpoint
+  };
+
+  // Suppress console output
+  const originalLog = console.log;
+  console.log = () => {};
+
+  try {
+    saveCheckpoint(checkpointId, checkpoint);
+
+    const loaded = loadCheckpoint(checkpointId);
+    assert.ok(loaded, "Checkpoint should load without metadata");
+    
+    // Verify optional fields are undefined
+    assert.strictEqual(loaded.originalFile, undefined, "originalFile should be undefined");
+    assert.strictEqual(loaded.originalProvider, undefined, "originalProvider should be undefined");
+    assert.strictEqual(loaded.originalModel, undefined, "originalModel should be undefined");
+    assert.strictEqual(loaded.originalArgs, undefined, "originalArgs should be undefined");
+
+    deleteCheckpoint(checkpointId);
+  } finally {
+    console.log = originalLog;
+  }
+});

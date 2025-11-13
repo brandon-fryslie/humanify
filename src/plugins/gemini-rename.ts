@@ -73,7 +73,8 @@ export function geminiRename({
   contextWindowSize,
   turbo,
   maxConcurrent,
-  dependencyMode
+  dependencyMode,
+  checkpointMetadata
 }: {
   apiKey: string;
   model: string;
@@ -81,6 +82,12 @@ export function geminiRename({
   turbo?: boolean;
   maxConcurrent?: number;
   dependencyMode?: "strict" | "balanced" | "relaxed";
+  checkpointMetadata?: {
+    originalFile: string;
+    originalProvider: string;
+    originalModel?: string;
+    originalArgs: Record<string, any>;
+  };
 }) {
   const client = new GoogleGenerativeAI(apiKey);
 
@@ -92,7 +99,8 @@ export function geminiRename({
     const options: VisitOptions = {
       turbo,
       maxConcurrent,
-      dependencyMode
+      dependencyMode,
+      checkpointMetadata
     };
 
     return await visitAllIdentifiers(
