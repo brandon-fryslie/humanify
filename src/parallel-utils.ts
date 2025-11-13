@@ -26,47 +26,35 @@ export async function parallelLimit<T>(
   let inFlight = 0;
   let nextIndex = 0;
 
-  // Create progress bar with custom format
-  const batchPrefix = batchInfo
+  // Create progress bar with simple format showing batch and overall progress
+  const batchInfoStr = batchInfo
     ? `Batch ${batchInfo.batchIndex}/${batchInfo.totalBatches} | `
     : '';
 
   const progressBar = new cliProgress.SingleBar({
-    format: `${batchPrefix}|{bar}| {percentage}% | {value}/{total} | \x1b[33mActive: {inFlight}\x1b[0m | \x1b[32mCompleted: {completed}\x1b[0m | \x1b[90mPending: {pending}\x1b[0m`,
+    format: `${batchInfoStr}Processing |{bar}| {percentage}% | {value}/{total}`,
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
     hideCursor: true,
-    barsize: 40,
+    barsize: 50,
     gracefulExit: true,
+    clearOnComplete: false,  // Keep progress bar visible after completion
+    stopOnComplete: true
   }, cliProgress.Presets.shades_classic);
 
-  progressBar.start(tasks.length, 0, {
-    inFlight: 0,
-    completed: 0,
-    pending: tasks.length
-  });
+  progressBar.start(tasks.length, 0);
 
   // Execute a single task and track its result
   const executeTask = async (index: number): Promise<void> => {
     const task = tasks[index];
     inFlight++;
-    progressBar.update(completed, {
-      inFlight,
-      completed,
-      pending: tasks.length - completed - inFlight
-    });
 
     const result = await task();
     results[index] = result;
     inFlight--;
     completed++;
 
-    progressBar.update(completed, {
-      inFlight,
-      completed,
-      pending: tasks.length - completed - inFlight
-    });
-
+    progressBar.update(completed);
     onProgress?.(completed, tasks.length);
   };
 

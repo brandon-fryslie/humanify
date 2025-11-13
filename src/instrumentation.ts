@@ -163,6 +163,20 @@ export class Instrumentation {
     if (!this.enabled) return;
 
     const data = span.getData();
+
+    // Suppress noisy span names to keep output clean
+    const suppressedSpans = [
+      "openai-api-call",      // Too many individual API calls, clutters output
+      "parallel-api-calls",   // Redundant with process-batch timing
+      "parse-ast",            // Internal detail
+      "transform-ast",        // Internal detail
+      "ast-mutations"         // Internal detail
+    ];
+
+    if (suppressedSpans.includes(data.name)) {
+      return; // Skip logging
+    }
+
     const depth = this.getSpanDepth(span);
     const indent = "  ".repeat(depth);
     const duration = data.duration ? formatMs(data.duration) : "?";
