@@ -28,6 +28,14 @@ export interface VisitOptions {
   minBatchSize?: number; // Minimum batch size for parallelization (default: 1)
   maxBatchSize?: number; // Maximum batch size to prevent memory spikes (default: 100)
   enableCheckpoints?: boolean; // Save progress checkpoints (default: true for turbo mode)
+
+  // Checkpoint metadata (for resume command and startup prompt)
+  checkpointMetadata?: {
+    originalFile: string;
+    originalProvider: string;
+    originalModel?: string;
+    originalArgs: Record<string, any>;
+  };
 }
 
 export async function visitAllIdentifiers(
@@ -204,6 +212,7 @@ async function visitAllIdentifiersTurbo(
   // Checkpoint support (enabled by default in turbo mode)
   const enableCheckpoints = options?.enableCheckpoints ?? true;
   const checkpointId = enableCheckpoints ? getCheckpointId(originalCode) : null;
+  const checkpointMetadata = options?.checkpointMetadata;
   let checkpoint = existingCheckpoint;
   let startBatch = 0;
 
@@ -399,7 +408,13 @@ async function visitAllIdentifiersTurbo(
               completedBatches: batchIdx + 1,
               totalBatches: batches.length,
               renames: renamesMap,
-              partialCode: transformedCode || originalCode // Fallback to original if transform fails
+              partialCode: transformedCode || originalCode, // Fallback to original if transform fails
+
+              // Include metadata for resume command
+              originalFile: checkpointMetadata?.originalFile,
+              originalProvider: checkpointMetadata?.originalProvider,
+              originalModel: checkpointMetadata?.originalModel,
+              originalArgs: checkpointMetadata?.originalArgs
             });
           } catch (checkpointError) {
             // Log error but don't fail the whole operation
@@ -412,7 +427,13 @@ async function visitAllIdentifiersTurbo(
               completedBatches: batchIdx + 1,
               totalBatches: batches.length,
               renames: renamesMap,
-              partialCode: originalCode
+              partialCode: originalCode,
+
+              // Include metadata even in error case
+              originalFile: checkpointMetadata?.originalFile,
+              originalProvider: checkpointMetadata?.originalProvider,
+              originalModel: checkpointMetadata?.originalModel,
+              originalArgs: checkpointMetadata?.originalArgs
             });
           }
         }

@@ -1,0 +1,22 @@
+{
+  "type": "browserify",
+  "entryId": "4",
+  "modules": [
+    {
+      "id": "1",
+      "path": "node_modules/1/index.js"
+    },
+    {
+      "id": "2",
+      "path": "node_modules/2/index.js"
+    },
+    {
+      "id": "3",
+      "path": "node_modules/3/index.js"
+    },
+    {
+      "id": "4",
+      "path": "index.js"
+    }
+  ]
+}

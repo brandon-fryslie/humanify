@@ -10,6 +10,12 @@ export interface Checkpoint {
   totalBatches: number;
   renames: Record<string, string>; // old name -> new name
   partialCode: string; // Transformed code with all renames from completed batches applied
+
+  // Metadata for resume command (optional for backwards compatibility)
+  originalFile?: string;           // Path to input file
+  originalProvider?: string;       // Provider used (openai, gemini, local)
+  originalModel?: string;          // Model used
+  originalArgs?: Record<string, any>; // CLI args used
 }
 
 const CHECKPOINT_DIR = ".humanify-checkpoints";
