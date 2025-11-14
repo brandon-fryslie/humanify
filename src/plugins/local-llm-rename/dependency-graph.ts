@@ -23,7 +23,7 @@ export interface DependencyOptions {
 
 /**
  * Reference index for O(1) reference lookups.
- * Built once by traversing each identifier's references.
+ * Built once by traversing each identifier's binding path ONCE.
  */
 interface ReferenceIndex {
   // For each identifier, which other identifiers it references (by name)
@@ -306,6 +306,24 @@ function getScopeForContainment(id: NodePath<Identifier>): any {
     return binding.path.scope;
   }
 
+  // FIXED: Check if VariableDeclarator is initialized with a function/class
+  if (pathType === "VariableDeclarator" && binding.path.node.init) {
+    const initType = binding.path.node.init.type;
+    if (initType === "ArrowFunctionExpression" ||
+        initType === "FunctionExpression" ||
+        initType === "ClassExpression") {
+      // For const/let/var arrow functions, get the scope from the init expression
+      // We need to find the scope that the arrow function creates
+      // The binding.path.scope is where the variable is declared (e.g., Program)
+      // We need to get into the arrow function's body scope
+      const initPath = binding.path.get("init");
+      if (Array.isArray(initPath)) {
+        return id.scope; // Fallback
+      }
+      return initPath.scope;
+    }
+  }
+
   // For variables, return the scope where they're declared
   return closestSurroundingContextPath(id).scope;
 }
@@ -318,13 +336,25 @@ function isFunctionOrClass(id: NodePath<Identifier>): boolean {
   if (!binding) return false;
 
   const pathType = binding.path.type;
-  return (
-    pathType === "FunctionDeclaration" ||
-    pathType === "FunctionExpression" ||
-    pathType === "ArrowFunctionExpression" ||
-    pathType === "ClassDeclaration" ||
-    pathType === "ClassExpression"
-  );
+  if (pathType === "FunctionDeclaration" ||
+      pathType === "FunctionExpression" ||
+      pathType === "ArrowFunctionExpression" ||
+      pathType === "ClassDeclaration" ||
+      pathType === "ClassExpression") {
+    return true;
+  }
+
+  // FIXED: Check if VariableDeclarator is initialized with a function/class
+  if (pathType === "VariableDeclarator" && binding.path.node.init) {
+    const initType = binding.path.node.init.type;
+    return (
+      initType === "ArrowFunctionExpression" ||
+      initType === "FunctionExpression" ||
+      initType === "ClassExpression"
+    );
+  }
+
+  return false;
 }
 
 /**
@@ -481,10 +511,15 @@ function buildDirectScopeHierarchy(
       const contained = new Set<NodePath<Identifier>>();
 
       for (const [otherScope, otherIds] of byScope) {
-        if (otherScope.parent === createdScope) {
+        // FIXED: Check both otherScope === createdScope (variables in function body)
+        // and otherScope.parent === createdScope (variables in nested scopes)
+        if (otherScope === createdScope || otherScope.parent === createdScope) {
           // This scope is a direct child - add all its identifiers
           for (const childId of otherIds) {
-            contained.add(childId);
+            // Exclude self-reference (a variable doesn't contain itself)
+            if (childId !== id) {
+              contained.add(childId);
+            }
           }
         }
       }
