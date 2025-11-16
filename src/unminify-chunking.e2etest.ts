@@ -317,6 +317,8 @@ test('baseline: small file (< threshold) processes WITHOUT chunking', async () =
 
   // Run without any chunking flags (should auto-detect and skip chunking)
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--dry-run' // Don't make actual API calls
@@ -338,7 +340,9 @@ test('baseline: small file (< threshold) processes WITHOUT chunking', async () =
 
 test('baseline: small file produces valid output', async () => {
   const testFile = await generateTestFile('baseline-valid.js', 20);
-  const outputFile = path.join(OUTPUT_DIR, 'baseline-valid.js');
+  // Output is always named deobfuscated.js regardless of input filename
+
+  const outputFile = path.join(OUTPUT_DIR, 'deobfuscated.js');
 
   // Clear output directory
   await fs.rm(OUTPUT_DIR, { recursive: true, force: true });
@@ -346,6 +350,8 @@ test('baseline: small file produces valid output', async () => {
 
   // Run with dry-run (no LLM calls, just transformations)
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--outputDir',
@@ -378,6 +384,8 @@ test('integration: large file (> threshold) auto-enables chunking', async () => 
   assert.ok(stats.size > DEFAULT_CHUNK_SIZE, 'Test file should exceed chunk threshold');
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--dry-run'
@@ -421,6 +429,8 @@ test('cli: --chunk-size flag sets custom chunk size', async () => {
 
   // Set very small chunk size (10KB) to force multiple chunks
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
@@ -449,13 +459,17 @@ test('cli: --chunk-size flag sets custom chunk size', async () => {
 });
 
 test('cli: --no-chunking flag disables chunking', async () => {
+  // Need ~5200 identifiers to exceed 100KB threshold
+
   // Create large file that would normally trigger chunking
-  const testFile = await generateTestFile('no-chunking.js', 3000);
+  const testFile = await generateTestFile('large-no-split.js', 5500);
   const stats = await fs.stat(testFile);
 
   assert.ok(stats.size > DEFAULT_CHUNK_SIZE, 'File should exceed threshold');
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--no-chunking',
@@ -486,6 +500,8 @@ test('cli: --debug-chunks flag adds chunk markers', async () => {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--debug-chunks',
@@ -529,6 +545,8 @@ test('cli: multiple flags work together', async () => {
   const testFile = await generateTestFile('multi-flags.js', 1500);
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
@@ -569,6 +587,8 @@ test('memory: chunking reduces peak memory usage', async (t) => {
   memoryMonitor.setLimit(MEMORY_TARGET_TENSORFLOW);
 
   const withChunking = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     tensorflowPath,
     '--chunk-size',
@@ -616,6 +636,8 @@ test('memory: babylon.js processes without OOM', async (t) => {
   console.log(`\n  Testing Babylon.js: ${(stats.size / 1024 / 1024).toFixed(1)}MB`);
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     babylonPath,
     '--chunk-size',
@@ -651,7 +673,7 @@ test('memory: babylon.js processes without OOM', async (t) => {
 
 test('correctness: chunked output equals non-chunked output', async () => {
   // Create medium-sized test file
-  const testFile = await generateTestFile('correctness-test.js', 800, { complexity: 'mixed' });
+  const testFile = await generateTestFile('deobfuscated.js', 800, { complexity: 'mixed' });
   const outputDir1 = path.join(OUTPUT_DIR, 'chunked');
   const outputDir2 = path.join(OUTPUT_DIR, 'non-chunked');
 
@@ -661,6 +683,8 @@ test('correctness: chunked output equals non-chunked output', async () => {
 
   // Process with chunking
   const chunked = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
@@ -672,6 +696,8 @@ test('correctness: chunked output equals non-chunked output', async () => {
 
   // Process without chunking
   const nonChunked = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--no-chunking',
@@ -684,8 +710,8 @@ test('correctness: chunked output equals non-chunked output', async () => {
   assert.strictEqual(nonChunked.exitCode, 0, 'Non-chunked processing should succeed');
 
   // Compare outputs
-  const chunkedOutput = path.join(outputDir1, 'correctness-test.js');
-  const nonChunkedOutput = path.join(outputDir2, 'correctness-test.js');
+  const chunkedOutput = path.join(outputDir1, 'deobfuscated.js');
+  const nonChunkedOutput = path.join(outputDir2, 'deobfuscated.js');
 
   try {
     const comparison = await compareSemanticEquivalence(chunkedOutput, nonChunkedOutput);
@@ -715,12 +741,16 @@ test('correctness: chunked output equals non-chunked output', async () => {
 
 test('correctness: output is valid JavaScript', async () => {
   const testFile = await generateTestFile('valid-output.js', 500);
-  const outputFile = path.join(OUTPUT_DIR, 'valid-output.js');
+  // Output is always named deobfuscated.js
+
+  const outputFile = path.join(OUTPUT_DIR, 'deobfuscated.js');
 
   await fs.rm(OUTPUT_DIR, { recursive: true, force: true });
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
@@ -755,6 +785,8 @@ test('correctness: all providers support chunking (openai, gemini, local)', asyn
     console.log(`  Testing provider: ${provider}`);
 
     const result = await runCLI([
+      'unminify',
+      '--provider',
       provider,
       testFile,
       '--chunk-size',
@@ -785,6 +817,8 @@ test('edge: empty file is handled', async () => {
   await fs.writeFile(emptyFile, '', 'utf-8');
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     emptyFile,
     '--chunk-size',
@@ -808,6 +842,8 @@ test('edge: single huge statement is handled', async () => {
   await fs.writeFile(hugeFile, hugeArray, 'utf-8');
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     hugeFile,
     '--chunk-size',
@@ -829,6 +865,8 @@ test('edge: file with syntax errors is handled gracefully', async () => {
   await fs.writeFile(badFile, 'const x = [[[[[;', 'utf-8'); // Invalid syntax
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     badFile,
     '--chunk-size',
@@ -857,6 +895,8 @@ test('progress: chunking shows progress for each chunk', async () => {
   const testFile = await generateTestFile('progress-test.js', 1000);
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
@@ -884,6 +924,8 @@ test('progress: memory checkpoints are logged', async () => {
   const testFile = await generateTestFile('memory-checkpoints.js', 500);
 
   const result = await runCLI([
+    'unminify',
+    '--provider',
     'openai',
     testFile,
     '--chunk-size',
