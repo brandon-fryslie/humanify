@@ -1,1 +1,0 @@
-const small = 1;
