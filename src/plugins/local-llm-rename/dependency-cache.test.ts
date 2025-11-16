@@ -352,12 +352,23 @@ test("cache v2: handles empty reference index (no references)", async () => {
 
   assert.ok(cached, "Cache should exist");
   assert.ok(Array.isArray(cached.referenceIndex.nameReferences), "nameReferences should be array");
-  // No variables reference each other
+  
+  // Variables that don't reference each other should have empty reference sets
+  // But we still track all identifiers (one entry per identifier)
   assert.strictEqual(
     cached.referenceIndex.nameReferences.length,
-    0,
-    "No references should mean empty reference index"
+    3,
+    "Should have 3 entries (one per identifier)"
   );
+  
+  // Each identifier should have empty references
+  for (const [name, refs] of cached.referenceIndex.nameReferences) {
+    assert.strictEqual(
+      refs.length,
+      0,
+      `Identifier ${name} should have no references`
+    );
+  }
 
   await clearTestCaches();
 });
@@ -836,16 +847,22 @@ test("serialization: empty Maps serialize correctly", async () => {
   const cached = await readCache(code);
   assert.ok(cached, "Cache should exist");
 
-  // Single variable means no scope containment or references
+  // Single variable means no scope containment
   assert.ok(Array.isArray(cached.scopeHierarchy), "Empty scope hierarchy should be array");
-  assert.ok(Array.isArray(cached.referenceIndex.nameReferences), "Empty ref index should be array");
+  assert.ok(Array.isArray(cached.referenceIndex.nameReferences), "Ref index should be array");
 
-  // Should be able to deserialize empty arrays to Maps
+  // Should be able to deserialize arrays to Maps
   const scopeHierarchy = new Map(cached.scopeHierarchy);
   const refIndex = new Map(cached.referenceIndex.nameReferences);
 
-  assert.strictEqual(scopeHierarchy.size, 0, "Empty scope hierarchy should deserialize to empty Map");
-  assert.strictEqual(refIndex.size, 0, "Empty ref index should deserialize to empty Map");
+  assert.strictEqual(scopeHierarchy.size, 0, "No scope containment for single variable");
+  assert.strictEqual(refIndex.size, 1, "Should have 1 entry for variable x");
+  
+  // The single entry should have empty references (refs is an array in serialized form)
+  const xRefs = refIndex.get("x");
+  assert.ok(xRefs !== undefined, "Variable x should have entry in reference index");
+  assert.ok(Array.isArray(xRefs), "References should be array in serialized form");
+  assert.strictEqual(xRefs.length, 0, "Variable x should have no references");
 
   await clearTestCaches();
 });

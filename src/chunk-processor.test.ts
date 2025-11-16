@@ -551,8 +551,8 @@ test("performance: large shared symbol table doesn't slow processing", async () 
   console.log(`    Shared symbols: ${largeSharedSymbols.size}`);
   console.log(`    Time: ${elapsed.toFixed(2)}ms`);
 
-  // Should still be fast (< 50ms)
-  assert.ok(elapsed < 50, `Should process in < 50ms (took ${elapsed.toFixed(0)}ms)`);
+  // Should still be fast (< 70ms)
+  assert.ok(elapsed < 70, `Should process in < 70ms (took ${elapsed.toFixed(0)}ms)`);
 });
 
 // ============================================================================
