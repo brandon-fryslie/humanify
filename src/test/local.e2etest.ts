@@ -35,8 +35,10 @@ test("Unminifies an example file successfully", async () => {
   );
 
   await humanify(
-    "local",
+    "unminify",
     "fixtures/example.min.js",
+    "--provider",
+    "local",
     "--verbose",
     "--outputDir",
     TEST_OUTPUT_DIR

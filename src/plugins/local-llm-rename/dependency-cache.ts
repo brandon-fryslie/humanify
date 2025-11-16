@@ -141,9 +141,6 @@ export async function saveDependencyCache(
   const hash = hashCode(code);
   const cachePath = getCachePath(hash);
 
-  // Create cache directory
-  await fs.mkdir(path.dirname(cachePath), { recursive: true });
-
   // Build index map: NodePath -> array index
   const indexMap = new Map<NodePath<Identifier>, number>();
   identifiers.forEach((id, idx) => indexMap.set(id, idx));
@@ -172,7 +169,20 @@ export async function saveDependencyCache(
   const cacheContent = JSON.stringify(cache, null, 2);
   const cacheSize = Buffer.byteLength(cacheContent, "utf-8");
 
-  await fs.writeFile(cachePath, cacheContent);
+  // Create cache directory and write file atomically
+  // Use try-catch to handle race conditions where directory gets deleted between mkdir and writeFile
+  try {
+    await fs.mkdir(path.dirname(cachePath), { recursive: true });
+    await fs.writeFile(cachePath, cacheContent);
+  } catch (err: any) {
+    // If directory was deleted between mkdir and writeFile, retry once
+    if (err.code === 'ENOENT') {
+      await fs.mkdir(path.dirname(cachePath), { recursive: true });
+      await fs.writeFile(cachePath, cacheContent);
+    } else {
+      throw err;
+    }
+  }
 
   console.log(
     `    → Cached ${dependencies.length} dependencies (${formatBytes(cacheSize)})`
@@ -210,7 +220,7 @@ export async function getCacheSize(): Promise<number> {
 
     await walkDir(CACHE_DIR);
   } catch (err) {
-    // Cache directory doesn't exist
+    // Cache directory doesn't exist or is empty
     return 0;
   }
 
@@ -218,104 +228,7 @@ export async function getCacheSize(): Promise<number> {
 }
 
 // ============================================================================
-// SERIALIZATION HELPERS
-// ============================================================================
-
-/**
- * Serialize Map<NodePath, Set<NodePath>> to JSON-compatible format.
- * Converts NodePaths to indices in the identifiers array.
- */
-function serializeScopeHierarchy(
-  hierarchy: Map<NodePath<Identifier>, Set<NodePath<Identifier>>>,
-  identifiers: NodePath<Identifier>[]
-): [number, number[]][] {
-  const result: [number, number[]][] = [];
-
-  for (const [outer, innerSet] of hierarchy) {
-    const outerIdx = identifiers.indexOf(outer);
-    if (outerIdx === -1) continue; // Skip if not found
-
-    const innerIndices: number[] = [];
-    for (const inner of innerSet) {
-      const innerIdx = identifiers.indexOf(inner);
-      if (innerIdx !== -1) {
-        innerIndices.push(innerIdx);
-      }
-    }
-
-    if (innerIndices.length > 0) {
-      result.push([outerIdx, innerIndices]);
-    }
-  }
-
-  return result;
-}
-
-/**
- * Deserialize JSON to Map<NodePath, Set<NodePath>>.
- * Converts indices back to NodePath references.
- */
-function deserializeScopeHierarchy(
-  serialized: [number, number[]][],
-  identifiers: NodePath<Identifier>[]
-): Map<NodePath<Identifier>, Set<NodePath<Identifier>>> {
-  const map = new Map<NodePath<Identifier>, Set<NodePath<Identifier>>>();
-
-  for (const [outerIdx, innerIndices] of serialized) {
-    if (outerIdx < 0 || outerIdx >= identifiers.length) continue;
-
-    const outer = identifiers[outerIdx];
-    const innerSet = new Set<NodePath<Identifier>>();
-
-    for (const innerIdx of innerIndices) {
-      if (innerIdx >= 0 && innerIdx < identifiers.length) {
-        innerSet.add(identifiers[innerIdx]);
-      }
-    }
-
-    if (innerSet.size > 0) {
-      map.set(outer, innerSet);
-    }
-  }
-
-  return map;
-}
-
-/**
- * Serialize Map<string, Set<string>> to JSON-compatible format.
- */
-function serializeReferenceIndex(
-  refIndex: Map<string, Set<string>>
-): [string, string[]][] {
-  const result: [string, string[]][] = [];
-
-  for (const [name, referencedNames] of refIndex) {
-    const refsArray = Array.from(referencedNames);
-    if (refsArray.length > 0) {
-      result.push([name, refsArray]);
-    }
-  }
-
-  return result;
-}
-
-/**
- * Deserialize JSON to Map<string, Set<string>>.
- */
-function deserializeReferenceIndex(
-  serialized: [string, string[]][]
-): Map<string, Set<string>> {
-  const map = new Map<string, Set<string>>();
-
-  for (const [name, referencedNames] of serialized) {
-    map.set(name, new Set(referencedNames));
-  }
-
-  return map;
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
+// PRIVATE HELPERS
 // ============================================================================
 
 function hashCode(code: string): string {
@@ -323,17 +236,112 @@ function hashCode(code: string): string {
 }
 
 function getCachePath(hash: string): string {
-  // Use first 2 chars as subdirectory to avoid too many files in one dir
+  // Use first 2 chars of hash as subdirectory for better filesystem performance
   const subdir = hash.substring(0, 2);
   return path.join(CACHE_DIR, subdir, `${hash}.json`);
-}
-
-function arraysEqual<T>(a: T[], b: T[]): boolean {
-  return a.length === b.length && a.every((val, idx) => val === b[idx]);
 }
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
-  return `${(bytes / 1024 / 1024).toFixed(2)}MB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+function arraysEqual<T>(a: T[], b: T[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+/**
+ * Serialize scope hierarchy Map to JSON-friendly format
+ */
+function serializeScopeHierarchy(
+  hierarchy: Map<NodePath<Identifier>, Set<NodePath<Identifier>>>,
+  identifiers: NodePath<Identifier>[]
+): [number, number[]][] {
+  const indexMap = new Map<NodePath<Identifier>, number>();
+  identifiers.forEach((id, idx) => indexMap.set(id, idx));
+
+  const serialized: [number, number[]][] = [];
+
+  for (const [outer, inners] of hierarchy) {
+    const outerIdx = indexMap.get(outer);
+    if (outerIdx === undefined) continue;
+
+    const innerIndices: number[] = [];
+    for (const inner of inners) {
+      const innerIdx = indexMap.get(inner);
+      if (innerIdx !== undefined) {
+        innerIndices.push(innerIdx);
+      }
+    }
+
+    if (innerIndices.length > 0) {
+      serialized.push([outerIdx, innerIndices]);
+    }
+  }
+
+  return serialized;
+}
+
+/**
+ * Deserialize scope hierarchy from JSON format
+ */
+function deserializeScopeHierarchy(
+  serialized: [number, number[]][],
+  identifiers: NodePath<Identifier>[]
+): Map<NodePath<Identifier>, Set<NodePath<Identifier>>> {
+  const hierarchy = new Map<NodePath<Identifier>, Set<NodePath<Identifier>>>();
+
+  for (const [outerIdx, innerIndices] of serialized) {
+    const outer = identifiers[outerIdx];
+    if (!outer) continue;
+
+    const inners = new Set<NodePath<Identifier>>();
+    for (const innerIdx of innerIndices) {
+      const inner = identifiers[innerIdx];
+      if (inner) {
+        inners.add(inner);
+      }
+    }
+
+    if (inners.size > 0) {
+      hierarchy.set(outer, inners);
+    }
+  }
+
+  return hierarchy;
+}
+
+/**
+ * Serialize reference index Map to JSON-friendly format
+ */
+function serializeReferenceIndex(
+  refIndex: Map<string, Set<string>>
+): [string, string[]][] {
+  const serialized: [string, string[]][] = [];
+
+  for (const [name, refs] of refIndex) {
+    serialized.push([name, Array.from(refs)]);
+  }
+
+  return serialized;
+}
+
+/**
+ * Deserialize reference index from JSON format
+ */
+function deserializeReferenceIndex(
+  serialized: [string, string[]][]
+): Map<string, Set<string>> {
+  const refIndex = new Map<string, Set<string>>();
+
+  for (const [name, refs] of serialized) {
+    refIndex.set(name, new Set(refs));
+  }
+
+  return refIndex;
 }

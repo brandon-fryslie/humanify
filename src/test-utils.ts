@@ -10,7 +10,11 @@ export function assertMatches(actual: string, expected: string[]) {
 }
 
 export async function humanify(...argv: string[]) {
-  const extraArgs = argv.includes("local") ? ["--seed", "1"] : [];
+  // Check if using local provider (look for "--provider" followed by "local")
+  const providerIndex = argv.indexOf("--provider");
+  const isLocal = providerIndex >= 0 && argv[providerIndex + 1] === "local";
+
+  const extraArgs = isLocal ? ["--seed", "1"] : [];
   const process = spawn("./dist/index.mjs", [...argv, ...extraArgs]);
   const stdout: string[] = [];
   const stderr: string[] = [];
