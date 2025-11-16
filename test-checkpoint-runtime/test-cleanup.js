@@ -1,0 +1,1 @@
+const small = 1;
