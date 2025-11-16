@@ -202,6 +202,16 @@ export const local = cli()
         disableGpu: opts.disableGpu,
         seed: opts.seed ? parseInt(opts.seed) : undefined
       });
+
+      // Create checkpoint metadata object
+      const checkpointMetadata = {
+        originalFile: filename,
+        originalProvider: "local",
+        originalModel: opts.model,
+        originalArgs: opts
+      };
+
+
       await unminify(filename, opts.outputDir, [
         babel,
         localReanme(
@@ -210,12 +220,7 @@ export const local = cli()
           opts.turbo,
           maxConcurrent,
           dependencyMode,
-          {
-            originalFile: filename,
-            originalProvider: "local",
-            originalModel: opts.model,
-            originalArgs: opts
-          }
+          checkpointMetadata
         ),
         prettier
       ], {

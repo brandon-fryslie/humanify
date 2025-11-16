@@ -44,6 +44,35 @@ checkpointsCommand
     console.log(`\nDeleted ${checkpoints.length} checkpoint(s)`);
   });
 
+// list subcommand
+checkpointsCommand
+  .command("list")
+  .description("List all checkpoint files")
+  .action(async () => {
+    const checkpoints = listCheckpoints();
+
+    if (checkpoints.length === 0) {
+      console.log("No checkpoints found");
+      return;
+    }
+
+    console.log(`\nFound ${checkpoints.length} checkpoint(s):\n`);
+
+    for (const cp of checkpoints) {
+      try {
+        const percent = Math.round((cp.completedBatches / cp.totalBatches) * 100);
+        console.log(`  ${cp.originalFile || cp.inputHash}`);
+        console.log(`    Progress: ${cp.completedBatches}/${cp.totalBatches} batches (${percent}%)`);
+        console.log(`    Provider: ${cp.originalProvider || 'unknown'}`);
+        console.log(`    Model: ${cp.originalModel || 'unknown'}`);
+        console.log(`    Created: ${new Date(cp.timestamp).toLocaleString()}\n`);
+      } catch (error) {
+        // Skip corrupted checkpoint files
+        console.warn(`  Warning: Skipping corrupted checkpoint`);
+      }
+    }
+  });
+
 // resume subcommand
 checkpointsCommand
   .command("resume")

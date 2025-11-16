@@ -17,6 +17,8 @@ import { dryRun, printDryRunResults } from "../dry-run.js";
 import { memoryMonitor } from "../memory-monitor.js";
 import { validateOutput, printValidationResults } from "../output-validator.js";
 import * as fs from "fs/promises";
+import { getCheckpointId, loadCheckpoint, deleteCheckpoint } from "../checkpoint.js";
+import prompts from "prompts";
 
 export const unminifyCommand = cli()
   .name("unminify")
@@ -154,6 +156,65 @@ export const unminifyCommand = cli()
       // Read input for validation later
       const inputCode = await fs.readFile(filename, "utf-8");
 
+      // Check for existing checkpoint BEFORE dry-run check
+      // This allows users to resume OR delete checkpoints even in dry-run mode
+      const checkpointId = getCheckpointId(inputCode);
+      const checkpoint = loadCheckpoint(checkpointId);
+
+      if (checkpoint && checkpoint.originalFile) {
+        console.log(`\nFound checkpoint for this file:`);
+        console.log(`   Progress: ${checkpoint.completedBatches}/${checkpoint.totalBatches} batches (${Math.round(checkpoint.completedBatches / checkpoint.totalBatches * 100)}%)`);
+        console.log(`   Created: ${new Date(checkpoint.timestamp).toLocaleString()}`);
+
+        // Warn if args differ
+        const currentArgs = {
+          provider,
+          model,
+          turbo: opts.turbo,
+          maxConcurrent,
+          dependencyMode
+        };
+
+        const checkpointArgs = checkpoint.originalArgs ? {
+          provider: checkpoint.originalProvider,
+          model: checkpoint.originalModel,
+          turbo: checkpoint.originalArgs.turbo,
+          maxConcurrent: checkpoint.originalArgs.maxConcurrent,
+          dependencyMode: checkpoint.originalArgs.dependencyMode
+        } : null;
+
+        if (checkpointArgs && JSON.stringify(checkpointArgs) !== JSON.stringify(currentArgs)) {
+          console.log(`\nCLI arguments differ from checkpoint:`);
+          console.log(`   Checkpoint: provider=${checkpointArgs.provider}, model=${checkpointArgs.model}, turbo=${checkpointArgs.turbo}, maxConcurrent=${checkpointArgs.maxConcurrent}, dependencyMode=${checkpointArgs.dependencyMode}`);
+          console.log(`   Current:    provider=${currentArgs.provider}, model=${currentArgs.model}, turbo=${currentArgs.turbo}, maxConcurrent=${currentArgs.maxConcurrent}, dependencyMode=${currentArgs.dependencyMode}`);
+          console.log(`   Resume will use the checkpoint's transformed code but continue with current settings\n`);
+        }
+
+        const answer = await prompts({
+          type: 'select',
+          name: 'action',
+          message: 'What would you like to do?',
+          choices: [
+            { title: 'Resume from checkpoint', value: 'resume' },
+            { title: 'Start fresh (delete checkpoint)', value: 'fresh' },
+            { title: 'Cancel', value: 'cancel' }
+          ]
+        });
+
+        if (answer.action === 'cancel') {
+          console.log('Cancelled');
+          process.exit(0);
+        }
+
+        if (answer.action === 'fresh') {
+          deleteCheckpoint(checkpointId);
+          console.log('Checkpoint deleted, starting fresh...\n');
+        } else {
+          console.log('Resuming from checkpoint...\n');
+          // The checkpoint system will automatically resume
+        }
+      }
+
       // Handle dry-run mode AFTER reading the file (for analysis)
       if (opts.dryRun) {
         const result = await dryRun(filename, {
@@ -198,6 +259,14 @@ export const unminifyCommand = cli()
         return;
       }
 
+      // Create checkpoint metadata for all providers
+      const checkpointMetadata = {
+        originalFile: filename,
+        originalProvider: provider,
+        originalModel: model,
+        originalArgs: opts
+      };
+
       // Create the appropriate rename plugin based on provider
       let renamePlugin: (code: string) => Promise<string>;
 
@@ -211,7 +280,8 @@ export const unminifyCommand = cli()
           maxConcurrent,
           minBatchSize: parseInt(opts.minBatchSize, 10),
           maxBatchSize: parseInt(opts.maxBatchSize, 10),
-          dependencyMode
+          dependencyMode,
+          checkpointMetadata
         });
       } else if (provider === "gemini") {
         renamePlugin = geminiRename({
@@ -220,7 +290,8 @@ export const unminifyCommand = cli()
           contextWindowSize,
           turbo: opts.turbo,
           maxConcurrent,
-          dependencyMode
+          dependencyMode,
+          checkpointMetadata
         });
       } else {
         // local
@@ -234,7 +305,8 @@ export const unminifyCommand = cli()
           contextWindowSize,
           opts.turbo,
           maxConcurrent,
-          dependencyMode
+          dependencyMode,
+          checkpointMetadata
         );
       }
 
@@ -263,6 +335,14 @@ export const unminifyCommand = cli()
           // Use the output from pass 1 as input for pass 2
           const pass1OutputFile = `${opts.outputDir}/deobfuscated.js`;
 
+          // Create metadata for refinement pass
+          const refineMetadata = {
+            originalFile: filename,
+            originalProvider: "openai",
+            originalModel: model,
+            originalArgs: { ...opts, refinePass: true }
+          };
+
           await unminify(
             pass1OutputFile,
             opts.outputDir,
@@ -277,7 +357,8 @@ export const unminifyCommand = cli()
                 maxConcurrent: maxConcurrent * 2, // 2x parallelism
                 minBatchSize: parseInt(opts.minBatchSize, 10),
                 maxBatchSize: parseInt(opts.maxBatchSize, 10),
-                dependencyMode: "relaxed" // More aggressive parallelism
+                dependencyMode: "relaxed", // More aggressive parallelism
+                checkpointMetadata: refineMetadata
               }),
               prettier
             ],

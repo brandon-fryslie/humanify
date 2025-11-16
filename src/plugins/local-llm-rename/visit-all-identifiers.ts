@@ -407,7 +407,7 @@ async function visitAllIdentifiersTurbo(
         );
 
         // Save checkpoint after each batch completes
-        if (checkpointId) {
+        if (checkpointId && checkpointMetadata) {
           // Build renames map from history
           const renamesMap: Record<string, string> = {};
           for (const rename of renamesHistory) {
@@ -433,10 +433,10 @@ async function visitAllIdentifiersTurbo(
               partialCode: transformedCode || originalCode, // Fallback to original if transform fails
 
               // Include metadata for resume command
-              originalFile: checkpointMetadata?.originalFile,
-              originalProvider: checkpointMetadata?.originalProvider,
-              originalModel: checkpointMetadata?.originalModel,
-              originalArgs: checkpointMetadata?.originalArgs
+              originalFile: checkpointMetadata.originalFile,
+              originalProvider: checkpointMetadata.originalProvider,
+              originalModel: checkpointMetadata.originalModel,
+              originalArgs: checkpointMetadata.originalArgs
             });
           } catch (checkpointError) {
             // Log error but don't fail the whole operation
@@ -452,10 +452,10 @@ async function visitAllIdentifiersTurbo(
               partialCode: originalCode,
 
               // Include metadata even in error case
-              originalFile: checkpointMetadata?.originalFile,
-              originalProvider: checkpointMetadata?.originalProvider,
-              originalModel: checkpointMetadata?.originalModel,
-              originalArgs: checkpointMetadata?.originalArgs
+              originalFile: checkpointMetadata.originalFile,
+              originalProvider: checkpointMetadata.originalProvider,
+              originalModel: checkpointMetadata.originalModel,
+              originalArgs: checkpointMetadata.originalArgs
             });
           }
         }
