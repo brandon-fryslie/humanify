@@ -42,6 +42,34 @@ const TEST_INPUT_DIR = join(process.cwd(), ".test-checkpoint-runtime");
 const CHECKPOINT_DIR = join(process.cwd(), ".humanify-checkpoints");
 
 /**
+ * Helper: Generate large test file with nested scopes
+ * This creates dependencies that force multiple batches,
+ * which ensures checkpoints are saved mid-processing
+ */
+function generateLargeTestFile(depth: number = 10): string {
+  const lines = [];
+
+  // Create nested functions with dependencies to force multiple batches
+  for (let i = 0; i < depth; i++) {
+    lines.push(`function level${i}() {`);
+    for (let j = 0; j < 10; j++) {
+      const varName = `var${i}_${j}`;
+      lines.push(`  const ${varName} = ${i * 10 + j};`);
+    }
+    if (i > 0) {
+      lines.push(`  return level${i-1}();`); // Reference previous function (creates dependency)
+    }
+  }
+
+  // Close all functions
+  for (let i = 0; i < depth; i++) {
+    lines.push(`}`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
  * Helper: Execute CLI command and kill with signal
  */
 async function execCLIAndKill(
@@ -182,22 +210,18 @@ test.afterEach(() => {
  */
 test("checkpoint file should be created on disk during processing", async () => {
   const testFile = join(TEST_INPUT_DIR, "test-create.js");
-  const code = `
-    const a = 1;
-    const b = 2;
-    const c = 3;
-    function test() { return a + b + c; }
-  `;
+  const code = generateLargeTestFile(15); // Deep nesting creates multiple batches
 
   writeFileSync(testFile, code, "utf-8");
 
   const checkpointId = getCheckpointId(code);
   const checkpointPath = join(CHECKPOINT_DIR, `${checkpointId}.json`);
 
-  // Run and kill after 2s
-  await execCLIAndKill(
+  // Use execCLIAndWaitForCheckpoint to properly wait for checkpoint creation
+  const result = await execCLIAndWaitForCheckpoint(
     ["unminify", testFile, "--provider", "local", "--model", "2b", "--turbo"],
-    2000,
+    checkpointPath,
+    45000,
     "SIGINT"
   );
 
@@ -208,7 +232,7 @@ test("checkpoint file should be created on disk during processing", async () => 
 
   // Cleanup
   deleteCheckpoint(checkpointId);
-}, { timeout: 10000 });
+}, { timeout: 60000 });
 
 /**
  * TEST 2: Resume from checkpoint (interactive prompt)
@@ -218,20 +242,18 @@ test("checkpoint file should be created on disk during processing", async () => 
  */
 test("should resume from checkpoint with interactive prompt", async () => {
   const testFile = join(TEST_INPUT_DIR, "test-resume.js");
-  const code = `
-    const x = 1;
-    const y = 2;
-    const z = 3;
-  `;
+  const code = generateLargeTestFile(15); // Deep nesting creates multiple batches
 
   writeFileSync(testFile, code, "utf-8");
 
   const checkpointId = getCheckpointId(code);
+  const checkpointPath = join(CHECKPOINT_DIR, `${checkpointId}.json`);
 
-  // First run: create checkpoint
-  await execCLIAndKill(
+  // First run: create checkpoint (use proper waiting)
+  await execCLIAndWaitForCheckpoint(
     ["unminify", testFile, "--provider", "local", "--model", "2b", "--turbo"],
-    2000
+    checkpointPath,
+    45000
   );
 
   // Verify checkpoint exists
@@ -255,7 +277,7 @@ test("should resume from checkpoint with interactive prompt", async () => {
 
   // Cleanup
   deleteCheckpoint(checkpointId);
-}, { timeout: 15000 });
+}, { timeout: 60000 });
 
 /**
  * TEST 3: Restart processing (user declines resume)
@@ -314,16 +336,18 @@ test("should restart processing when user declines resume", async () => {
  */
 test("checkpoint should detect existing checkpoint at startup", async () => {
   const testFile = join(TEST_INPUT_DIR, "test-detect.js");
-  const code = `const detect = 1;`;
+  const code = generateLargeTestFile(15); // Deep nesting creates multiple batches
 
   writeFileSync(testFile, code, "utf-8");
 
   const checkpointId = getCheckpointId(code);
+  const checkpointPath = join(CHECKPOINT_DIR, `${checkpointId}.json`);
 
-  // First run: create checkpoint
-  await execCLIAndKill(
+  // First run: create checkpoint (use proper waiting)
+  await execCLIAndWaitForCheckpoint(
     ["unminify", testFile, "--provider", "local", "--model", "2b", "--turbo"],
-    2000
+    checkpointPath,
+    45000
   );
 
   // Verify checkpoint exists
@@ -335,7 +359,7 @@ test("checkpoint should detect existing checkpoint at startup", async () => {
 
   // Cleanup
   deleteCheckpoint(checkpointId);
-}, { timeout: 10000 });
+}, { timeout: 60000 });
 
 /**
  * TEST 5: Checkpoint renames map must not be empty
@@ -350,13 +374,7 @@ test("checkpoint should detect existing checkpoint at startup", async () => {
  */
 test("checkpoint renames map must not be empty", async () => {
   const testFile = join(TEST_INPUT_DIR, "test-renames.js");
-  const code = `
-    const a = 1;
-    const b = 2;
-    const c = 3;
-    const d = 4;
-    const e = 5;
-  `;
+  const code = generateLargeTestFile(15); // Large file ensures checkpoint creation
 
   writeFileSync(testFile, code, "utf-8");
 
@@ -364,9 +382,10 @@ test("checkpoint renames map must not be empty", async () => {
   const checkpointPath = join(CHECKPOINT_DIR, `${checkpointId}.json`);
 
   // Run and kill after processing starts
-  await execCLIAndKill(
+  await execCLIAndWaitForCheckpoint(
     ["unminify", testFile, "--provider", "local", "--model", "2b", "--turbo"],
-    3000
+    checkpointPath,
+    45000
   );
 
   // Load checkpoint
@@ -390,7 +409,7 @@ test("checkpoint renames map must not be empty", async () => {
   } else {
     console.log(`\n[TEST] Checkpoint not created (processing too fast)`);
   }
-}, { timeout: 15000 });
+}, { timeout: 60000 });
 
 /**
  * TEST 6: Checkpoint auto-delete on successful completion
@@ -492,23 +511,8 @@ test("checkpoint should reject incompatible version", async () => {
  */
 test("checkpoint should preserve metadata for resume command", async () => {
   const testFile = join(TEST_INPUT_DIR, "test-metadata.js");
-  // Use larger test file to ensure checkpoint is created before completion
-  const code = `
-    const a = 1;
-    const b = 2;
-    const c = 3;
-    const d = 4;
-    const e = 5;
-    const f = 6;
-    const g = 7;
-    const h = 8;
-    const i = 9;
-    const j = 10;
-    function test(x, y, z) {
-      const sum = x + y + z;
-      return sum;
-    }
-  `;
+  // Use large test file to ensure checkpoint is created before completion
+  const code = generateLargeTestFile(15);
 
   writeFileSync(testFile, code, "utf-8");
 
@@ -516,8 +520,7 @@ test("checkpoint should preserve metadata for resume command", async () => {
   const checkpointPath = join(CHECKPOINT_DIR, `${checkpointId}.json`);
 
   // Start processing (will create checkpoint with metadata)
-  // Increased timeout to 20 seconds to ensure checkpoint is created
-  await execCLIAndWaitForCheckpoint(
+  const result = await execCLIAndWaitForCheckpoint(
     [
       "unminify",
       testFile,
@@ -529,7 +532,7 @@ test("checkpoint should preserve metadata for resume command", async () => {
       "--seed", "42"
     ],
     checkpointPath,
-    20000
+    45000
   );
 
   // Load checkpoint
@@ -566,7 +569,7 @@ test("checkpoint should preserve metadata for resume command", async () => {
 
   // Cleanup
   deleteCheckpoint(checkpointId);
-}, { timeout: 30000 });
+}, { timeout: 60000 });
 
 /**
  * TEST 9: Checkpoint resume correctness
