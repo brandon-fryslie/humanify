@@ -33,7 +33,7 @@ export async function discoverOutputFiles(outputDir: string): Promise<string[]> 
     const entries = await fs.readdir(outputDir, { withFileTypes: true });
     const jsFiles = entries
       .filter(entry => entry.isFile() && entry.name.endsWith('.js') && !entry.name.endsWith('.map'))
-      .map(entry => path.join(outputDir, entry.name))
+      .map(entry => path.resolve(outputDir, entry.name)) // Use resolve() for absolute paths
       .sort(); // Deterministic ordering
 
     return jsFiles;
