@@ -11,6 +11,8 @@ import {
   SchemaType
 } from "@google/generative-ai";
 import { RateLimitCoordinator } from "../rate-limit-coordinator.js";
+import { GlobalProgressManager, formatETA } from "../global-progress.js";
+import { DisplayManager } from "../display-manager.js";
 
 /**
  * Retry an API call with exponential backoff on rate limits.
@@ -74,14 +76,20 @@ export function geminiRename({
   contextWindowSize,
   turbo,
   maxConcurrent,
+  minBatchSize,
+  maxBatchSize,
   dependencyMode,
-  checkpointMetadata
+  checkpointMetadata,
+  progressManager,
+  displayManager
 }: {
   apiKey: string;
   model: string;
   contextWindowSize: number;
   turbo?: boolean;
   maxConcurrent?: number;
+  minBatchSize?: number;
+  maxBatchSize?: number;
   dependencyMode?: "strict" | "balanced" | "relaxed";
   checkpointMetadata?: {
     originalFile: string;
@@ -89,8 +97,11 @@ export function geminiRename({
     originalModel?: string;
     originalArgs: Record<string, any>;
   };
+  progressManager?: GlobalProgressManager;
+  displayManager?: DisplayManager;
 }) {
   const client = new GoogleGenerativeAI(apiKey);
+  let lastPercentage = 0;
 
   return async (code: string): Promise<string | VisitResult> => {
     // Create rate limit coordinator for this processing run
@@ -100,8 +111,41 @@ export function geminiRename({
     const options: VisitOptions = {
       turbo,
       maxConcurrent,
+      minBatchSize,
+      maxBatchSize,
       dependencyMode,
       checkpointMetadata
+    };
+
+    // Create composite progress callback
+    const onProgress = (percentage: number) => {
+      // Call legacy progress display
+      showPercentage(percentage);
+
+      // Update display manager and progress manager if available
+      if (progressManager && displayManager && progressManager.isInitialized()) {
+        // Calculate identifiers completed based on percentage change
+        const progress = progressManager.getProgress();
+        const totalIdentifiers = progress.state.totalIdentifiers;
+        const identifiersPerIteration = totalIdentifiers / progress.state.totalIterations;
+        const identifiersCompleted = Math.round(percentage * identifiersPerIteration);
+        const identifiersDelta = identifiersCompleted - Math.round(lastPercentage * identifiersPerIteration);
+
+        if (identifiersDelta > 0) {
+          // Update global progress
+          progressManager.updateProgress(0, identifiersDelta);
+
+          // Update display
+          const currentProgress = progressManager.getProgress();
+          displayManager.updateGlobalProgress(
+            currentProgress.state.completedIdentifiers,
+            currentProgress.state.totalIdentifiers,
+            formatETA(currentProgress.etaSeconds)
+          );
+        }
+
+        lastPercentage = percentage;
+      }
     };
 
     const result = await visitAllIdentifiers(
@@ -126,7 +170,7 @@ export function geminiRename({
         return renamed;
       },
       contextWindowSize,
-      showPercentage,
+      onProgress,
       options
     );
 

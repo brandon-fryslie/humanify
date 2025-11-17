@@ -15,6 +15,9 @@ import { validateOutput, printValidationResults } from "../output-validator.js";
 import * as fs from "fs/promises";
 import { getCheckpointId, loadCheckpoint, deleteCheckpoint } from "../checkpoint.js";
 import prompts from "prompts";
+import { estimateWork } from "../estimate-work.js";
+import { getGlobalProgressManager, resetGlobalProgressManager } from "../global-progress.js";
+import { getDisplayManager, resetDisplayManager } from "../display-manager.js";
 
 export const azure = cli()
   .name("gemini")
@@ -39,6 +42,16 @@ export const azure = cli()
     "--max-concurrent <count>",
     "Maximum concurrent API requests in turbo mode",
     "10"
+  )
+  .option(
+    "--min-batch-size <size>",
+    "Minimum batch size for parallelization (merges small batches for better throughput)",
+    "3"
+  )
+  .option(
+    "--max-batch-size <size>",
+    "Maximum batch size to prevent memory spikes (splits large batches)",
+    "100"
   )
   .option(
     "--dependency-mode <mode>",
@@ -193,6 +206,29 @@ export const azure = cli()
         return;
       }
 
+      // Estimate work BEFORE any API calls
+      console.log("\n=== Estimating Work ===\n");
+      const estimate = await estimateWork(filename, opts.outputDir, {
+        turbo: opts.turbo,
+        maxConcurrent,
+        dependencyMode,
+        minBatchSize: parseInt(opts.minBatchSize, 10),
+        maxBatchSize: parseInt(opts.maxBatchSize, 10),
+        chunkSize: parseInt(opts.chunkSize, 10),
+        enableChunking: opts.chunking !== false
+      });
+
+      // Initialize progress tracking
+      const iterations = 1; // Gemini doesn't support refine mode yet
+      const progressManager = getGlobalProgressManager();
+      const displayManager = getDisplayManager();
+
+      progressManager.initialize(estimate, iterations);
+
+      // Show iteration header
+      displayManager.showIterationHeader(1, iterations);
+      progressManager.startIteration(1);
+
       await unminify(filename, opts.outputDir, [
         babel,
         geminiRename({
@@ -201,20 +237,30 @@ export const azure = cli()
           contextWindowSize,
           turbo: opts.turbo,
           maxConcurrent,
+          minBatchSize: parseInt(opts.minBatchSize, 10),
+          maxBatchSize: parseInt(opts.maxBatchSize, 10),
           dependencyMode,
           checkpointMetadata: {
             originalFile: filename,
             originalProvider: "gemini",
             originalModel: opts.model,
             originalArgs: opts
-          }
+          },
+          progressManager,
+          displayManager
         }),
         prettier
       ], {
         chunkSize: parseInt(opts.chunkSize, 10),
         enableChunking: opts.chunking !== false,
-        debugChunks: opts.debugChunks
+        debugChunks: opts.debugChunks,
+        progressManager,
+        displayManager
       });
+
+      // Stop display and cleanup
+      progressManager.finish();
+      displayManager.stop();
 
       // Print performance summary if enabled
       instrumentation.printSummary();
@@ -260,6 +306,10 @@ export const azure = cli()
         }
       }
     } finally {
+      // Cleanup progress tracking
+      resetGlobalProgressManager();
+      resetDisplayManager();
+
       instrumentation.reset();
       memoryMonitor.reset();
     }
