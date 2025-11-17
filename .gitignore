@@ -2,6 +2,8 @@ models
 output-vue
 dist
 test-output
+test-output-quality-e2e
+test-fixtures-quality/*.js
 .env
 dist.tar.gz
 
