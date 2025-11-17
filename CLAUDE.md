@@ -294,3 +294,4 @@ This outputs detailed metrics for:
 - Module resolution: NodeNext
 - File extensions required in imports (`.js` for compiled `.ts` files)
 - Build tool: `pkgroll` (produces dist/index.mjs)
+- You can find the OpenAI API key in the .env file in the root of the project

@@ -100,6 +100,9 @@ test.afterEach(async () => {
 
 /**
  * Test 1: Simple obfuscated file should produce semantic variable names
+ *
+ * ISSUE #2 FIX: Changed from <= 0.2 to === 0
+ * User spec: "I would not expect to see ANY single letter variables"
  */
 test("CLI should deobfuscate simple file with zero single-letter variables", async () => {
   // Create test fixture with clearly obfuscated code
@@ -154,12 +157,12 @@ function a(e, t) {
   // Analyze identifier quality
   const metrics = await analyzeIdentifierQuality(outputCode);
 
-  // CRITICAL ASSERTION: Should have significantly reduced single-letter variables
-  // Allow up to 20% single-letter (some may be semantically appropriate like loop vars)
-  assert.ok(
-    metrics.singleLetterRatio <= 0.2,
-    `Too many single-letter variables: ${(metrics.singleLetterRatio * 100).toFixed(1)}% ` +
-    `(${metrics.singleLetterCount}/${metrics.totalIdentifiers})`
+  // CRITICAL ASSERTION: User expects ZERO single-letter variables
+  // Changed from <= 0.2 (20% allowed) to === 0 (0% required)
+  assert.strictEqual(
+    metrics.singleLetterRatio,
+    0,
+    `Expected zero single-letter variables, found ${metrics.singleLetterCount}/${metrics.totalIdentifiers}: ${metrics.identifiers.filter(id => id.length === 1).join(', ')}`
   );
 
   // Verify average identifier length improved
@@ -177,6 +180,8 @@ function a(e, t) {
 
 /**
  * Test 2: Multiple obfuscated functions should all be deobfuscated
+ *
+ * ISSUE #2 FIX: Changed from <= 0.3 to === 0
  */
 test("CLI should deobfuscate all functions in file", async () => {
   const obfuscatedCode = `
@@ -225,10 +230,12 @@ const j = (k) => k.toUpperCase();
     `Should have at least 8 identifiers, got ${metrics.totalIdentifiers}`
   );
 
-  // Should have low single-letter ratio
-  assert.ok(
-    metrics.singleLetterRatio <= 0.3,
-    `Single-letter ratio too high: ${(metrics.singleLetterRatio * 100).toFixed(1)}%`
+  // CRITICAL ASSERTION: Zero single-letter variables required
+  // Changed from <= 0.3 (30% allowed) to === 0 (0% required)
+  assert.strictEqual(
+    metrics.singleLetterRatio,
+    0,
+    `Expected zero single-letter variables, found ${metrics.singleLetterCount}/${metrics.totalIdentifiers}: ${metrics.identifiers.filter(id => id.length === 1).join(', ')}`
   );
 
   // Verify valid JavaScript
@@ -238,6 +245,10 @@ const j = (k) => k.toUpperCase();
 
 /**
  * Test 3: Verify output maintains functional equivalence
+ *
+ * ISSUE #1 FIX: Removed AST node count assertion
+ * This was testing implementation details, not user outcomes.
+ * Now only validates that transformation occurred and output is valid.
  */
 test("CLI output should preserve code structure", async () => {
   const obfuscatedCode = `
@@ -271,19 +282,16 @@ const c = a(3, 7);
     'utf-8'
   );
 
-  // Parse both to compare structure
+  // Parse both to verify valid JavaScript
   const originalAST = await parseAsync(obfuscatedCode, { sourceType: "unambiguous" });
   const outputAST = await parseAsync(outputCode, { sourceType: "unambiguous" });
 
   assert.ok(originalAST, "Original should parse");
   assert.ok(outputAST, "Output should parse");
 
-  // Should have same number of top-level statements
-  assert.strictEqual(
-    originalAST!.program.body.length,
-    outputAST!.program.body.length,
-    "Should preserve number of top-level statements"
-  );
+  // ISSUE #1 FIX: Removed assertion checking body.length
+  // This was an implementation detail that could change with different
+  // formatting/prettier settings. Not a user-observable outcome.
 
   // Verify we actually transformed (not a no-op)
   assert.notStrictEqual(
@@ -291,6 +299,27 @@ const c = a(3, 7);
     outputCode.trim(),
     "Output should differ from input (actual transformation occurred)"
   );
+
+  // Verify semantic quality: function should exist with semantic names
+  const babelTraverse = await import("@babel/traverse");
+  const traverse = typeof babelTraverse.default === "function"
+    ? babelTraverse.default
+    : (babelTraverse.default as any).default;
+
+  let foundFunction = false;
+  let functionCalls = 0;
+
+  traverse(outputAST, {
+    FunctionDeclaration(path) {
+      foundFunction = true;
+    },
+    CallExpression(path) {
+      functionCalls++;
+    }
+  });
+
+  assert.ok(foundFunction, "Should preserve function declaration");
+  assert.strictEqual(functionCalls, 2, "Should preserve function calls");
 }, { timeout: 120000 });
 
 /**
@@ -328,6 +357,9 @@ test("CLI should create output file with correct name", async () => {
 
 /**
  * Test 5: Turbo mode should also produce quality output
+ *
+ * ISSUE #3: This test may fail due to turbo mode crash with local LLM
+ * ISSUE #2 FIX: Changed from <= 0.2 to === 0
  */
 test("CLI with turbo mode should eliminate single-letter variables", async () => {
   const obfuscatedCode = `
@@ -362,10 +394,12 @@ function a(e, t) {
 
   const metrics = await analyzeIdentifierQuality(outputCode);
 
-  // Turbo mode should still produce quality output
-  assert.ok(
-    metrics.singleLetterRatio <= 0.2,
-    `Turbo mode single-letter ratio too high: ${(metrics.singleLetterRatio * 100).toFixed(1)}%`
+  // CRITICAL ASSERTION: Zero single-letter variables required
+  // Changed from <= 0.2 (20% allowed) to === 0 (0% required)
+  assert.strictEqual(
+    metrics.singleLetterRatio,
+    0,
+    `Turbo mode: Expected zero single-letter variables, found ${metrics.singleLetterCount}/${metrics.totalIdentifiers}: ${metrics.identifiers.filter(id => id.length === 1).join(', ')}`
   );
 
   // Verify valid JavaScript
@@ -419,11 +453,15 @@ test("CLI should handle existing output directory gracefully", async () => {
 
 /**
  * Test 7: Verify error handling for invalid input
+ *
+ * ISSUE #4 FIX: Updated test to use truly invalid JavaScript syntax
+ * The previous test code "this is not valid javascript" is actually valid JS
+ * (it's just identifier references). Using @@ symbols which are truly invalid.
  */
 test("CLI should fail gracefully with invalid JavaScript", async () => {
   const invalidCode = `
 function a(e, t) {
-  this is not valid javascript
+  @@@ this is truly invalid syntax @@@
   return e + t;
 }
   `.trim();
