@@ -37,7 +37,11 @@ import {
  * Helper: Extract code from either string or VisitResult
  */
 function extractCode(result: string | VisitResult): string {
-  return typeof result === 'string' ? result : result.code;
+  // Check if it's a VisitResult object (has 'code' property)
+  if (typeof result === 'object' && result !== null && 'code' in result) {
+    return result.code;
+  }
+  return result as string;
 }
 
 /**
