@@ -15,6 +15,9 @@ import { validateOutput, printValidationResults } from "../output-validator.js";
 import * as fs from "fs/promises";
 import { getCheckpointId, loadCheckpoint, deleteCheckpoint } from "../checkpoint.js";
 import prompts from "prompts";
+import { estimateWork } from "../estimate-work.js";
+import { getGlobalProgressManager, resetGlobalProgressManager } from "../global-progress.js";
+import { getDisplayManager, resetDisplayManager } from "../display-manager.js";
 
 export const openai = cli()
   .name("openai")
@@ -213,8 +216,29 @@ export const openai = cli()
         return;
       }
 
+      // Estimate work BEFORE any API calls
+      console.log("\n=== Estimating Work ===\n");
+      const estimate = await estimateWork(filename, opts.outputDir, {
+        turbo: opts.turbo,
+        maxConcurrent,
+        dependencyMode,
+        minBatchSize: parseInt(opts.minBatchSize, 10),
+        maxBatchSize: parseInt(opts.maxBatchSize, 10),
+        chunkSize: parseInt(opts.chunkSize, 10),
+        enableChunking: opts.chunking !== false
+      });
+
+      // Initialize progress tracking
+      const iterations = opts.refine ? 2 : 1;
+      const progressManager = getGlobalProgressManager();
+      const displayManager = getDisplayManager();
+
+      progressManager.initialize(estimate, iterations);
+
       // Pass 1: Initial rename
-      console.log("\n=== Pass 1: Initial renaming ===\n");
+      displayManager.showIterationHeader(1, iterations);
+      progressManager.startIteration(1);
+
       await unminify(filename, opts.outputDir, [
         babel,
         openaiRename({
@@ -232,18 +256,23 @@ export const openai = cli()
             originalProvider: "openai",
             originalModel: opts.model,
             originalArgs: opts
-          }
+          },
+          progressManager,
+          displayManager
         }),
         prettier
       ], {
         chunkSize: parseInt(opts.chunkSize, 10),
         enableChunking: opts.chunking !== false,
-        debugChunks: opts.debugChunks
+        debugChunks: opts.debugChunks,
+        progressManager,
+        displayManager
       });
 
       // Pass 2: Refinement (if enabled)
       if (opts.refine) {
-        console.log("\n=== Pass 2: Refinement (2x parallelism) ===\n");
+        displayManager.showIterationHeader(2, iterations);
+        progressManager.startIteration(2);
 
         // Use the output from pass 1 as input for pass 2
         const pass1OutputFile = `${opts.outputDir}/deobfuscated.js`;
@@ -265,15 +294,23 @@ export const openai = cli()
               originalProvider: "openai",
               originalModel: opts.model,
               originalArgs: opts
-            }
+            },
+            progressManager,
+            displayManager
           }),
           prettier
         ], {
           chunkSize: parseInt(opts.chunkSize, 10),
           enableChunking: opts.chunking !== false,
-          debugChunks: opts.debugChunks
+          debugChunks: opts.debugChunks,
+          progressManager,
+          displayManager
         });
       }
+
+      // Stop display and cleanup
+      progressManager.finish();
+      displayManager.stop();
 
       // Print performance summary if enabled
       instrumentation.printSummary();
@@ -319,6 +356,10 @@ export const openai = cli()
         }
       }
     } finally {
+      // Cleanup progress tracking
+      resetGlobalProgressManager();
+      resetDisplayManager();
+
       instrumentation.reset();
       memoryMonitor.reset();
     }

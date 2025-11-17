@@ -10,11 +10,15 @@ import { processChunk } from "./chunk-processor.js";
 import { reassembleChunks } from "./chunk-reassembler.js";
 import { deleteCheckpoint } from "./checkpoint.js";
 import { VisitResult } from "./plugins/local-llm-rename/visit-all-identifiers.js";
+import { GlobalProgressManager, formatETA } from "./global-progress.js";
+import { DisplayManager } from "./display-manager.js";
 
 export interface UnminifyOptions {
   chunkSize?: number;
   enableChunking?: boolean;  // Default: true
   debugChunks?: boolean;     // Default: false
+  progressManager?: GlobalProgressManager;
+  displayManager?: DisplayManager;
 }
 
 // Helper to extract code and checkpoint ID from plugin result
@@ -39,6 +43,8 @@ export async function unminify(
     outputDir,
     pluginCount: plugins.length
   });
+
+  const { progressManager, displayManager } = options;
 
   try {
     console.log(`\n=== Starting Humanify ===`);
@@ -78,11 +84,17 @@ export async function unminify(
       });
 
       try {
-        console.log(
-          `\n[2/3] Processing file ${i + 1}/${extractedFiles.length}: ${extractedFiles[i].path}`
-        );
-
         const file = extractedFiles[i];
+
+        // Show current file in display manager
+        if (displayManager) {
+          displayManager.showCurrentFile(file.path, i + 1, extractedFiles.length);
+        } else {
+          console.log(
+            `\n[2/3] Processing file ${i + 1}/${extractedFiles.length}: ${file.path}`
+          );
+        }
+
         const code = await instrumentation.measure(
           "read-extracted-file",
           () => fs.readFile(file.path, "utf-8")
@@ -144,8 +156,8 @@ export async function unminify(
               let progressBar: cliProgress.SingleBar | null = null;
               let timerInterval: NodeJS.Timeout | null = null;
 
-              // Show progress spinner for non-rename plugins
-              if (!isRenamePlugin) {
+              // Show progress spinner for non-rename plugins (only if no display manager)
+              if (!isRenamePlugin && !displayManager) {
                 progressBar = new cliProgress.SingleBar({
                   format: `    Processing... |{bar}| Elapsed: {elapsed}s`,
                   barCompleteChar: '\u2588',
@@ -230,8 +242,8 @@ export async function unminify(
             let progressBar: cliProgress.SingleBar | null = null;
             let timerInterval: NodeJS.Timeout | null = null;
 
-            // Show progress spinner for non-rename plugins
-            if (!isRenamePlugin) {
+            // Show progress spinner for non-rename plugins (only if no display manager)
+            if (!isRenamePlugin && !displayManager) {
               progressBar = new cliProgress.SingleBar({
                 format: `    Processing... |{bar}| Elapsed: {elapsed}s`,
                 barCompleteChar: '\u2588',

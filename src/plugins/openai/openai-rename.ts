@@ -8,6 +8,8 @@ import { showPercentage } from "../../progress.js";
 import { verbose } from "../../verbose.js";
 import { instrumentation } from "../../instrumentation.js";
 import { RateLimitCoordinator } from "../../rate-limit-coordinator.js";
+import { GlobalProgressManager, formatETA } from "../../global-progress.js";
+import { DisplayManager } from "../../display-manager.js";
 
 /**
  * Retry an API call with exponential backoff on rate limits.
@@ -104,7 +106,9 @@ export function openaiRename({
   minBatchSize,
   maxBatchSize,
   dependencyMode,
-  checkpointMetadata
+  checkpointMetadata,
+  progressManager,
+  displayManager
 }: {
   apiKey: string;
   baseURL: string;
@@ -121,10 +125,13 @@ export function openaiRename({
     originalModel?: string;
     originalArgs: Record<string, any>;
   };
+  progressManager?: GlobalProgressManager;
+  displayManager?: DisplayManager;
 }) {
   const client = new OpenAI({ apiKey, baseURL });
   let totalTokens = 0;
   let totalCost = 0;
+  let lastPercentage = 0;
 
   return async (code: string): Promise<string | VisitResult> => {
     // Create rate limit coordinator for this processing run
@@ -138,6 +145,37 @@ export function openaiRename({
       maxBatchSize,
       dependencyMode,
       checkpointMetadata
+    };
+
+    // Create composite progress callback
+    const onProgress = (percentage: number) => {
+      // Call legacy progress display
+      showPercentage(percentage);
+
+      // Update display manager and progress manager if available
+      if (progressManager && displayManager && progressManager.isInitialized()) {
+        // Calculate identifiers completed based on percentage change
+        const progress = progressManager.getProgress();
+        const totalIdentifiers = progress.state.totalIdentifiers;
+        const identifiersPerIteration = totalIdentifiers / progress.state.totalIterations;
+        const identifiersCompleted = Math.round(percentage * identifiersPerIteration);
+        const identifiersDelta = identifiersCompleted - Math.round(lastPercentage * identifiersPerIteration);
+
+        if (identifiersDelta > 0) {
+          // Update global progress
+          progressManager.updateProgress(0, identifiersDelta);
+
+          // Update display
+          const currentProgress = progressManager.getProgress();
+          displayManager.updateGlobalProgress(
+            currentProgress.state.completedIdentifiers,
+            currentProgress.state.totalIdentifiers,
+            formatETA(currentProgress.etaSeconds)
+          );
+        }
+
+        lastPercentage = percentage;
+      }
     };
 
     const result = await visitAllIdentifiers(
@@ -183,7 +221,7 @@ export function openaiRename({
         return renamed;
       },
       contextWindowSize,
-      showPercentage,
+      onProgress,
       options
     );
 
@@ -202,38 +240,46 @@ export function openaiRename({
 
 function toRenamePrompt(
   name: string,
-  surroundingCode: string,
+  context: string,
   model: string
-): OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming {
+): OpenAI.Chat.ChatCompletionCreateParamsNonStreaming {
   return {
     model,
     messages: [
       {
         role: "system",
-        content: `Rename Javascript variables/function \`${name}\` to have descriptive name based on their usage in the code."`
+        content: `You are an expert at reading minified javascript and generating clear, descriptive variable names.
+
+Given a variable name and surrounding code context, suggest a better name that:
+1. Clearly describes the variable's purpose
+2. Follows camelCase convention
+3. Is concise but descriptive
+4. Matches the coding style of the context
+
+Return ONLY a JSON object with a single "newName" field. No explanation.`,
       },
       {
         role: "user",
-        content: surroundingCode
-      }
+        content: `Variable: ${name}\n\nContext:\n${context}`,
+      },
     ],
     response_format: {
       type: "json_schema",
       json_schema: {
+        name: "variable_rename",
         strict: true,
-        name: "rename",
         schema: {
           type: "object",
           properties: {
             newName: {
               type: "string",
-              description: `The new name for the variable/function called \`${name}\``
-            }
+              description: "The new variable name",
+            },
           },
           required: ["newName"],
-          additionalProperties: false
-        }
-      }
-    }
+          additionalProperties: false,
+        },
+      },
+    },
   };
 }
