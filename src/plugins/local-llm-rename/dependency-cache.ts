@@ -169,31 +169,53 @@ export async function saveDependencyCache(
   const cacheContent = JSON.stringify(cache, null, 2);
   const cacheSize = Buffer.byteLength(cacheContent, "utf-8");
 
-  // Create cache directory and write file atomically
-  // Use try-catch to handle race conditions where directory gets deleted between mkdir and writeFile
-  try {
-    await fs.mkdir(path.dirname(cachePath), { recursive: true });
-    await fs.writeFile(cachePath, cacheContent);
-  } catch (err: any) {
-    // If directory was deleted between mkdir and writeFile, retry once
-    if (err.code === 'ENOENT') {
+  // Create cache directory with retry logic for cloud-synced filesystems
+  // Cloud storage (iCloud, OneDrive, Dropbox) can return EINVAL or ENOENT
+  // when directories aren't immediately available after creation
+  const maxRetries = 3;
+  const retryDelay = 100; // ms
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Ensure directory exists before writing
       await fs.mkdir(path.dirname(cachePath), { recursive: true });
       await fs.writeFile(cachePath, cacheContent);
-    } else {
-      throw err;
+
+      // Success - log and exit
+      console.log(
+        `    → Cached ${dependencies.length} dependencies (${formatBytes(cacheSize)})`
+      );
+
+      instrumentation
+        .startSpan("cache-write", {
+          cacheSize,
+          dependencyCount: dependencies.length
+        })
+        .end();
+
+      return;
+    } catch (err: any) {
+      const isRetryable = err.code === 'ENOENT' || err.code === 'EINVAL';
+      const isLastAttempt = attempt === maxRetries - 1;
+
+      if (isRetryable && !isLastAttempt) {
+        // Wait before retrying on cloud-synced filesystems
+        await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
+        continue;
+      }
+
+      // Non-retryable error or final attempt - log and gracefully degrade
+      console.warn(`    → Warning: Failed to write cache (${err.code}): ${err.message}`);
+      console.warn(`    → Cache disabled for this run (functionality unaffected)`);
+      instrumentation
+        .startSpan("cache-write-failed", {
+          errorCode: err.code,
+          attempt: attempt + 1
+        })
+        .end();
+      return; // Graceful degradation - don't throw
     }
   }
-
-  console.log(
-    `    → Cached ${dependencies.length} dependencies (${formatBytes(cacheSize)})`
-  );
-
-  instrumentation
-    .startSpan("cache-write", {
-      cacheSize,
-      dependencyCount: dependencies.length
-    })
-    .end();
 }
 
 /**
