@@ -297,38 +297,56 @@ export const openai = cli()
         displayManager.showIterationHeader(2, iterations);
         progressManager.startIteration(2);
 
-        // Use the output from pass 1 as input for pass 2
-        const pass1OutputFile = `${opts.outputDir}/deobfuscated.js`;
+        // Discover all files produced by Pass 1
+        const pass1OutputFiles = await discoverOutputFiles(opts.outputDir);
 
-        await unminify(pass1OutputFile, opts.outputDir, [
-          babel, // Run babel again - cheap and may improve structure with better names
-          openaiRename({
-            apiKey,
-            baseURL,
-            model: opts.model,
-            contextWindowSize,
-            turbo: opts.turbo,
-            maxConcurrent: maxConcurrent * 2, // 2x parallelism
-            minBatchSize: parseInt(opts.minBatchSize, 10),
-            maxBatchSize: parseInt(opts.maxBatchSize, 10),
-            dependencyMode: "relaxed", // More aggressive parallelism
-            checkpointMetadata: {
-              originalFile: filename,
-              originalProvider: "openai",
-              originalModel: opts.model,
-              originalArgs: opts
-            },
+        if (pass1OutputFiles.length === 0) {
+          throw new Error(`No output files found in ${opts.outputDir} for refinement pass`);
+        }
+
+        console.log(`\nPass 2: Refining ${pass1OutputFiles.length} file(s)...\n`);
+
+        // Process each file independently
+        for (let i = 0; i < pass1OutputFiles.length; i++) {
+          const file = pass1OutputFiles[i];
+          const filename = path.basename(file);
+
+          console.log(`[${i + 1}/${pass1OutputFiles.length}] Refining: ${filename}`);
+
+          await unminify(file, opts.outputDir, [
+            babel, // Re-run babel with better names from Pass 1
+            openaiRename({
+              apiKey,
+              baseURL,
+              model: opts.model,
+              contextWindowSize,
+              turbo: opts.turbo,
+              maxConcurrent: maxConcurrent * 2, // 2x parallelism for Pass 2
+              minBatchSize: parseInt(opts.minBatchSize, 10),
+              maxBatchSize: parseInt(opts.maxBatchSize, 10),
+              dependencyMode: "relaxed", // More aggressive parallelism in Pass 2
+              checkpointMetadata: {
+                originalFile: filename,
+                originalProvider: "openai",
+                originalModel: opts.model,
+                originalArgs: opts,
+                refinementPass: 2
+              },
+              progressManager,
+              displayManager
+            }),
+            prettier
+          ], {
+            chunkSize: parseInt(opts.chunkSize, 10),
+            enableChunking: opts.chunking !== false,
+            debugChunks: opts.debugChunks,
+            skipWebcrack: true, // CRITICAL: Skip webcrack in refinement!
             progressManager,
             displayManager
-          }),
-          prettier
-        ], {
-          chunkSize: parseInt(opts.chunkSize, 10),
-          enableChunking: opts.chunking !== false,
-          debugChunks: opts.debugChunks,
-          progressManager,
-          displayManager
-        });
+          });
+        }
+
+        console.log(`\nPass 2 Complete\n`);
       }
 
       // Stop display and cleanup
