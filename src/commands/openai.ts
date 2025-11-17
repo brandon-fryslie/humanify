@@ -259,6 +259,7 @@ export const openai = cli()
       progressManager.initialize(estimate, iterations);
 
       // Pass 1: Initial rename
+      console.log("\n=== Pass 1: Initial Deobfuscation ===\n");
       displayManager.showIterationHeader(1, iterations);
       progressManager.startIteration(1);
 
@@ -292,8 +293,11 @@ export const openai = cli()
         displayManager
       });
 
+      console.log("\n=== Pass 1 Complete ===\n");
+
       // Pass 2: Refinement (if enabled)
       if (opts.refine) {
+        console.log("=== Pass 2: Refinement ===\n");
         displayManager.showIterationHeader(2, iterations);
         progressManager.startIteration(2);
 
@@ -304,14 +308,14 @@ export const openai = cli()
           throw new Error(`No output files found in ${opts.outputDir} for refinement pass`);
         }
 
-        console.log(`\nPass 2: Refining ${pass1OutputFiles.length} file(s)...\n`);
+        console.log(`Refining ${pass1OutputFiles.length} file(s)...\n`);
 
         // Process each file independently
         for (let i = 0; i < pass1OutputFiles.length; i++) {
           const file = pass1OutputFiles[i];
           const filename = path.basename(file);
 
-          console.log(`[${i + 1}/${pass1OutputFiles.length}] Refining: ${filename}`);
+          console.log(`\n[File ${i + 1}/${pass1OutputFiles.length}] ${filename}`);
 
           await unminify(file, opts.outputDir, [
             babel, // Re-run babel with better names from Pass 1
@@ -346,8 +350,10 @@ export const openai = cli()
           });
         }
 
-        console.log(`\nPass 2 Complete\n`);
+        console.log("\n=== Pass 2 Complete ===\n");
       }
+
+      console.log("=== All Processing Complete ===\n");
 
       // Stop display and cleanup
       progressManager.finish();
