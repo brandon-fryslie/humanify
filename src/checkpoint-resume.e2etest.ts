@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert";
 import { existsSync, unlinkSync } from "fs";
-import { visitAllIdentifiers } from "./plugins/local-llm-rename/visit-all-identifiers.js";
+import { visitAllIdentifiers, VisitResult } from "./plugins/local-llm-rename/visit-all-identifiers.js";
 import {
   getCheckpointId,
   loadCheckpoint,
@@ -32,6 +32,13 @@ import {
  * - Verifies resume skips completed batches
  * - Validates cost savings from resume
  */
+
+/**
+ * Helper: Extract code from either string or VisitResult
+ */
+function extractCode(result: string | VisitResult): string {
+  return typeof result === 'string' ? result : result.code;
+}
 
 /**
  * Deterministic visitor for testing - returns predictable names
@@ -122,10 +129,10 @@ function d() {
     console.log = originalLog;
     console.log(`[TEST] Checkpoint run completed: ${checkpointVisitor.getCallCount()} visitor calls`);
 
-    // VERIFY: Outputs should be identical
+    // VERIFY: Outputs should be identical (extract code from both)
     assert.strictEqual(
-      checkpointOutput,
-      continuousOutput,
+      extractCode(checkpointOutput),
+      extractCode(continuousOutput),
       "Checkpoint run output MUST match continuous run output (validates resume correctness)"
     );
 
@@ -546,10 +553,10 @@ function outer(c) {
     console.log = originalLog;
     console.log(`\n[TEST] Complex code: ${baselineVisitor.getCallCount()} identifiers processed`);
 
-    // VERIFY: Outputs match for complex code
+    // VERIFY: Outputs match for complex code (extract code from both)
     assert.strictEqual(
-      checkpointOutput,
-      continuousOutput,
+      extractCode(checkpointOutput),
+      extractCode(continuousOutput),
       "Checkpoint system should work correctly with complex nested code"
     );
 

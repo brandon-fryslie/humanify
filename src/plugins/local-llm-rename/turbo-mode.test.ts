@@ -13,7 +13,9 @@ test("turbo mode: basic functionality works", async () => {
     { turbo: true }
   );
 
-  assert.ok(result.includes("a_renamed"), "Should rename with turbo mode");
+  // Extract code from VisitResult when turbo is enabled
+  const resultCode = typeof result === 'string' ? result : result.code;
+  assert.ok(resultCode.includes("a_renamed"), "Should rename with turbo mode");
 });
 
 test("turbo mode: produces valid output for complex code", async () => {
@@ -32,9 +34,12 @@ function outer() {
     { turbo: true }
   );
 
+  // Extract code from VisitResult when turbo is enabled
+  const resultCode = typeof result === 'string' ? result : result.code;
+
   // Should contain renamed identifiers
-  assert.ok(result.includes("outer_renamed"), "Should rename function");
-  assert.ok(result.includes("inner_renamed"), "Should rename variable");
+  assert.ok(resultCode.includes("outer_renamed"), "Should rename function");
+  assert.ok(resultCode.includes("inner_renamed"), "Should rename variable");
 });
 
 test("turbo mode: respects maxConcurrent setting", async () => {
@@ -73,5 +78,6 @@ test("sequential mode still works (regression test)", async () => {
     200
   );
 
+  // Sequential mode always returns string
   assert.ok(result.includes("a_renamed"), "Sequential mode should still work");
 });

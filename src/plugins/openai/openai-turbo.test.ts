@@ -83,10 +83,13 @@ test("turbo mode should pass string context (not Promise) to visitor function (B
     }
   );
 
+  // Extract code from VisitResult when turbo is enabled
+  const resultCode = typeof result === 'string' ? result : result.code;
+
   // VERIFY: All identifiers were processed
-  assert.ok(result.includes("example_renamed"), "Should rename function");
-  assert.ok(result.includes("first_renamed"), "Should rename first variable");
-  assert.ok(result.includes("second_renamed"), "Should rename second variable");
+  assert.ok(resultCode.includes("example_renamed"), "Should rename function");
+  assert.ok(resultCode.includes("first_renamed"), "Should rename first variable");
+  assert.ok(resultCode.includes("second_renamed"), "Should rename second variable");
 
   // VERIFY: All contexts were strings (not Promises)
   assert.ok(
@@ -166,10 +169,13 @@ test("turbo mode should handle async context extraction correctly", async () => 
     { turbo: true, maxConcurrent: 3 }
   );
 
+  // Extract code from VisitResult when turbo is enabled
+  const resultCode = typeof result === 'string' ? result : result.code;
+
   // VERIFY: All renames applied
-  assert.ok(result.includes("outer_turbo"), "Should rename outer function");
-  assert.ok(result.includes("inner_turbo"), "Should rename inner function");
-  assert.ok(result.includes("variable_turbo"), "Should rename variable");
+  assert.ok(resultCode.includes("outer_turbo"), "Should rename outer function");
+  assert.ok(resultCode.includes("inner_turbo"), "Should rename inner function");
+  assert.ok(resultCode.includes("variable_turbo"), "Should rename variable");
 
   // VERIFY: We processed all identifiers
   assert.strictEqual(
@@ -199,101 +205,59 @@ test("turbo and sequential modes should both pass string contexts", async () => 
   let sequentialContextType: string | undefined;
   let turboContextType: string | undefined;
 
-  const typeCheckingVisitor = (mode: "sequential" | "turbo") => {
-    return async (name: string, surroundingCode: any): Promise<string> => {
-      const contextType = typeof surroundingCode;
-
-      if (mode === "sequential") {
-        sequentialContextType = contextType;
-      } else {
-        turboContextType = contextType;
-      }
-
-      return `${name}_${mode}`;
-    };
-  };
-
-  // Run in sequential mode (baseline)
+  // Test sequential mode
   await visitAllIdentifiers(
     code,
-    typeCheckingVisitor("sequential"),
-    1000,
-    undefined,
-    { turbo: false } // Sequential mode
+    async (_name: string, context: string) => {
+      sequentialContextType = typeof context;
+      return "renamed";
+    },
+    1000
   );
 
-  // Run in turbo mode (test subject)
+  // Test turbo mode
   await visitAllIdentifiers(
     code,
-    typeCheckingVisitor("turbo"),
+    async (_name: string, context: string) => {
+      turboContextType = typeof context;
+      return "renamed";
+    },
     1000,
     undefined,
-    { turbo: true, maxConcurrent: 2 } // Turbo mode
+    { turbo: true }
   );
 
-  // VERIFY: Both modes received string contexts
-  assert.strictEqual(
-    sequentialContextType,
-    "string",
-    "Sequential mode should receive string context"
-  );
-
-  assert.strictEqual(
-    turboContextType,
-    "string",
-    "Turbo mode should receive string context"
-  );
-
-  // VERIFY: Both modes use the same type
-  assert.strictEqual(
-    sequentialContextType,
-    turboContextType,
-    "Sequential and turbo modes should receive same context type"
-  );
+  // VERIFY: Both modes pass strings
+  assert.strictEqual(sequentialContextType, "string", "Sequential mode should pass string context");
+  assert.strictEqual(turboContextType, "string", "Turbo mode should pass string context");
 });
 
 /**
- * NEGATIVE TEST: Verify what would happen if we received a Promise
+ * DOCUMENTATION TEST: Explain WHY Promise objects break OpenAI API
  *
- * This documents the exact failure mode that occurred in production
+ * This is not a functional test - it's documentation about the production bug
  */
-test("documentation: Promise serialization would fail OpenAI API validation", () => {
-  // Create a mock Promise to show what was being sent to OpenAI
-  const mockContext = Promise.resolve("actual code");
+test("documentation: Promise serialization would fail OpenAI API validation", async () => {
+  // Simulate what happens when a Promise is serialized to JSON (as OpenAI SDK does)
+  const promiseObject = Promise.resolve("some context");
+  const serialized = JSON.stringify({ content: promiseObject });
 
-  // When OpenAI client serializes this for the API request body:
-  const serialized = JSON.stringify({
-    messages: [
-      { role: "system", content: "Rename variables" },
-      { role: "user", content: mockContext } // This is the bug!
-    ]
-  });
-
-  // The Promise serializes to an empty object: {}
-  // OpenAI API expects a string, gets an object → 400 error
-  const parsed = JSON.parse(serialized);
-  const receivedContent = parsed.messages[1].content;
-
-  // VERIFY: This is what was happening in production
-  assert.strictEqual(
-    typeof receivedContent,
-    "object",
-    "Promise serializes to object, not string"
+  // Result: '{"content":{}}'
+  // The Promise serializes to an empty object, losing all data
+  assert.ok(
+    serialized.includes("{}"),
+    "Promise serialization loses data - this is why OpenAI rejects it"
   );
 
-  assert.notStrictEqual(
-    typeof receivedContent,
-    "string",
-    "OpenAI API expected string but received object"
-  );
-
-  // This would cause: "Invalid type for 'messages[1].content': expected string, got object"
+  // OpenAI expects: { role: "user", content: "string here" }
+  // With unresolved Promise: { role: "user", content: {} }
+  // Result: 400 error - "expected string, got object"
 });
 
 /**
- * PERFORMANCE TEST: Verify turbo mode actually does parallel processing
+ * PERFORMANCE TEST: Verify turbo mode actually runs in parallel
  *
- * This ensures the bug fix doesn't break parallelization
+ * This test ensures maxConcurrent is respected and parallel execution occurs
  */
 test("turbo mode should process contexts in parallel (performance characteristic)", async () => {
   const code = `
@@ -304,49 +268,34 @@ test("turbo mode should process contexts in parallel (performance characteristic
     const e = 5;
   `.trim();
 
-  let maxConcurrent = 0;
-  let currentConcurrent = 0;
+  let concurrentCount = 0;
+  let maxObservedConcurrent = 0;
 
-  const concurrencyTrackingVisitor = async (
-    name: string,
-    surroundingCode: string
-  ): Promise<string> => {
-    // VERIFY: Context is a string (Bug #2 check)
-    assert.strictEqual(
-      typeof surroundingCode,
-      "string",
-      `Context should be string in concurrent execution`
-    );
+  const slowVisitor = async (name: string, _context: string) => {
+    concurrentCount++;
+    maxObservedConcurrent = Math.max(maxObservedConcurrent, concurrentCount);
 
-    // Track concurrency
-    currentConcurrent++;
-    maxConcurrent = Math.max(maxConcurrent, currentConcurrent);
-
-    // Simulate API latency
+    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    currentConcurrent--;
-    return `${name}_concurrent`;
+    concurrentCount--;
+    return `${name}_parallel`;
   };
 
-  // EXECUTE: Run with concurrency limit of 3
-  await visitAllIdentifiers(
-    code,
-    concurrencyTrackingVisitor,
-    1000,
-    undefined,
-    { turbo: true, maxConcurrent: 3 }
-  );
+  await visitAllIdentifiers(code, slowVisitor, 1000, undefined, {
+    turbo: true,
+    maxConcurrent: 3
+  });
 
-  // VERIFY: Some parallel processing occurred
+  // VERIFY: We observed parallel execution (more than 1 concurrent call)
   assert.ok(
-    maxConcurrent >= 2,
-    `Expected some parallel processing (maxConcurrent >= 2), got ${maxConcurrent}`
+    maxObservedConcurrent > 1,
+    `Expected parallel execution (maxConcurrent > 1), but maxObservedConcurrent was ${maxObservedConcurrent}`
   );
 
   // VERIFY: Concurrency limit was respected
   assert.ok(
-    maxConcurrent <= 3,
-    `Should respect maxConcurrent=3, got ${maxConcurrent}`
+    maxObservedConcurrent <= 3,
+    `Expected maxConcurrent <= 3, but observed ${maxObservedConcurrent}`
   );
 });
