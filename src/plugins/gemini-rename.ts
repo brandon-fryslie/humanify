@@ -1,6 +1,7 @@
 import {
   visitAllIdentifiers,
-  VisitOptions
+  VisitOptions,
+  VisitResult
 } from "./local-llm-rename/visit-all-identifiers.js";
 import { verbose } from "../verbose.js";
 import { showPercentage } from "../progress.js";
@@ -91,7 +92,7 @@ export function geminiRename({
 }) {
   const client = new GoogleGenerativeAI(apiKey);
 
-  return async (code: string): Promise<string> => {
+  return async (code: string): Promise<string | VisitResult> => {
     // Create rate limit coordinator for this processing run
     // Shared across all parallel API requests to coordinate backoff
     const rateLimitCoordinator = new RateLimitCoordinator();
@@ -103,7 +104,7 @@ export function geminiRename({
       checkpointMetadata
     };
 
-    return await visitAllIdentifiers(
+    const result = await visitAllIdentifiers(
       code,
       async (name, surroundingCode) => {
         verbose.log(`Renaming ${name}`);
@@ -128,6 +129,9 @@ export function geminiRename({
       showPercentage,
       options
     );
+
+    // Return the VisitResult object (contains code and checkpointId)
+    return result;
   };
 }
 

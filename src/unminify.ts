@@ -8,6 +8,8 @@ import * as cliProgress from "cli-progress";
 import { splitFile, type SplitOptions } from "./file-splitter.js";
 import { processChunk } from "./chunk-processor.js";
 import { reassembleChunks } from "./chunk-reassembler.js";
+import { deleteCheckpoint } from "./checkpoint.js";
+import { VisitResult } from "./plugins/local-llm-rename/visit-all-identifiers.js";
 
 export interface UnminifyOptions {
   chunkSize?: number;
@@ -15,10 +17,21 @@ export interface UnminifyOptions {
   debugChunks?: boolean;     // Default: false
 }
 
+// Helper to extract code and checkpoint ID from plugin result
+function extractPluginResult(result: string | VisitResult): { code: string; checkpointId: string | null } {
+  if (typeof result === 'string') {
+    // Backward compatibility: string return = no checkpoint
+    return { code: result, checkpointId: null };
+  } else {
+    // New format: { code, checkpointId }
+    return { code: result.code, checkpointId: result.checkpointId };
+  }
+}
+
 export async function unminify(
   filename: string,
   outputDir: string,
-  plugins: ((code: string) => Promise<string>)[] = [],
+  plugins: ((code: string) => Promise<string | VisitResult>)[] = [],
   options: UnminifyOptions = {}
 ) {
   const rootSpan = instrumentation.startSpan("unminify", {
@@ -83,6 +96,9 @@ export async function unminify(
           verbose.log(`Skipping empty file ${file.path}`);
           continue;
         }
+
+        // Track checkpoint IDs from all plugins for this file
+        const checkpointIds: string[] = [];
 
         // NEW: Detect if file should be chunked
         const chunkThreshold = options.chunkSize || 100000; // 100KB default
@@ -149,11 +165,20 @@ export async function unminify(
               }
 
               try {
-                chunkCode = await instrumentation.measure(
+                const pluginResult = await instrumentation.measure(
                   `plugin-${pluginName}-chunk-${chunkIdx + 1}`,
                   () => plugins[j](chunkCode),
                   { pluginIndex: pluginNum, pluginName, chunkIndex: chunkIdx + 1 }
                 );
+
+                // Extract code and checkpoint ID
+                const { code: newCode, checkpointId } = extractPluginResult(pluginResult);
+                chunkCode = newCode;
+
+                // Collect checkpoint ID if present
+                if (checkpointId) {
+                  checkpointIds.push(checkpointId);
+                }
               } finally {
                 if (progressBar && timerInterval) {
                   clearInterval(timerInterval);
@@ -226,11 +251,20 @@ export async function unminify(
             }
 
             try {
-              currentCode = await instrumentation.measure(
+              const pluginResult = await instrumentation.measure(
                 `plugin-${pluginName}`,
                 () => plugins[j](currentCode),
                 { pluginIndex: pluginNum, pluginName }
               );
+
+              // Extract code and checkpoint ID
+              const { code: newCode, checkpointId } = extractPluginResult(pluginResult);
+              currentCode = newCode;
+
+              // Collect checkpoint ID if present
+              if (checkpointId) {
+                checkpointIds.push(checkpointId);
+              }
             } finally {
               if (progressBar && timerInterval) {
                 clearInterval(timerInterval);
@@ -257,10 +291,35 @@ export async function unminify(
         fileSpan.setAttribute("outputSize", currentCode.length);
 
         console.log(`[3/3] Writing output to ${file.path}`);
-        await instrumentation.measure(
-          "write-output-file",
-          () => fs.writeFile(file.path, currentCode)
-        );
+
+        // Write file with error handling to preserve checkpoints on failure
+        try {
+          await instrumentation.measure(
+            "write-output-file",
+            () => fs.writeFile(file.path, currentCode)
+          );
+
+          // Delete checkpoints ONLY after successful file write
+          if (checkpointIds.length > 0) {
+            for (const checkpointId of checkpointIds) {
+              deleteCheckpoint(checkpointId);
+            }
+          }
+        } catch (writeError) {
+          // File write failed - preserve checkpoints for recovery
+          console.error(`\n❌ ERROR: Failed to write output file: ${writeError}`);
+
+          if (checkpointIds.length > 0) {
+            console.error(`\n💾 Checkpoint(s) preserved for recovery:`);
+            for (const checkpointId of checkpointIds) {
+              console.error(`   - Checkpoint ID: ${checkpointId}`);
+            }
+            console.error(`\nYou can resume processing later by running the same command again.`);
+            console.error(`The checkpoint will automatically be detected and processing will continue from where it left off.`);
+          }
+
+          throw writeError; // Re-throw to propagate the error
+        }
 
         memoryMonitor.checkpoint(`output-generation-${i + 1}`);
       } finally {

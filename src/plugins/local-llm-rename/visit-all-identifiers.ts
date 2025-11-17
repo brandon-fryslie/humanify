@@ -38,13 +38,35 @@ export interface VisitOptions {
   };
 }
 
+export interface VisitResult {
+  code: string;
+  checkpointId: string | null;
+}
+
+// Overloaded function signatures for backward compatibility
+export async function visitAllIdentifiers(
+  code: string,
+  visitor: Visitor,
+  contextWindowSize: number,
+  onProgress?: (percentageDone: number) => void,
+  options?: VisitOptions & { enableCheckpoints: false }
+): Promise<string>;
+
 export async function visitAllIdentifiers(
   code: string,
   visitor: Visitor,
   contextWindowSize: number,
   onProgress?: (percentageDone: number) => void,
   options?: VisitOptions
-) {
+): Promise<VisitResult>;
+
+export async function visitAllIdentifiers(
+  code: string,
+  visitor: Visitor,
+  contextWindowSize: number,
+  onProgress?: (percentageDone: number) => void,
+  options?: VisitOptions
+): Promise<string | VisitResult> {
   const rootSpan = instrumentation.startSpan("visit-all-identifiers", {
     codeSize: code.length,
     contextWindowSize,
@@ -147,12 +169,17 @@ export async function visitAllIdentifiers(
 
     rootSpan.setAttribute("outputSize", stringified.code.length);
 
-    // Delete checkpoint on successful completion
-    if (originalCheckpointId) {
-      deleteCheckpoint(originalCheckpointId);
+    // Return checkpoint ID WITHOUT deleting it
+    // Deletion will happen in unminify.ts after successful file write
+    // For backward compatibility: return string if checkpoints disabled
+    if (enableCheckpoints) {
+      return {
+        code: stringified.code,
+        checkpointId: originalCheckpointId
+      };
+    } else {
+      return stringified.code;
     }
-
-    return stringified.code;
   } finally {
     rootSpan.end();
   }
@@ -464,7 +491,7 @@ async function visitAllIdentifiersTurbo(
       }
     }
 
-    // Checkpoint deletion moved to main function (after final transform)
+    // Checkpoint deletion moved to unminify.ts (after final file write)
   } finally {
     turboSpan.end();
   }

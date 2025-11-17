@@ -2,7 +2,7 @@ import { showPercentage } from "../../progress.js";
 import { defineFilename } from "./define-filename.js";
 import { Prompt } from "./llama.js";
 import { unminifyVariableName } from "./unminify-variable-name.js";
-import { visitAllIdentifiers, VisitOptions } from "./visit-all-identifiers.js";
+import { visitAllIdentifiers, VisitOptions, VisitResult } from "./visit-all-identifiers.js";
 
 const PADDING_CHARS = 200;
 
@@ -19,7 +19,7 @@ export const localReanme = (
     originalArgs: Record<string, any>;
   }
 ) => {
-  return async (code: string): Promise<string> => {
+  return async (code: string): Promise<string | VisitResult> => {
     const filename = await defineFilename(
       prompt,
       code.slice(0, PADDING_CHARS * 2)
@@ -32,7 +32,7 @@ export const localReanme = (
       checkpointMetadata
     };
 
-    return await visitAllIdentifiers(
+    const result = await visitAllIdentifiers(
       code,
       (name, surroundingCode) =>
         unminifyVariableName(prompt, name, filename, surroundingCode),
@@ -40,5 +40,8 @@ export const localReanme = (
       showPercentage,
       options
     );
+
+    // Return the VisitResult object (contains code and checkpointId)
+    return result;
   };
 };

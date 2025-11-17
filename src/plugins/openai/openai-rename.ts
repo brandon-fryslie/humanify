@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import {
   visitAllIdentifiers,
-  VisitOptions
+  VisitOptions,
+  VisitResult
 } from "../local-llm-rename/visit-all-identifiers.js";
 import { showPercentage } from "../../progress.js";
 import { verbose } from "../../verbose.js";
@@ -125,7 +126,7 @@ export function openaiRename({
   let totalTokens = 0;
   let totalCost = 0;
 
-  return async (code: string): Promise<string> => {
+  return async (code: string): Promise<string | VisitResult> => {
     // Create rate limit coordinator for this processing run
     // Shared across all parallel API requests to coordinate backoff
     const rateLimitCoordinator = new RateLimitCoordinator();
@@ -139,7 +140,7 @@ export function openaiRename({
       checkpointMetadata
     };
 
-    return await visitAllIdentifiers(
+    const result = await visitAllIdentifiers(
       code,
       async (name, surroundingCode) => {
         verbose.log(`Renaming ${name}`);
@@ -184,16 +185,18 @@ export function openaiRename({
       contextWindowSize,
       showPercentage,
       options
-    ).then((result) => {
-      // Log final stats
-      if (instrumentation.isEnabled()) {
-        const stats = rateLimitCoordinator.getStats();
-        console.log(
-          `\n=== OpenAI Usage ===\nTotal tokens: ${totalTokens.toLocaleString()}\nEstimated cost: $${totalCost.toFixed(4)}\nRate limits hit: ${stats.totalRateLimits}\n`
-        );
-      }
-      return result;
-    });
+    );
+
+    // Log final stats
+    if (instrumentation.isEnabled()) {
+      const stats = rateLimitCoordinator.getStats();
+      console.log(
+        `\n=== OpenAI Usage ===\nTotal tokens: ${totalTokens.toLocaleString()}\nEstimated cost: $${totalCost.toFixed(4)}\nRate limits hit: ${stats.totalRateLimits}\n`
+      );
+    }
+
+    // Return the VisitResult object (contains code and checkpointId)
+    return result;
   };
 }
 

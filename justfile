@@ -83,7 +83,7 @@ download-babylon:
 clean:
     rm -rf output/tensorflow-humanified
     rm -rf output/babylon-humanified
-    rm -rf output/claude-code-cli-humanifiedfas;kjdfckl;ajsdfvk;jlerfgijo;efrwqijo;
+    rm -rf output/claude-code-cli-humanified
     rm -rf output/quick-test
 
 # Show file stats for test samples
@@ -98,4 +98,4 @@ stats:
 claude:
     npm run build
     @if [ -z "$$OPENAI_API_KEY" ]; then echo "Error: OPENAI_API_KEY environment variable not set"; exit 1; fi
-    node dist/index.mjs unminify --provider openai test-samples/claude-code-cli.js --turbo --refine --max-concurrent 25 --chunk-size 300000 -o "output/claude-$(date +"%Y-%m-%dT%H:%M:%S")"
+    node dist/index.mjs unminify --provider openai test-samples/claude.js --turbo --refine --max-concurrent 25 --chunk-size 300000 -o "output/claude-$(date +"%Y-%m-%dT%H:%M:%S")"
