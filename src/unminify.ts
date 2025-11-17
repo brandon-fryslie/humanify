@@ -19,6 +19,7 @@ export interface UnminifyOptions {
   debugChunks?: boolean;     // Default: false
   progressManager?: GlobalProgressManager;
   displayManager?: DisplayManager;
+  skipWebcrack?: boolean;    // Skip webcrack extraction (default: false). Used for refinement passes where files are already extracted.
 }
 
 // Helper to extract code and checkpoint ID from plugin result
@@ -64,13 +65,24 @@ export async function unminify(
 
     rootSpan.setAttribute("inputSize", bundledCode.length);
 
-    console.log(`[1/3] Running webcrack to extract bundles...`);
-    const extractedFiles = await instrumentation.measure(
-      "webcrack",
-      () => webcrack(bundledCode, outputDir),
-      { inputSize: bundledCode.length }
-    );
-    console.log(`  → Extracted ${extractedFiles.length} file(s)\n`);
+    // Handle webcrack - skip if this is a refinement pass
+    let extractedFiles: { path: string }[];
+
+    if (options.skipWebcrack) {
+      // Refinement pass: file is already extracted, use as-is
+      console.log(`[1/3] Skipping webcrack (already unbundled)...`);
+      extractedFiles = [{ path: filename }];
+      console.log(`  → Using 1 file directly\n`);
+    } else {
+      // Initial pass: extract bundles with webcrack
+      console.log(`[1/3] Running webcrack to extract bundles...`);
+      extractedFiles = await instrumentation.measure(
+        "webcrack",
+        () => webcrack(bundledCode, outputDir),
+        { inputSize: bundledCode.length }
+      );
+      console.log(`  → Extracted ${extractedFiles.length} file(s)\n`);
+    }
 
     memoryMonitor.checkpoint("webcrack");
 
