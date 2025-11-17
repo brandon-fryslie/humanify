@@ -18,6 +18,29 @@ import prompts from "prompts";
 import { estimateWork } from "../estimate-work.js";
 import { getGlobalProgressManager, resetGlobalProgressManager } from "../global-progress.js";
 import { getDisplayManager, resetDisplayManager } from "../display-manager.js";
+import path from "path";
+
+/**
+ * Discover all .js files in output directory (excluding sourcemaps).
+ * Used for refinement passes to find files produced by previous pass.
+ *
+ * @param outputDir - Directory to search for .js files
+ * @returns Array of absolute paths to .js files, sorted alphabetically
+ * @throws Error if directory cannot be read
+ */
+export async function discoverOutputFiles(outputDir: string): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(outputDir, { withFileTypes: true });
+    const jsFiles = entries
+      .filter(entry => entry.isFile() && entry.name.endsWith('.js') && !entry.name.endsWith('.map'))
+      .map(entry => path.join(outputDir, entry.name))
+      .sort(); // Deterministic ordering
+
+    return jsFiles;
+  } catch (error) {
+    throw new Error(`Failed to discover output files in ${outputDir}: ${error}`);
+  }
+}
 
 export const openai = cli()
   .name("openai")
