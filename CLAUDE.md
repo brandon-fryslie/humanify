@@ -66,7 +66,7 @@ These recipes demonstrate optimal turbo mode settings for different file sizes a
 
 The main entry point is `src/unminify.ts` which orchestrates:
 1. Read input file
-2. Webcrack (unbundle webpack bundles) → produces multiple files
+2. Webcrack (unbundle webpack bundles) → produces multiple files (use `--skipWebcrack` to bypass)
 3. For each file, run plugin chain sequentially:
    - `babel` (AST transformations)
    - LLM renaming plugin (`openaiRename`, `geminiRename`, or `localRename`)
@@ -94,13 +94,17 @@ This is the core AST traversal logic used by ALL rename plugins:
    - Handle collisions by prefixing with `_`
 5. Transform AST back to code
 
-**Current limitation**: The loop at line 30-58 is SEQUENTIAL - each LLM call blocks the next. This is the primary parallelization opportunity.
-
 ### LLM Provider Plugins
+
+**Default models**:
+- OpenAI: `gpt-4o-mini`
+- Gemini: `gemini-1.5-flash`
+- Local: `qwen2.5-coder-3b-instruct`
 
 **OpenAI** (`src/plugins/openai/openai-rename.ts`):
 - Uses OpenAI's structured output (JSON schema) to get rename suggestions
 - Calls `visitAllIdentifiers()` with an async visitor that makes API calls
+- Supports `--refine` for a second pass with 2x parallelism (doubles cost, improves quality)
 
 **Gemini** (`src/plugins/gemini-rename.ts`):
 - Similar structure to OpenAI
@@ -111,6 +115,7 @@ This is the core AST traversal logic used by ALL rename plugins:
 - First determines filename context via `defineFilename()`
 - Then renames variables via `unminifyVariableName()`
 - Uses GBNF (Grammar-Based Neural Function) for constrained generation
+- **Important**: Local LLM does NOT support concurrent sequences; `--max-concurrent` is forced to 1
 
 ### Babel Utilities
 
@@ -125,9 +130,32 @@ This is the core AST traversal logic used by ALL rename plugins:
 - `*.llmtest.ts`: Tests that call real LLMs (slow, run sequentially)
 - `*.openaitest.ts` / `*.geminitest.ts`: Provider-specific integration tests
 
+## Checkpoint & Resume System
+
+Long-running jobs automatically save checkpoints to `.humanify-checkpoints/`. If a job is interrupted, you can resume from the last checkpoint:
+
+```bash
+# List existing checkpoints
+humanify checkpoints list
+
+# Resume from a checkpoint (interactive)
+humanify checkpoints resume
+
+# Clear all checkpoints
+humanify checkpoints clear
+```
+
+Checkpoints store:
+- Completed batch count and total batches
+- Accumulated renames (old → new name mapping)
+- Partial transformed code
+- Original command arguments for easy resume
+
+When you re-run a command with the same input file, it detects the checkpoint and prompts to resume.
+
 ## Large File Handling
 
-### Automatic Chunking (NEW!)
+### Automatic Chunking
 
 For extremely large files (>100KB by default), HumanifyJS automatically splits the file into chunks to prevent out-of-memory errors.
 
@@ -139,7 +167,7 @@ For extremely large files (>100KB by default), HumanifyJS automatically splits t
 **Configuration**:
 ```bash
 --chunk-size N              # Threshold for chunking (default: 100000 chars)
---enable-chunking false     # Disable automatic chunking
+--no-chunking               # Disable automatic chunking
 --debug-chunks              # Add chunk boundary markers in output
 ```
 
@@ -149,7 +177,7 @@ For extremely large files (>100KB by default), HumanifyJS automatically splits t
 - Processing on machines with limited RAM
 
 **Implementation files**:
-- `src/unminify.ts`: Chunking orchestration (lines 88-192)
+- `src/unminify.ts`: Chunking orchestration
 - `src/file-splitter.ts`: AST-based splitting logic
 - `src/chunk-processor.ts`: Per-chunk plugin application
 - `src/chunk-reassembler.ts`: Merging processed chunks
@@ -188,14 +216,14 @@ humanify unminify --provider openai input.js --turbo --max-concurrent 20
 # Gemini with turbo mode
 humanify unminify --provider gemini input.js --turbo
 
-# Local LLM with turbo mode (lower concurrency recommended)
-humanify unminify --provider local input.js --turbo --max-concurrent 2
+# Local LLM with turbo mode (concurrency forced to 1)
+humanify unminify --provider local input.js --turbo
 ```
 
-### Advanced Turbo Mode Options
+### Advanced Options
 ```bash
 # Fine-tune batch processing
---min-batch-size N          # Merge small batches (default: 1)
+--min-batch-size N          # Merge small batches (default: 3)
 --max-batch-size N          # Split large batches to prevent memory spikes (default: 100)
 
 # Dependency graph modes
@@ -204,11 +232,21 @@ humanify unminify --provider local input.js --turbo --max-concurrent 2
 --dependency-mode relaxed   # Fewer dependencies, fastest (may miss some context)
 
 # Memory management
---max-memory N              # Trigger GC when memory exceeds N MB
---perf                      # Enable performance instrumentation/telemetry
+--max-memory N              # Trigger GC when memory exceeds N MB (default: 4096)
+--perf                      # Enable performance instrumentation/telemetry (default: true)
 
 # Context size
 --context-size N            # Characters of surrounding code sent to LLM (default varies by provider)
+
+# Quality improvements
+--refine                    # Run second pass with 2x parallelism (OpenAI only, doubles cost)
+
+# Validation
+--validate                  # Validate output is syntactically correct (default: true)
+--no-validate               # Skip output validation
+
+# Cost estimation
+--dry-run                   # Estimate cost and time without making API calls
 ```
 
 **Example for large files** (7MB+):
@@ -221,7 +259,7 @@ humanify unminify --provider openai large.js \
   --context-size 50000 \
   --dependency-mode relaxed \
   --max-memory 4096 \
-  --perf
+  --refine
 ```
 
 ### Implementation Details
@@ -265,6 +303,7 @@ The codebase includes comprehensive instrumentation for performance analysis:
 - `src/instrumentation.ts`: Spans and timing metrics for all major operations
 - `src/memory-monitor.ts`: Memory usage tracking with checkpoints
 - `src/progress.ts`: Progress reporting for long-running operations
+- `src/display-manager.ts`: Console output coordination
 
 **Enabling telemetry**:
 ```bash

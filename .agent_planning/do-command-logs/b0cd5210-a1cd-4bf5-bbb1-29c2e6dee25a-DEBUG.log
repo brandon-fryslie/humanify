@@ -1,0 +1,10 @@
+2025-12-21T14:47:33.497484 ============================================================
+2025-12-21T14:47:33.497640 init.py: SESSION START
+2025-12-21T14:47:33.497752 init.py: session_id=b0cd5210-a1cd-4bf5-bbb1-29c2e6dee25a
+2025-12-21T14:47:33.497899 init.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-21T14:47:33.497988 init.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'hook_event_name', 'source']
+2025-12-21T14:47:33.498081 init.py: hook_event_name=SessionStart
+2025-12-21T14:47:33.498196 init.py: transcript_path=/Users/bmf/.claude/projects/-Users-bmf-code-brandon-fryslie-humanify/b0cd5210-a1cd-4bf5-bbb1-29c2e6dee25a.jsonl
+2025-12-21T14:47:33.498314 init.py: directory exists: .agent_planning/do-command-logs
+2025-12-21T14:47:33.498422 init.py: directory exists: .agent_planning/do-command-logs/partials
+2025-12-21T14:47:33.498520 init.py: initialization complete
