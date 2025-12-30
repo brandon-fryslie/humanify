@@ -2,7 +2,7 @@
 import { version } from "../package.json";
 import { download } from "./commands/download.js";
 import { unminifyCommand } from "./commands/unminify.js";
-import { checkpointsCommand } from "./commands/checkpoints.js";
+import { checkpointsV2Command } from "./commands/checkpoints-v2.js";
 import { cli } from "./cli.js";
 
 // Handle Ctrl+C gracefully
@@ -24,5 +24,5 @@ cli()
   .version(version)
   .addCommand(unminifyCommand)
   .addCommand(download())
-  .addCommand(checkpointsCommand)
+  .addCommand(checkpointsV2Command)
   .parse(process.argv);

@@ -19,6 +19,9 @@ import { validateOutput, printValidationResults } from "../output-validator.js";
 import * as fs from "fs/promises";
 import { getCheckpointId, loadCheckpoint, deleteCheckpoint } from "../checkpoint.js";
 import prompts from "prompts";
+import { executeTurboV2 } from "../turbo-v2/cli/turbo-v2-command.js";
+import { getPassSyntaxHelp } from "../turbo-v2/cli/pass-parser.js";
+import { getPresetHelp } from "../turbo-v2/cli/presets.js";
 
 export const unminifyCommand = cli()
   .name("unminify")
@@ -50,9 +53,10 @@ export const unminifyCommand = cli()
     "The context size to use for the LLM",
     `${DEFAULT_CONTEXT_WINDOW_SIZE}`
   )
+  // Turbo V1 options (existing)
   .option(
     "--turbo",
-    "Enable turbo mode: optimal ordering via information-flow graph + parallel API calls"
+    "Enable turbo V1 mode: optimal ordering via information-flow graph + parallel API calls"
   )
   .option(
     "--max-concurrent <count>",
@@ -78,6 +82,29 @@ export const unminifyCommand = cli()
     "--refine",
     "Run a second pass with 2x parallelism to refine names (doubles cost, improves quality, OpenAI only)"
   )
+  // Turbo V2 options (new)
+  .option(
+    "--turbo-v2",
+    "Enable turbo V2 mode: multi-pass parallel pipeline with ledger-based checkpointing (default: 2-pass parallel)"
+  )
+  .option(
+    "--passes <count>",
+    "Number of passes to run in turbo-v2 mode (turbo-v2 only)",
+    "2"
+  )
+  .option(
+    "--pass <config>",
+    "Define a custom pass (repeatable, turbo-v2 only). Syntax: processor:mode:concurrency[:filter][:options]"
+  )
+  .option(
+    "--preset <name>",
+    "Use a preset pipeline (turbo-v2 only). Options: fast, balanced, quality, anchor"
+  )
+  .option(
+    "--fresh",
+    "Ignore existing checkpoint and start fresh (turbo-v2 only)"
+  )
+  // General options
   .option(
     "--perf",
     "Enable detailed performance instrumentation and timing",
@@ -104,9 +131,79 @@ export const unminifyCommand = cli()
     "Add comment markers between chunks for debugging",
     false
   )
+  .option("--quiet", "Minimal output (turbo-v2 only)")
+  .option("--no-color", "Disable colored output (turbo-v2 only)")
   .argument("input", "The input minified Javascript file")
+  .addHelpText("after", `
+Turbo V2 Mode:
+  Use --turbo-v2 to enable the new multi-pass parallel pipeline with:
+  - Ledger-based checkpointing (resume from any crash)
+  - Vault caching (zero wasted API spend)
+  - Multi-pass refinement (sequential-level quality at parallel speeds)
+
+  ${getPresetHelp()}
+
+  ${getPassSyntaxHelp()}
+`)
   .action(async (filename, opts) => {
     try {
+      // Check if turbo-v2 mode is enabled
+      if (opts.turboV2) {
+        // Validate turbo-v2 specific options
+        if (opts.turbo) {
+          console.error("❌ Cannot use both --turbo and --turbo-v2. Choose one.");
+          process.exit(1);
+        }
+
+        if (opts.refine) {
+          console.warn("⚠️  --refine is not supported in turbo-v2 mode (use --preset balanced instead)");
+        }
+
+        // Get API key based on provider
+        const provider = opts.provider.toLowerCase();
+        let apiKey: string | undefined;
+        if (provider === "openai") {
+          apiKey = opts.apiKey ?? env("OPENAI_API_KEY");
+          if (!apiKey) {
+            console.error("❌ OPENAI_API_KEY environment variable is required for OpenAI provider");
+            process.exit(1);
+          }
+        } else if (provider === "gemini") {
+          apiKey = opts.apiKey ?? env("GEMINI_API_KEY");
+          if (!apiKey) {
+            console.error("❌ GEMINI_API_KEY environment variable is required for Gemini provider");
+            process.exit(1);
+          }
+        }
+
+        // Collect --pass arguments (Commander stores repeated options as array)
+        const passArgs = opts.pass ? (Array.isArray(opts.pass) ? opts.pass : [opts.pass]) : undefined;
+
+        // Execute turbo-v2 pipeline
+        await executeTurboV2({
+          inputPath: filename,
+          outputDir: opts.outputDir,
+          provider,
+          model: opts.model,
+          apiKey,
+          baseURL: opts.baseURL,
+          passes: opts.passes ? parseInt(opts.passes, 10) : undefined,
+          pass: passArgs,
+          preset: opts.preset,
+          checkpointDir: ".humanify-checkpoints",
+          fresh: opts.fresh,
+          quiet: opts.quiet,
+          verbose: opts.verbose,
+          noColor: opts.noColor,
+          contextSize: opts.contextSize ? parseNumber(opts.contextSize) : undefined,
+          maxConcurrent: opts.maxConcurrent ? parseNumber(opts.maxConcurrent) : undefined,
+        });
+
+        return;
+      }
+
+      // === EXISTING TURBO V1 CODE BELOW ===
+
       // Setup memory monitoring
       const maxMemoryMB = parseNumber(opts.maxMemory);
       memoryMonitor.setLimit(maxMemoryMB);
