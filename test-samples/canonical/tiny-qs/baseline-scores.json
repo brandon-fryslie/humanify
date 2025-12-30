@@ -1,0 +1,15 @@
+{
+  "sampleName": "tiny-qs",
+  "description": "QS stringify module (~350 lines)",
+  "timestamp": "2025-12-30T01:25:12.890Z",
+  "humanifyVersion": "2.2.2",
+  "mode": "sequential",
+  "metrics": {
+    "originalIdentifierCount": 63,
+    "unminifiedIdentifierCount": 80,
+    "exactMatches": 6,
+    "matchPercentage": 9.52,
+    "structurallyValid": true
+  },
+  "processingTime": 83.392
+}

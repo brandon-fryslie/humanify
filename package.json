@@ -23,7 +23,8 @@
     "lint:eslint": "eslint src/* src/**/*",
     "download-ci-model": "npx humanify download 2b",
     "compare": "tsx scripts/compare-unminified.ts",
-    "minify-samples": "tsx scripts/minify-canonical-samples.ts"
+    "minify-samples": "tsx scripts/minify-canonical-samples.ts",
+    "measure-baseline": "tsx scripts/measure-baseline.ts"
   },
   "bin": {
     "humanify": "dist/index.mjs"
