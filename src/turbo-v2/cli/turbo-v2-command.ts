@@ -7,6 +7,7 @@
 
 import { MultiPass } from "../orchestrator/multi-pass.js";
 import { Vault } from "../vault/vault.js";
+import { VaultEviction, DEFAULT_EVICTION_CONFIG } from "../vault/eviction.js";
 import { Ledger } from "../ledger/ledger.js";
 import { PassConfig, JobConfig } from "../ledger/events.js";
 import { ProgressRenderer } from "../ui/progress-renderer.js";
@@ -37,6 +38,9 @@ export interface TurboV2Options {
   // Checkpointing
   checkpointDir?: string;
   fresh?: boolean;
+
+  // Vault
+  vaultMaxSize?: number; // Max vault size in bytes (default: 1GB)
 
   // UI
   quiet?: boolean;
@@ -136,6 +140,7 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
 
   // Setup infrastructure
   const checkpointDir = options.checkpointDir ?? ".humanify-checkpoints";
+  const vaultDir = ".humanify-cache/vault";
   const jobId = generateJobId(options.inputPath, passConfigs);
   const jobDir = join(checkpointDir, jobId);
 
@@ -144,8 +149,30 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
     mkdirSync(jobDir, { recursive: true });
   }
 
-  // Initialize components
-  const vault = new Vault();
+  // Initialize vault and eviction
+  const vault = new Vault(vaultDir);
+  const eviction = new VaultEviction(vaultDir, {
+    maxSize: options.vaultMaxSize ?? DEFAULT_EVICTION_CONFIG.maxSize,
+  });
+
+  // Check vault size and evict if needed
+  if (eviction.needsEviction()) {
+    if (!options.quiet) {
+      console.log("[turbo-v2] Vault size exceeded threshold, running eviction...");
+    }
+    const evictionStats = eviction.evict();
+    if (!options.quiet) {
+      console.log(`[turbo-v2] ${VaultEviction.formatStats(evictionStats)}`);
+    }
+  }
+
+  // Display vault stats if verbose
+  if (options.verbose) {
+    const stats = eviction.getStats();
+    console.log(`[turbo-v2] Vault: ${VaultEviction.formatSize(stats.vaultSize)} / ${stats.entryCount} entries`);
+  }
+
+  // Initialize other components
   const ledger = new Ledger(join(jobDir, "events.jsonl"));
   const metrics = new MetricsCollector();
   const renderer = new ProgressRenderer({

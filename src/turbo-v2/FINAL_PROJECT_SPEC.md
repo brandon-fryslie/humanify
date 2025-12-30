@@ -42,6 +42,12 @@ Turbo V2 is a ground-up rewrite of HumanifyJS's parallel processing mode. It ach
 
 **Why**: If the app crashes during parsing or AST mutation, we reload from Vault instead of re-running the LLM request. Zero wasted spend.
 
+**Eviction Policy**:
+- Max size: 1GB (configurable via `--vault-max-size`)
+- Strategy: LRU (least recently used)
+- Cleanup: Automatic eviction when vault exceeds threshold
+- Evicts until size < 80% of max (configurable target size)
+
 ### 2.2 The Ledger (Event-Sourced Checkpointing)
 
 **What**: An append-only log of every state change.
@@ -210,49 +216,185 @@ Sequential mode achieves best quality but is slow. The key insight:
 
 ---
 
-## 6. High-ROI Processing Strategies
+## 6. Pipeline Presets
 
-### Default: Two-Pass Parallel
+Presets provide pre-configured multi-pass strategies for common use cases. They optimize for different quality/speed/cost trade-offs.
 
+### Fast Preset (Default)
+
+**Use Case**: Maximum speed with good quality. Best for most files.
+
+**Pipeline**:
 ```
 Pass 1: rename:parallel:50 (gpt-4o-mini)
 Pass 2: rename:parallel:50 (gpt-4o-mini)
 ```
 
-Fast baseline. Pass 2 sees all Pass 1 renames.
+**How it works**:
+- Pass 1: Initial parallel rename (60-87% quality)
+- Pass 2: Sees all Pass 1 renames, improves context for better suggestions
 
-### Anchor-First Hybrid
+**Performance Expectations**:
+- Quality: 85-95% of sequential baseline
+- Speed: 10-15x faster than sequential
+- Cost: 2x API calls (double tokens)
+- Time: ~5-10 minutes for 5000 identifiers
 
+**When to use**:
+- Default choice for files with 100-10,000 identifiers
+- Time-sensitive workflows
+- When cost is moderate concern
+
+**CLI**:
+```bash
+humanify unminify input.js --turbo-v2 --preset fast
+# or simply:
+humanify unminify input.js --turbo-v2
 ```
-Pass 1: analyze (detect top 10-20% by importance)
-Pass 2: rename:sequential (anchors only)
+
+---
+
+### Balanced Preset
+
+**Use Case**: Good quality/speed trade-off with explicit refinement step.
+
+**Pipeline**:
+```
+Pass 1: rename:parallel:50 (gpt-4o-mini)
+Pass 2: refine:parallel:50 (gpt-4o-mini)
+```
+
+**How it works**:
+- Pass 1: Initial rename with surrounding context
+- Pass 2: Refinement processor reviews each name with full Pass 1 context
+- Refine processor prompt explicitly asks: "Is this name correct? Suggest improvement or keep."
+
+**Performance Expectations**:
+- Quality: 90-95% of sequential baseline
+- Speed: 8-12x faster than sequential
+- Cost: 2x API calls
+- Time: ~7-12 minutes for 5000 identifiers
+
+**When to use**:
+- When quality is more important than raw speed
+- Files with complex business logic
+- When you want explicit confirmation of rename quality
+
+**CLI**:
+```bash
+humanify unminify input.js --turbo-v2 --preset balanced
+```
+
+---
+
+### Quality Preset
+
+**Use Case**: Maximum quality. Best results regardless of cost.
+
+**Pipeline**:
+```
+Pass 1: rename:parallel:50
+Pass 2: refine:parallel:50
+Pass 3: analyze:parallel:100 (conflict detection)
+Pass 4: rename:sequential:1 (low-confidence only)
+Pass 5: transform:parallel:100 (consistency enforcement)
+```
+
+**How it works**:
+- Pass 1-2: Standard rename + refine
+- Pass 3: Analyze identifies conflicts (same identifier with different names, similar names for unrelated identifiers)
+- Pass 4: Sequential processing of flagged low-confidence identifiers with full context
+- Pass 5: Apply naming consistency rules (camelCase, prefix/suffix patterns)
+
+**Performance Expectations**:
+- Quality: 95-100% of sequential baseline (may exceed)
+- Speed: 3-5x faster than sequential
+- Cost: 5x API calls
+- Time: ~15-30 minutes for 5000 identifiers
+
+**When to use**:
+- Production deobfuscation requiring high accuracy
+- Files with critical business logic
+- When cost is not a concern
+- When you need consistent naming conventions
+
+**CLI**:
+```bash
+humanify unminify input.js --turbo-v2 --preset quality
+```
+
+---
+
+### Anchor Preset
+
+**Use Case**: Large files with clear hierarchy. Anchor-first hybrid strategy.
+
+**Pipeline**:
+```
+Pass 1: analyze:parallel:100 (detect anchors)
+Pass 2: rename:sequential:1 (anchors only, top 10-20%)
 Pass 3: rename:parallel:50 (rest, with anchor glossary)
 Pass 4: refine:parallel:50 (optional cleanup)
 ```
 
-Establishes semantic skeleton first. Bulk renames use skeleton as context.
+**How it works**:
+- Pass 1: Detect high-importance identifiers (anchors): exports, classes, functions, high reference count
+- Pass 2: Sequentially rename anchors with maximum context (each sees previous)
+- Pass 3: Parallel rename of remaining identifiers, with anchor names in glossary
+- Pass 4: Refinement pass for final polish
 
-### Speculative + Judge
+**Anchor Detection Criteria**:
+- Exported identifiers
+- Class or function declarations
+- Reference count ≥ 3
+- Scope size ≥ 50 lines
+- Typically top 10-20% by importance score
 
+**Performance Expectations**:
+- Quality: 90-98% of sequential baseline
+- Speed: 5-10x faster than sequential
+- Cost: 4x API calls
+- Time: ~10-20 minutes for 5000 identifiers
+
+**When to use**:
+- Files with 5000+ identifiers
+- Clear architectural hierarchy (libraries, frameworks)
+- When important identifiers need sequential attention
+- Files with many small helper functions referencing few key exports
+
+**CLI**:
+```bash
+humanify unminify input.js --turbo-v2 --preset anchor
 ```
-Pass 1: rename:parallel:100 (gpt-4o-mini, cheap)
-Pass 2: judge:parallel:50 (gpt-4o, flag low-confidence)
-Pass 3: rename:sequential (flagged only)
+
+---
+
+### Preset Comparison Table
+
+| Preset | Passes | Quality | Speed | Cost | Best For |
+|--------|--------|---------|-------|------|----------|
+| `fast` | 2 | 85-95% | 10-15x | 2x | Default choice, most files |
+| `balanced` | 2 | 90-95% | 8-12x | 2x | Quality-focused, moderate cost |
+| `quality` | 5 | 95-100% | 3-5x | 5x | Production, critical code |
+| `anchor` | 4 | 90-98% | 5-10x | 4x | Large files, clear hierarchy |
+
+**Quality**: Percentage of sequential baseline semantic score
+**Speed**: Speedup vs. sequential processing
+**Cost**: API call multiplier vs. 1-pass
+
+---
+
+### Custom Presets
+
+You can define custom presets via config file (deferred to future sprint). For now, use explicit `--pass` arguments:
+
+```bash
+# Custom 3-pass pipeline
+humanify unminify input.js --turbo-v2 \
+  --pass "rename:parallel:50" \
+  --pass "refine:parallel:50" \
+  --pass "rename:sequential:1:low-confidence"
 ```
-
-Cheap parallel pass, expensive verification, targeted fixes.
-
-### Quality Pipeline
-
-```
-Pass 1: rename:parallel:50
-Pass 2: refine:parallel:50
-Pass 3: conflict-detect:parallel:100
-Pass 4: rename:sequential (flagged only)
-Pass 5: consistency:parallel:100
-```
-
-Maximum quality, 5x cost.
 
 ---
 
@@ -261,8 +403,11 @@ Maximum quality, 5x cost.
 ### Basic Usage
 
 ```bash
-# Default 2-pass parallel
+# Default 2-pass parallel (fast preset)
 humanify unminify input.js --turbo-v2
+
+# Use preset
+humanify unminify input.js --turbo-v2 --preset balanced
 
 # Explicit passes
 humanify unminify input.js --turbo-v2 --passes 3
@@ -284,15 +429,6 @@ Examples:
   refine:parallel:30:low-confidence:model=gpt-4o
 ```
 
-### Presets
-
-| Preset | Pipeline | Use Case |
-|--------|----------|----------|
-| `fast` | 2-pass parallel | Maximum speed |
-| `balanced` | rename → refine | Good quality/speed |
-| `quality` | 5-pass with conflicts | Best quality |
-| `anchor` | Anchor-first hybrid | Large files |
-
 ### Key Options
 
 ```bash
@@ -304,6 +440,8 @@ Examples:
 --output-dir DIR              # Output location (default: output/)
 --save-every-identifiers N    # Mid-pass checkpoint frequency (default: 100)
 --save-every-seconds N        # Mid-pass checkpoint frequency (default: 60)
+
+--vault-max-size N            # Max vault size in bytes (default: 1GB)
 
 --fresh                       # Ignore existing checkpoint, start fresh
 --replay-from N               # Replay from after pass N

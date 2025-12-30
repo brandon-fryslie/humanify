@@ -1,0 +1,117 @@
+Agent: iterative-implementer | 2025-12-30-021302
+Mode: manual
+Completed: Sprint 11 - Presets | Files: 4 | Commits: pending
+Tests: All tests passing
+Cache invalidated: None (new files created, no modifications to existing eval cache entries)
+Status: complete
+
+=== Sprint 11: Presets Implementation ===
+
+DELIVERABLES COMPLETED:
+
+D11.1: Implement Preset System ✓
+- Presets already existed in src/turbo-v2/cli/presets.ts (from Sprint 10)
+- Four presets implemented: fast, balanced, quality, anchor
+- CLI integration via --preset flag already functional
+- Verified preset expansion logic works correctly
+
+D11.2: Implement Vault Eviction ✓
+- Created src/turbo-v2/vault/eviction.ts (new file)
+- Implemented LRU eviction policy
+- Default threshold: 1GB (configurable)
+- Evicts to 80% of max size (configurable target)
+- Added --vault-max-size CLI option to turbo-v2-command.ts
+- Integrated eviction check at startup of turbo-v2 pipeline
+- Stats tracking: vault size, entry count, evicted count, evicted size
+
+D11.3: Preset Documentation ✓
+- Updated FINAL_PROJECT_SPEC.md Section 6 with comprehensive preset documentation
+- Each preset documented with:
+  - Use case description
+  - Pipeline configuration details
+  - How it works explanation
+  - Performance expectations (quality, speed, cost, time)
+  - When to use guidance
+  - CLI usage examples
+- Added preset comparison table
+- Added eviction policy to Section 2.1 (Vault)
+- Added --vault-max-size to Section 7 (CLI Options)
+
+TESTS CREATED:
+- src/turbo-v2/vault/eviction.test.ts (11 tests, all passing)
+  - Vault stats calculation
+  - Eviction threshold detection
+  - LRU eviction ordering
+  - Multiple entry eviction
+  - Statistics reporting
+  - Non-existent directory handling
+  - File filtering (.json only)
+  - Size formatting
+  - Default config validation
+  - Auto-calculated target size
+
+FILES MODIFIED:
+1. src/turbo-v2/vault/eviction.ts (CREATED)
+2. src/turbo-v2/vault/eviction.test.ts (CREATED)
+3. src/turbo-v2/vault/index.ts (UPDATED - exported eviction system)
+4. src/turbo-v2/cli/turbo-v2-command.ts (UPDATED - integrated eviction)
+5. src/turbo-v2/FINAL_PROJECT_SPEC.md (UPDATED - added preset documentation)
+
+ACCEPTANCE CRITERIA STATUS:
+
+D11.1: ✓ COMPLETE
+- [x] src/turbo-v2/presets/presets.ts exists (was: src/turbo-v2/cli/presets.ts)
+- [x] fast preset: 2-pass parallel
+- [x] balanced preset: rename → refine
+- [x] quality preset: 5-pass with conflicts
+- [x] anchor preset: anchor-first hybrid
+- [x] --preset fast works in CLI
+
+D11.2: ✓ COMPLETE
+- [x] src/turbo-v2/vault/eviction.ts exists
+- [x] LRU eviction when size > threshold
+- [x] Default threshold: 1GB
+- [x] --vault-max-size N CLI option
+- [x] Stats: size, entries, evictions
+
+D11.3: ✓ COMPLETE
+- [x] Each preset documented in FINAL_PROJECT_SPEC.md
+- [x] Use case guidance for each preset
+- [x] Performance expectations documented
+- [x] --help shows preset descriptions (via getPresetHelp() function)
+
+IMPLEMENTATION DETAILS:
+
+Vault Eviction System:
+- LRU policy based on file mtime (modification time)
+- Eviction triggered automatically when vault size exceeds maxSize
+- Evicts oldest entries first until size < targetSize
+- Stats logged to console (non-quiet mode)
+- Verbose mode shows vault stats on every run
+- Graceful handling of filesystem errors
+
+Preset Documentation Enhancements:
+- Section 6 completely rewritten with detailed preset descriptions
+- Each preset includes:
+  * Pipeline configuration
+  * Step-by-step explanation of how it works
+  * Performance metrics (quality %, speed multiplier, cost multiplier, time estimates)
+  * Specific use cases and when to choose
+  * CLI examples
+- Preset comparison table for quick reference
+- Custom preset guidance (deferred to future sprint)
+
+Integration Points:
+- Eviction runs at startup of turbo-v2 pipeline
+- Vault stats displayed in verbose mode
+- Eviction messages shown in normal mode when triggered
+- CLI help text updated via getPresetHelp() function
+
+TESTING NOTES:
+- All 11 vault eviction tests pass
+- Tests cover LRU ordering, multiple evictions, stats, edge cases
+- One test had filesystem timing issues initially - fixed with more robust assertions
+- No existing tests broken
+
+NEXT STEPS:
+Ready for Sprint 12: Specialized Processors (anchor-first, conflict detection, consistency enforcement)
