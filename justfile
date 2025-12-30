@@ -99,3 +99,150 @@ claude:
     npm run build
     @if [ -z "$$OPENAI_API_KEY" ]; then echo "Error: OPENAI_API_KEY environment variable not set"; exit 1; fi
     node dist/index.mjs unminify --provider openai test-samples/claude.js --turbo --refine --max-concurrent 25 --chunk-size 300000 -o "output/claude-$(date +"%Y-%m-%dT%H:%M:%S")"
+
+# ========================================
+# Canonical Sample Processing
+# ========================================
+
+# Run a sample in sequential mode (no turbo)
+# Usage: just run-seq <sample>
+# Example: just run-seq tiny-qs
+run-seq sample:
+    ./scripts/run-sequential.sh {{sample}}
+
+# Run a sample in turbo mode
+# Usage: just run-turbo <sample> [max-concurrent]
+# Example: just run-turbo tiny-qs 10
+run-turbo sample concurrency="10":
+    ./scripts/run-turbo.sh {{sample}} {{concurrency}}
+
+# Run tiny-qs sample (sequential)
+run-tiny-qs-seq:
+    ./scripts/run-sequential.sh tiny-qs
+
+# Run tiny-qs sample (turbo)
+run-tiny-qs-turbo concurrency="10":
+    ./scripts/run-turbo.sh tiny-qs {{concurrency}}
+
+# Run small-axios sample (sequential)
+run-small-axios-seq:
+    ./scripts/run-sequential.sh small-axios
+
+# Run small-axios sample (turbo)
+run-small-axios-turbo concurrency="10":
+    ./scripts/run-turbo.sh small-axios {{concurrency}}
+
+# Run medium-chart sample (sequential)
+run-medium-chart-seq:
+    ./scripts/run-sequential.sh medium-chart
+
+# Run medium-chart sample (turbo)
+run-medium-chart-turbo concurrency="15":
+    ./scripts/run-turbo.sh medium-chart {{concurrency}}
+
+# Run all samples in sequential mode
+run-all-seq:
+    @echo "Running all samples in sequential mode..."
+    ./scripts/run-sequential.sh tiny-qs
+    ./scripts/run-sequential.sh small-axios
+    ./scripts/run-sequential.sh medium-chart
+
+# Run all samples in turbo mode
+run-all-turbo:
+    @echo "Running all samples in turbo mode..."
+    ./scripts/run-turbo.sh tiny-qs 10
+    ./scripts/run-turbo.sh small-axios 10
+    ./scripts/run-turbo.sh medium-chart 15
+
+# Run a sample in turbo mode WITH refinement (2nd pass)
+# Usage: just run-turbo-refine <sample> [max-concurrent]
+run-turbo-refine sample concurrency="10":
+    #!/bin/bash
+    set -e
+    SAMPLE_DIR="test-samples/canonical/{{sample}}"
+    OUTPUT_DIR="$SAMPLE_DIR/output-turbo-refine"
+    rm -rf "$OUTPUT_DIR"
+    mkdir -p "$OUTPUT_DIR"
+    echo "Running TURBO+REFINE on {{sample}} (concurrency={{concurrency}})..."
+    node dist/index.mjs unminify \
+      --provider openai \
+      --no-chunking \
+      --turbo \
+      --refine \
+      --max-concurrent {{concurrency}} \
+      -o "$OUTPUT_DIR" \
+      "$SAMPLE_DIR/minified.js"
+    echo "Done! Output in: $OUTPUT_DIR/deobfuscated.js"
+
+# Run tiny-qs with turbo+refine
+run-tiny-qs-turbo-refine concurrency="10":
+    just run-turbo-refine tiny-qs {{concurrency}}
+
+# Run small-axios with turbo+refine
+run-small-axios-turbo-refine concurrency="10":
+    just run-turbo-refine small-axios {{concurrency}}
+
+# Run medium-chart with turbo+refine
+run-medium-chart-turbo-refine concurrency="15":
+    just run-turbo-refine medium-chart {{concurrency}}
+
+# ========================================
+# Scoring Commands
+# ========================================
+
+# Score a deobfuscated sample against the original (LLM-as-judge)
+# Usage: just score <sample> <mode>
+# Example: just score tiny-qs turbo
+score sample mode:
+    ./scripts/score-sample.sh {{sample}} {{mode}}
+
+# Score semantic similarity between two files directly
+# Usage: just score-files <original.js> <unminified.js>
+score-files original unminified:
+    npx tsx scripts/score-semantic.ts {{original}} {{unminified}}
+
+# Score tiny-qs sample (sequential mode)
+score-tiny-qs-seq:
+    ./scripts/score-sample.sh tiny-qs sequential
+
+# Score tiny-qs sample (turbo mode)
+score-tiny-qs-turbo:
+    ./scripts/score-sample.sh tiny-qs turbo
+
+# Score small-axios sample (sequential mode)
+score-small-axios-seq:
+    ./scripts/score-sample.sh small-axios sequential
+
+# Score small-axios sample (turbo mode)
+score-small-axios-turbo:
+    ./scripts/score-sample.sh small-axios turbo
+
+# Score medium-chart sample (sequential mode)
+score-medium-chart-seq:
+    ./scripts/score-sample.sh medium-chart sequential
+
+# Score medium-chart sample (turbo mode)
+score-medium-chart-turbo:
+    ./scripts/score-sample.sh medium-chart turbo
+
+# Score turbo-refine output
+score-turbo-refine sample:
+    npx tsx scripts/score-semantic.ts \
+      "test-samples/canonical/{{sample}}/original.js" \
+      "test-samples/canonical/{{sample}}/output-turbo-refine/deobfuscated.js"
+
+# Score all samples in both modes
+score-all:
+    @echo "Scoring all canonical samples..."
+    @echo ""
+    @echo "=== tiny-qs (sequential) ===" && ./scripts/score-sample.sh tiny-qs sequential || true
+    @echo ""
+    @echo "=== tiny-qs (turbo) ===" && ./scripts/score-sample.sh tiny-qs turbo || true
+    @echo ""
+    @echo "=== small-axios (sequential) ===" && ./scripts/score-sample.sh small-axios sequential || true
+    @echo ""
+    @echo "=== small-axios (turbo) ===" && ./scripts/score-sample.sh small-axios turbo || true
+    @echo ""
+    @echo "=== medium-chart (sequential) ===" && ./scripts/score-sample.sh medium-chart sequential || true
+    @echo ""
+    @echo "=== medium-chart (turbo) ===" && ./scripts/score-sample.sh medium-chart turbo || true

@@ -6,8 +6,13 @@ This directory caches stable, reusable findings from project evaluations to avoi
 
 | Topic | File | Cached | Source | Confidence |
 |-------|------|--------|--------|------------|
-| Turbo V2 Architecture | turbo-v2-architecture.md | 2024-12-29 23:45 | project-evaluator | HIGH |
 | Validation Infrastructure | validation-infrastructure.md | 2024-12-29 23:45 | project-evaluator | HIGH |
+
+## Recently Invalidated
+
+| Topic | File | Invalidated | Reason |
+|-------|------|-------------|--------|
+| Turbo V2 Architecture | turbo-v2-architecture.md | 2025-12-30 | Sprint 3 completed - Ledger implemented |
 
 ## Cache Guidelines
 

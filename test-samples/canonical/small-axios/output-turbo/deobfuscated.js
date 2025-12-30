@@ -1,143 +1,145 @@
-(function (__globalContext, axiosLibrary) {
+(function (___globalContext, axiosModule) {
   if (typeof exports == "object" && typeof module != "undefined") {
-    module.exports = axiosLibrary();
+    module.exports = axiosModule();
   } else if (typeof define == "function" && define.amd) {
-    define(axiosLibrary);
+    define(axiosModule);
   } else {
-    (__globalContext =
+    (___globalContext =
       typeof globalThis != "undefined"
         ? globalThis
-        : __globalContext || self).axios = axiosLibrary();
+        : ___globalContext || self).axios = axiosModule();
   }
 })(this, function () {
   "use strict";
 
-  function getType(____________inputValue) {
+  function getType(___________inputValue) {
     if (typeof Symbol == "function" && typeof Symbol.iterator == "symbol") {
-      getType = function (____inputParameter) {
-        return typeof ____inputParameter;
+      getType = function (_________________________________inputValue) {
+        return typeof _________________________________inputValue;
       };
     } else {
-      getType = function (__________________inputValue) {
+      getType = function (________________inputValue) {
         if (
-          __________________inputValue &&
+          ________________inputValue &&
           typeof Symbol == "function" &&
-          __________________inputValue.constructor === Symbol &&
-          __________________inputValue !== Symbol.prototype
+          ________________inputValue.constructor === Symbol &&
+          ________________inputValue !== Symbol.prototype
         ) {
           return "symbol";
         } else {
-          return typeof __________________inputValue;
+          return typeof ________________inputValue;
         }
       };
     }
-    return getType(____________inputValue);
+    return getType(___________inputValue);
   }
-  function parserOption(instanceToCheck, classConstructor) {
-    if (!(instanceToCheck instanceof classConstructor)) {
+  function _parserOption(_instance, constructorClass) {
+    if (!(_instance instanceof constructorClass)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
-  function __targetObject(_____targetObject, propertiesArray) {
-    for (var index = 0; index < propertiesArray.length; index++) {
-      var ____propertyDescriptor = propertiesArray[index];
-      ____propertyDescriptor.enumerable =
-        ____propertyDescriptor.enumerable || false;
-      ____propertyDescriptor.configurable = true;
-      if ("value" in ____propertyDescriptor) {
-        ____propertyDescriptor.writable = true;
+  function prototype(___targetObject, propertyDescriptors) {
+    for (var _index = 0; _index < propertyDescriptors.length; _index++) {
+      var ___propertyDescriptor = propertyDescriptors[_index];
+      ___propertyDescriptor.enumerable =
+        ___propertyDescriptor.enumerable || false;
+      ___propertyDescriptor.configurable = true;
+      if ("value" in ___propertyDescriptor) {
+        ___propertyDescriptor.writable = true;
       }
       Object.defineProperty(
-        _____targetObject,
-        ____propertyDescriptor.key,
-        ____propertyDescriptor,
+        ___targetObject,
+        ___propertyDescriptor.key,
+        ___propertyDescriptor,
       );
     }
   }
   function _propertyCount(
-    targetedFunction,
-    targetPrototype,
-    _______targetObject,
+    _constructorFunction,
+    prototypeExtension,
+    definePrototype,
   ) {
-    if (targetPrototype) {
-      __targetObject(targetedFunction.prototype, targetPrototype);
+    if (prototypeExtension) {
+      prototype(_constructorFunction.prototype, prototypeExtension);
     }
-    if (_______targetObject) {
-      __targetObject(targetedFunction, _______targetObject);
+    if (definePrototype) {
+      prototype(_constructorFunction, definePrototype);
     }
-    Object.defineProperty(targetedFunction, "prototype", {
+    Object.defineProperty(_constructorFunction, "prototype", {
       writable: false,
     });
-    return targetedFunction;
+    return _constructorFunction;
   }
-  function iterateOverItems(_inputValue, count) {
+  function iteratorFunction(inputValue, maxItems) {
     return (
-      (function (_____inputArray) {
-        if (Array.isArray(_____inputArray)) {
-          return _____inputArray;
+      (function (_______inputArray) {
+        if (Array.isArray(_______inputArray)) {
+          return _______inputArray;
         }
-      })(_inputValue) ||
-      (function (iterable, iteratorLimit) {
-        var iteratorMethod =
-          iterable == null
+      })(inputValue) ||
+      (function (iterableInput, limit) {
+        var _iteratorFunction =
+          iterableInput == null
             ? null
-            : (typeof Symbol != "undefined" && iterable[Symbol.iterator]) ||
-              iterable["@@iterator"];
-        if (iteratorMethod == null) {
+            : (typeof Symbol != "undefined" &&
+                iterableInput[Symbol.iterator]) ||
+              iterableInput["@@iterator"];
+        if (_iteratorFunction == null) {
           return;
         }
-        var _iteratorResult;
-        var caughtError;
-        var accumulatedValues = [];
-        var isDone = true;
+        var ___iteratorResult;
+        var iterationError;
+        var collectedValues = [];
+        var isIterationComplete = true;
         var hasErrorOccurred = false;
         try {
           for (
-            iteratorMethod = iteratorMethod.call(iterable);
-            !(isDone = (_iteratorResult = iteratorMethod.next()).done) &&
-            (accumulatedValues.push(_iteratorResult.value),
-            !iteratorLimit || accumulatedValues.length !== iteratorLimit);
-            isDone = true
+            _iteratorFunction = _iteratorFunction.call(iterableInput);
+            !(isIterationComplete = (___iteratorResult =
+              _iteratorFunction.next()).done) &&
+            (collectedValues.push(___iteratorResult.value),
+            !limit || collectedValues.length !== limit);
+            isIterationComplete = true
           ) {}
-        } catch (_____error) {
+        } catch (____error) {
           hasErrorOccurred = true;
-          caughtError = _____error;
+          iterationError = ____error;
         } finally {
           try {
-            if (!isDone && iteratorMethod.return != null) {
-              iteratorMethod.return();
+            if (!isIterationComplete && _iteratorFunction.return != null) {
+              _iteratorFunction.return();
             }
           } finally {
             if (hasErrorOccurred) {
-              throw caughtError;
+              throw iterationError;
             }
           }
         }
-        return accumulatedValues;
-      })(_inputValue, count) ||
-      (function (_________inputValue, _inputParameter) {
-        if (!_________inputValue) {
+        return collectedValues;
+      })(inputValue, maxItems) ||
+      (function (_______inputValue, _callbackFunction) {
+        if (!_______inputValue) {
           return;
         }
-        if (typeof _________inputValue == "string") {
-          return optionKeyIndex(_________inputValue, _inputParameter);
+        if (typeof _______inputValue == "string") {
+          return optionIndex(_______inputValue, _callbackFunction);
         }
-        var inputTypeName = Object.prototype.toString
-          .call(_________inputValue)
+        var _inputType = Object.prototype.toString
+          .call(_______inputValue)
           .slice(8, -1);
-        if (inputTypeName === "Object" && _________inputValue.constructor) {
-          inputTypeName = _________inputValue.constructor.name;
+        if (_inputType === "Object" && _______inputValue.constructor) {
+          _inputType = _______inputValue.constructor.name;
         }
-        if (inputTypeName === "Map" || inputTypeName === "Set") {
-          return Array.from(_________inputValue);
+        if (_inputType === "Map" || _inputType === "Set") {
+          return Array.from(_______inputValue);
         }
         if (
-          inputTypeName === "Arguments" ||
-          /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(inputTypeName)
+          _inputType === "Arguments" ||
+          /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(_inputType)
         ) {
-          return optionKeyIndex(_________inputValue, _inputParameter);
+          return optionIndex(_______inputValue, _callbackFunction);
         }
-      })(_inputValue, count) ||
+      })(inputValue, maxItems) ||
       (function () {
         throw new TypeError(
           "Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.",
@@ -145,136 +147,135 @@
       })()
     );
   }
-  function optionKeyIndex(optionsArray, optionCount) {
+  function optionIndex(optionsArray, optionCount) {
     if (optionCount == null || optionCount > optionsArray.length) {
       optionCount = optionsArray.length;
     }
-    var selectedOptionIndex = 0;
+    var _______currentIndex = 0;
     for (
-      var optionsSelectedArray = new Array(optionCount);
-      selectedOptionIndex < optionCount;
-      selectedOptionIndex++
+      var optionsArrayCopy = new Array(optionCount);
+      _______currentIndex < optionCount;
+      _______currentIndex++
     ) {
-      optionsSelectedArray[selectedOptionIndex] =
-        optionsArray[selectedOptionIndex];
+      optionsArrayCopy[_______currentIndex] = optionsArray[_______currentIndex];
     }
-    return optionsSelectedArray;
+    return optionsArrayCopy;
   }
-  function headerString(contextFunction, context) {
+  function headerValueString(headerFunction, _context) {
     return function () {
-      return contextFunction.apply(context, arguments);
+      return headerFunction.apply(_context, arguments);
     };
   }
-  var objectTypeMap;
-  var objectToString = Object.prototype.toString;
-  var getPrototypeOfObject = Object.getPrototypeOf;
-  objectTypeMap = Object.create(null);
-  function getObjectType(____________________________inputValue) {
-    var objectTypeString = objectToString.call(
-      ____________________________inputValue,
-    );
-    return (objectTypeMap[objectTypeString] ||= objectTypeString
+  var objectTypeMapping;
+  var toStringFunction = Object.prototype.toString;
+  var getObjectPrototypeOf = Object.getPrototypeOf;
+  objectTypeMapping = Object.create(null);
+  function getObjectType(___inputObject) {
+    var objectTypeString = toStringFunction.call(___inputObject);
+    return (objectTypeMapping[objectTypeString] ||= objectTypeString
       .slice(8, -1)
       .toLowerCase());
   }
-  function createLowerCaseMatcher(targetString) {
-    targetString = targetString.toLowerCase();
-    return function (_____inputParameter) {
-      return getObjectType(_____inputParameter) === targetString;
+  function createCaseInsensitiveComparator(_targetString) {
+    _targetString = _targetString.toLowerCase();
+    return function (______inputParameter) {
+      return getObjectType(______inputParameter) === _targetString;
     };
   }
-  function _currentInterceptorIndex(_expectedType) {
-    return function (_____________________________________inputValue) {
+  function currentInterceptorIndex(_expectedType) {
+    return function (__________________________________inputValue) {
       return (
-        getType(_____________________________________inputValue) ===
-        _expectedType
+        getType(__________________________________inputValue) === _expectedType
       );
     };
   }
   var isArray = Array.isArray;
-  var isUndefined = _currentInterceptorIndex("undefined");
-  var checkIsArrayBuffer = createLowerCaseMatcher("ArrayBuffer");
-  var isStringType = _currentInterceptorIndex("string");
-  var isExpectedTypeFunction = _currentInterceptorIndex("function");
-  var isNumberType = _currentInterceptorIndex("number");
-  function isInputValueObject(__________________________________inputValue) {
+  var isUndefinedChecker = currentInterceptorIndex("undefined");
+  var isArrayBufferType = createCaseInsensitiveComparator("ArrayBuffer");
+  var isStringType = currentInterceptorIndex("string");
+  var isFunctionType = currentInterceptorIndex("function");
+  var isNumberType = currentInterceptorIndex("number");
+  function isNonNullObject(_______________________________inputValue) {
     return (
-      __________________________________inputValue !== null &&
-      getType(__________________________________inputValue) === "object"
+      _______________________________inputValue !== null &&
+      getType(_______________________________inputValue) === "object"
     );
   }
-  function isPlainObject(______________inputValue) {
-    if (getObjectType(______________inputValue) !== "object") {
+  function isPlainObject(____________inputValue) {
+    if (getObjectType(____________inputValue) !== "object") {
       return false;
     }
-    var _prototypeObject = getPrototypeOfObject(______________inputValue);
+    var inputPrototype = getObjectPrototypeOf(____________inputValue);
     return (
-      (_prototypeObject === null ||
-        _prototypeObject === Object.prototype ||
-        Object.getPrototypeOf(_prototypeObject) === null) &&
-      !(Symbol.toStringTag in ______________inputValue) &&
-      !(Symbol.iterator in ______________inputValue)
+      (inputPrototype === null ||
+        inputPrototype === Object.prototype ||
+        Object.getPrototypeOf(inputPrototype) === null) &&
+      !(Symbol.toStringTag in ____________inputValue) &&
+      !(Symbol.iterator in ____________inputValue)
     );
   }
-  var isDateType = createLowerCaseMatcher("Date");
-  var createLowerCaseFileMatcher = createLowerCaseMatcher("File");
-  var createLowerCaseBlobMatcher = createLowerCaseMatcher("Blob");
-  var createLowerCaseMatcherForFileList = createLowerCaseMatcher("FileList");
-  var createURLSearchParamsMatcher = createLowerCaseMatcher("URLSearchParams");
-  function processCollection(inputCollection, callbackFunction) {
-    var _propertyIndex;
-    var inputCollectionLength;
-    var allOwnKeys = (
+  var isDateType = createCaseInsensitiveComparator("Date");
+  var createCaseInsensitiveFileComparator =
+    createCaseInsensitiveComparator("File");
+  var createCaseInsensitiveComparatorForBlob =
+    createCaseInsensitiveComparator("Blob");
+  var createCaseInsensitiveComparatorForFileList =
+    createCaseInsensitiveComparator("FileList");
+  var createCaseInsensitiveComparatorForURLSearchParams =
+    createCaseInsensitiveComparator("URLSearchParams");
+  function processInputData(_inputData, callbackFunction) {
+    var _currentIndex;
+    var inputDataLength;
+    var inputDataKeys = (
       arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {}
     ).allOwnKeys;
-    var includeOwnPropertyKeys = allOwnKeys !== undefined && allOwnKeys;
-    if (inputCollection != null) {
-      if (getType(inputCollection) !== "object") {
-        inputCollection = [inputCollection];
+    var shouldIncludeAllOwnKeys = inputDataKeys !== undefined && inputDataKeys;
+    if (_inputData != null) {
+      if (getType(_inputData) !== "object") {
+        _inputData = [_inputData];
       }
-      if (isArray(inputCollection)) {
-        _propertyIndex = 0;
-        inputCollectionLength = inputCollection.length;
-        for (; _propertyIndex < inputCollectionLength; _propertyIndex++) {
+      if (isArray(_inputData)) {
+        _currentIndex = 0;
+        inputDataLength = _inputData.length;
+        for (; _currentIndex < inputDataLength; _currentIndex++) {
           callbackFunction.call(
             null,
-            inputCollection[_propertyIndex],
-            _propertyIndex,
-            inputCollection,
+            _inputData[_currentIndex],
+            _currentIndex,
+            _inputData,
           );
         }
       } else {
-        var propertyName;
-        var propertyNames = includeOwnPropertyKeys
-          ? Object.getOwnPropertyNames(inputCollection)
-          : Object.keys(inputCollection);
+        var propertyKey;
+        var propertyNames = shouldIncludeAllOwnKeys
+          ? Object.getOwnPropertyNames(_inputData)
+          : Object.keys(_inputData);
         var __propertyCount = propertyNames.length;
         for (
-          _propertyIndex = 0;
-          _propertyIndex < __propertyCount;
-          _propertyIndex++
+          _currentIndex = 0;
+          _currentIndex < __propertyCount;
+          _currentIndex++
         ) {
-          propertyName = propertyNames[_propertyIndex];
+          propertyKey = propertyNames[_currentIndex];
           callbackFunction.call(
             null,
-            inputCollection[propertyName],
-            propertyName,
-            inputCollection,
+            _inputData[propertyKey],
+            propertyKey,
+            _inputData,
           );
         }
       }
     }
   }
-  function findMatchingKey(___inputObject, searchString) {
-    searchString = searchString.toLowerCase();
-    var ____currentKey;
-    var inputObjectKeys = Object.keys(___inputObject);
-    for (var reverseIndex = inputObjectKeys.length; reverseIndex-- > 0; ) {
+  function findMatchingKey(objectToFindKey, searchTerm) {
+    searchTerm = searchTerm.toLowerCase();
+    var ___currentKey;
+    var objectKeysArray = Object.keys(objectToFindKey);
+    for (var ___index = objectKeysArray.length; ___index-- > 0; ) {
       if (
-        searchString ===
-        (____currentKey = inputObjectKeys[reverseIndex]).toLowerCase()
+        searchTerm === (___currentKey = objectKeysArray[___index]).toLowerCase()
       ) {
-        return ____currentKey;
+        return ___currentKey;
       }
     }
     return null;
@@ -287,100 +288,91 @@
         : typeof window != "undefined"
           ? window
           : global;
-  function isInputValueValid(____________________________________inputValue) {
+  function isInputValueValid(________________________________inputValue) {
     return (
-      !isUndefined(____________________________________inputValue) &&
-      ____________________________________inputValue !== globalContext
+      !isUndefinedChecker(________________________________inputValue) &&
+      ________________________________inputValue !== globalContext
     );
   }
   var isUint8ArrayDefined;
   isUint8ArrayDefined =
-    typeof Uint8Array != "undefined" && getPrototypeOfObject(Uint8Array);
+    typeof Uint8Array != "undefined" && getObjectPrototypeOf(Uint8Array);
   function isValidUint8Array(uint8Array) {
     return isUint8ArrayDefined && uint8Array instanceof isUint8ArrayDefined;
   }
-  var isHTMLFormElement = createLowerCaseMatcher("HTMLFormElement");
-  var hasOwnPropertyCheck = (function () {
-    var hasOwnPropertyMethod = Object.prototype.hasOwnProperty;
-    return function (objectWithOwnProperty, _____propertyName) {
-      return hasOwnPropertyMethod.call(
-        objectWithOwnProperty,
-        _____propertyName,
-      );
+  var isHTMLFormElement = createCaseInsensitiveComparator("HTMLFormElement");
+  var hasOwnPropertyChecker = (function () {
+    var hasOwnPropertyCheck = Object.prototype.hasOwnProperty;
+    return function (objectToCheck, ___propertyKey) {
+      return hasOwnPropertyCheck.call(objectToCheck, ___propertyKey);
     };
   })();
-  var lowerCaseMatcher = createLowerCaseMatcher("RegExp");
-  function definePropertiesWithDescriptors(
-    ______targetObject,
-    propertyDescriptorCallback,
-  ) {
-    var _propertyDescriptors =
-      Object.getOwnPropertyDescriptors(______targetObject);
-    var propertyDescriptorsMap = {};
-    processCollection(
-      _propertyDescriptors,
-      function (propertyDescriptorKey, ___propertyDescriptor) {
-        var propertyCallbackResult;
+  var regExpCaseInsensitiveComparator =
+    createCaseInsensitiveComparator("RegExp");
+  function processInputDescriptors(__inputObject, descriptorCallback) {
+    var inputPropertyDescriptors =
+      Object.getOwnPropertyDescriptors(__inputObject);
+    var processedDescriptors = {};
+    processInputData(
+      inputPropertyDescriptors,
+      function (inputDescriptor, descriptorKey) {
+        var descriptorValue;
         if (
-          (propertyCallbackResult = propertyDescriptorCallback(
-            propertyDescriptorKey,
-            ___propertyDescriptor,
-            ______targetObject,
+          (descriptorValue = descriptorCallback(
+            inputDescriptor,
+            descriptorKey,
+            __inputObject,
           )) !== false
         ) {
-          propertyDescriptorsMap[___propertyDescriptor] =
-            propertyCallbackResult || propertyDescriptorKey;
+          processedDescriptors[descriptorKey] =
+            descriptorValue || inputDescriptor;
         }
       },
     );
-    Object.defineProperties(______targetObject, propertyDescriptorsMap);
+    Object.defineProperties(__inputObject, processedDescriptors);
   }
   var alphabetLowercase = "abcdefghijklmnopqrstuvwxyz";
-  var numericCharacterSet = "0123456789";
-  var characterSets = {
-    DIGIT: numericCharacterSet,
+  var numericCharacters = "0123456789";
+  var textualCharacterSets = {
+    DIGIT: numericCharacters,
     ALPHA: alphabetLowercase,
     ALPHA_DIGIT:
-      alphabetLowercase + alphabetLowercase.toUpperCase() + numericCharacterSet,
+      alphabetLowercase + alphabetLowercase.toUpperCase() + numericCharacters,
   };
-  var isAsyncFunction = createLowerCaseMatcher("AsyncFunction");
-  var utilityFunctions = {
+  var isAsyncFunction = createCaseInsensitiveComparator("AsyncFunction");
+  var typeCheckFunctions = {
     isArray: isArray,
-    isArrayBuffer: checkIsArrayBuffer,
-    isBuffer: function (_____________________inputValue) {
+    isArrayBuffer: isArrayBufferType,
+    isBuffer: function (_event) {
       return (
-        _____________________inputValue !== null &&
-        !isUndefined(_____________________inputValue) &&
-        _____________________inputValue.constructor !== null &&
-        !isUndefined(_____________________inputValue.constructor) &&
-        isExpectedTypeFunction(
-          _____________________inputValue.constructor.isBuffer,
-        ) &&
-        _____________________inputValue.constructor.isBuffer(
-          _____________________inputValue,
-        )
+        _event !== null &&
+        !isUndefinedChecker(_event) &&
+        _event.constructor !== null &&
+        !isUndefinedChecker(_event.constructor) &&
+        isFunctionType(_event.constructor.isBuffer) &&
+        _event.constructor.isBuffer(_event)
       );
     },
-    isFormData: function (_formData) {
+    isFormData: function (__formData) {
       var formDataType;
       return (
-        _formData &&
-        ((typeof FormData == "function" && _formData instanceof FormData) ||
-          (isExpectedTypeFunction(_formData.append) &&
-            ((formDataType = getObjectType(_formData)) === "formdata" ||
+        __formData &&
+        ((typeof FormData == "function" && __formData instanceof FormData) ||
+          (isFunctionType(__formData.append) &&
+            ((formDataType = getObjectType(__formData)) === "formdata" ||
               (formDataType === "object" &&
-                isExpectedTypeFunction(_formData.toString) &&
-                _formData.toString() === "[object FormData]"))))
+                isFunctionType(__formData.toString) &&
+                __formData.toString() === "[object FormData]"))))
       );
     },
-    isArrayBufferView: function (inputArrayBuffer) {
+    isArrayBufferView: function (_________________inputValue) {
       if (typeof ArrayBuffer != "undefined" && ArrayBuffer.isView) {
-        return ArrayBuffer.isView(inputArrayBuffer);
+        return ArrayBuffer.isView(_________________inputValue);
       } else {
         return (
-          inputArrayBuffer &&
-          inputArrayBuffer.buffer &&
-          checkIsArrayBuffer(inputArrayBuffer.buffer)
+          _________________inputValue &&
+          _________________inputValue.buffer &&
+          isArrayBufferType(_________________inputValue.buffer)
         );
       }
     },
@@ -389,70 +381,73 @@
     isBoolean: function (booleanValue) {
       return booleanValue === true || booleanValue === false;
     },
-    isObject: isInputValueObject,
+    isObject: isNonNullObject,
     isPlainObject: isPlainObject,
-    isUndefined: isUndefined,
+    isUndefined: isUndefinedChecker,
     isDate: isDateType,
-    isFile: createLowerCaseFileMatcher,
-    isBlob: createLowerCaseBlobMatcher,
-    isRegExp: lowerCaseMatcher,
-    isFunction: isExpectedTypeFunction,
-    isStream: function (___________event) {
-      return (
-        isInputValueObject(___________event) &&
-        isExpectedTypeFunction(___________event.pipe)
-      );
+    isFile: createCaseInsensitiveFileComparator,
+    isBlob: createCaseInsensitiveComparatorForBlob,
+    isRegExp: regExpCaseInsensitiveComparator,
+    isFunction: isFunctionType,
+    isStream: function (______event) {
+      return isNonNullObject(______event) && isFunctionType(______event.pipe);
     },
-    isURLSearchParams: createURLSearchParamsMatcher,
+    isURLSearchParams: createCaseInsensitiveComparatorForURLSearchParams,
     isTypedArray: isValidUint8Array,
-    isFileList: createLowerCaseMatcherForFileList,
-    forEach: processCollection,
-    merge: function mergeObjects() {
-      var _isCaseless = ((isInputValueValid(this) && this) || {}).caseless;
-      var mergedObjects = {};
-      var mergeInputData = function (_____inputData, _inputObject) {
+    isFileList: createCaseInsensitiveComparatorForFileList,
+    forEach: processInputData,
+    merge: function mergeProperties() {
+      var isCaseless = ((isInputValueValid(this) && this) || {}).caseless;
+      var mergedProperties = {};
+      var propertyMergerFunction = function (
+        propertyValueOrDefault,
+        _propertyValue,
+      ) {
         var matchingKey =
-          (_isCaseless && findMatchingKey(mergedObjects, _inputObject)) ||
-          _inputObject;
+          (isCaseless && findMatchingKey(mergedProperties, _propertyValue)) ||
+          _propertyValue;
         if (
-          isPlainObject(mergedObjects[matchingKey]) &&
-          isPlainObject(_____inputData)
+          isPlainObject(mergedProperties[matchingKey]) &&
+          isPlainObject(propertyValueOrDefault)
         ) {
-          mergedObjects[matchingKey] = mergeObjects(
-            mergedObjects[matchingKey],
-            _____inputData,
+          mergedProperties[matchingKey] = mergeProperties(
+            mergedProperties[matchingKey],
+            propertyValueOrDefault,
           );
-        } else if (isPlainObject(_____inputData)) {
-          mergedObjects[matchingKey] = mergeObjects({}, _____inputData);
-        } else if (isArray(_____inputData)) {
-          mergedObjects[matchingKey] = _____inputData.slice();
+        } else if (isPlainObject(propertyValueOrDefault)) {
+          mergedProperties[matchingKey] = mergeProperties(
+            {},
+            propertyValueOrDefault,
+          );
+        } else if (isArray(propertyValueOrDefault)) {
+          mergedProperties[matchingKey] = propertyValueOrDefault.slice();
         } else {
-          mergedObjects[matchingKey] = _____inputData;
+          mergedProperties[matchingKey] = propertyValueOrDefault;
         }
       };
-      var ____argumentIndex = 0;
+      var ___argumentIndex = 0;
       for (
-        var _argumentsLength = arguments.length;
-        ____argumentIndex < _argumentsLength;
-        ____argumentIndex++
+        var argumentsCount = arguments.length;
+        ___argumentIndex < argumentsCount;
+        ___argumentIndex++
       ) {
-        if (arguments[____argumentIndex]) {
-          processCollection(arguments[____argumentIndex], mergeInputData);
+        if (arguments[___argumentIndex]) {
+          processInputData(arguments[___argumentIndex], propertyMergerFunction);
         }
       }
-      return mergedObjects;
+      return mergedProperties;
     },
-    extend: function (headersMap, targetValue, ___headerValue) {
-      processCollection(
-        targetValue,
-        function (headerValueOrDefault, responseHeaderKey) {
-          if (___headerValue && isExpectedTypeFunction(headerValueOrDefault)) {
-            headersMap[responseHeaderKey] = headerString(
-              headerValueOrDefault,
-              ___headerValue,
+    extend: function (_headerMap, ___headerValue, headerValueType) {
+      processInputData(
+        ___headerValue,
+        function (____headerValue, _headerKey) {
+          if (headerValueType && isFunctionType(____headerValue)) {
+            _headerMap[_headerKey] = headerValueString(
+              ____headerValue,
+              headerValueType,
             );
           } else {
-            headersMap[responseHeaderKey] = headerValueOrDefault;
+            _headerMap[_headerKey] = ____headerValue;
           }
         },
         {
@@ -462,101 +457,98 @@
           ).allOwnKeys,
         },
       );
-      return headersMap;
+      return _headerMap;
     },
-    trim: function (________inputString) {
-      if (________inputString.trim) {
-        return ________inputString.trim();
+    trim: function (__________inputString) {
+      if (__________inputString.trim) {
+        return __________inputString.trim();
       } else {
-        return ________inputString.replace(
+        return __________inputString.replace(
           /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
           "",
         );
       }
     },
-    stripBOM: function (____________inputString) {
-      if (____________inputString.charCodeAt(0) === 65279) {
-        ____________inputString = ____________inputString.slice(1);
+    stripBOM: function (_____________inputString) {
+      if (_____________inputString.charCodeAt(0) === 65279) {
+        _____________inputString = _____________inputString.slice(1);
       }
-      return ____________inputString;
+      return _____________inputString;
     },
     inherits: function (
       childClass,
-      parentConstructor,
-      additionalProperties,
-      propertyDescriptors,
+      superClass,
+      prototypeProperties,
+      _prototypeProperties,
     ) {
       childClass.prototype = Object.create(
-        parentConstructor.prototype,
-        propertyDescriptors,
+        superClass.prototype,
+        _prototypeProperties,
       );
       childClass.prototype.constructor = childClass;
       Object.defineProperty(childClass, "super", {
-        value: parentConstructor.prototype,
+        value: superClass.prototype,
       });
-      if (additionalProperties) {
-        Object.assign(childClass.prototype, additionalProperties);
+      if (prototypeProperties) {
+        Object.assign(childClass.prototype, prototypeProperties);
       }
     },
     toFlatObject: function (
-      _sourceObject,
+      sourceObject,
       _targetObject,
-      prototypeChain,
-      propertyFilter,
+      _sourceObject,
+      propertyAccessor,
     ) {
       var _propertyNames;
       var propertyCount;
       var _propertyName;
-      var processedProperties = {};
+      var copiedProperties = {};
       _targetObject = _targetObject || {};
-      if (_sourceObject == null) {
+      if (sourceObject == null) {
         return _targetObject;
       }
       do {
         for (
           propertyCount = (_propertyNames =
-            Object.getOwnPropertyNames(_sourceObject)).length;
+            Object.getOwnPropertyNames(sourceObject)).length;
           propertyCount-- > 0;
 
         ) {
           _propertyName = _propertyNames[propertyCount];
           if (
-            (!propertyFilter ||
-              !!propertyFilter(_propertyName, _sourceObject, _targetObject)) &&
-            !processedProperties[_propertyName]
+            (!propertyAccessor ||
+              !!propertyAccessor(_propertyName, sourceObject, _targetObject)) &&
+            !copiedProperties[_propertyName]
           ) {
-            _targetObject[_propertyName] = _sourceObject[_propertyName];
-            processedProperties[_propertyName] = true;
+            _targetObject[_propertyName] = sourceObject[_propertyName];
+            copiedProperties[_propertyName] = true;
           }
         }
-        _sourceObject =
-          prototypeChain !== false && getPrototypeOfObject(_sourceObject);
+        sourceObject =
+          _sourceObject !== false && getObjectPrototypeOf(sourceObject);
       } while (
-        _sourceObject &&
-        (!prototypeChain || prototypeChain(_sourceObject, _targetObject)) &&
-        _sourceObject !== Object.prototype
+        sourceObject &&
+        (!_sourceObject || _sourceObject(sourceObject, _targetObject)) &&
+        sourceObject !== Object.prototype
       );
       return _targetObject;
     },
     kindOf: getObjectType,
-    kindOfTest: createLowerCaseMatcher,
-    endsWith: function (_____inputString, substringToFind, startingIndex) {
-      _____inputString = String(_____inputString);
+    kindOfTest: createCaseInsensitiveComparator,
+    endsWith: function (_______inputString, searchString, substringPosition) {
+      _______inputString = String(_______inputString);
       if (
-        startingIndex === undefined ||
-        startingIndex > _____inputString.length
+        substringPosition === undefined ||
+        substringPosition > _______inputString.length
       ) {
-        startingIndex = _____inputString.length;
+        substringPosition = _______inputString.length;
       }
-      startingIndex -= substringToFind.length;
-      var indexOfSubstringAtAdjustedIndex = _____inputString.indexOf(
-        substringToFind,
-        startingIndex,
+      substringPosition -= searchString.length;
+      var searchIndex = _______inputString.indexOf(
+        searchString,
+        substringPosition,
       );
-      return (
-        indexOfSubstringAtAdjustedIndex !== -1 &&
-        indexOfSubstringAtAdjustedIndex === startingIndex
-      );
+      return searchIndex !== -1 && searchIndex === substringPosition;
     },
     toArray: function (_inputArray) {
       if (!_inputArray) {
@@ -569,56 +561,52 @@
       if (!isNumberType(elementLength)) {
         return null;
       }
-      var copiedArray = new Array(elementLength);
+      var arrayCopy = new Array(elementLength);
       while (elementLength-- > 0) {
-        copiedArray[elementLength] = _inputArray[elementLength];
+        arrayCopy[elementLength] = _inputArray[elementLength];
       }
-      return copiedArray;
+      return arrayCopy;
     },
     forEachEntry: function (iterableCollection, ___callbackFunction) {
-      var iteratorResult;
+      var _iteratorResult;
       for (
         var iterator = (
           iterableCollection && iterableCollection[Symbol.iterator]
         ).call(iterableCollection);
-        (iteratorResult = iterator.next()) && !iteratorResult.done;
+        (_iteratorResult = iterator.next()) && !_iteratorResult.done;
 
       ) {
-        var _currentItem = iteratorResult.value;
-        ___callbackFunction.call(
-          iterableCollection,
-          _currentItem[0],
-          _currentItem[1],
-        );
+        var itemPair = _iteratorResult.value;
+        ___callbackFunction.call(iterableCollection, itemPair[0], itemPair[1]);
       }
     },
-    matchAll: function (regexMatcher, __________inputString) {
-      var matchedPattern;
+    matchAll: function (_regexMatch, ____________inputString) {
+      var __regexMatch;
       for (
-        var _matchedPatterns = [];
-        (matchedPattern = regexMatcher.exec(__________inputString)) !== null;
+        var matchingResults = [];
+        (__regexMatch = _regexMatch.exec(____________inputString)) !== null;
 
       ) {
-        _matchedPatterns.push(matchedPattern);
+        matchingResults.push(__regexMatch);
       }
-      return _matchedPatterns;
+      return matchingResults;
     },
     isHTMLForm: isHTMLFormElement,
-    hasOwnProperty: hasOwnPropertyCheck,
-    hasOwnProp: hasOwnPropertyCheck,
-    reduceDescriptors: definePropertiesWithDescriptors,
-    freezeMethods: function (inputObject) {
-      definePropertiesWithDescriptors(
-        inputObject,
+    hasOwnProperty: hasOwnPropertyChecker,
+    hasOwnProp: hasOwnPropertyChecker,
+    reduceDescriptors: processInputDescriptors,
+    freezeMethods: function (objectToProcess) {
+      processInputDescriptors(
+        objectToProcess,
         function (propertyDescriptor, __propertyName) {
           if (
-            isExpectedTypeFunction(inputObject) &&
+            isFunctionType(objectToProcess) &&
             ["arguments", "caller", "callee"].indexOf(__propertyName) !== -1
           ) {
             return false;
           }
-          var propertyValue = inputObject[__propertyName];
-          if (isExpectedTypeFunction(propertyValue)) {
+          var propertyValue = objectToProcess[__propertyName];
+          if (isFunctionType(propertyValue)) {
             propertyDescriptor.enumerable = false;
             if ("writable" in propertyDescriptor) {
               propertyDescriptor.writable = false;
@@ -633,38 +621,38 @@
         },
       );
     },
-    toObjectSet: function (___inputArray, _delimiter) {
+    toObjectSet: function (____inputArray, delimiter) {
       var uniqueValuesMap = {};
-      function collectUniqueValues(arrayElement) {
-        arrayElement.forEach(function (uniqueValueKey) {
+      function recordUniqueValues(______inputArray) {
+        ______inputArray.forEach(function (uniqueValueKey) {
           uniqueValuesMap[uniqueValueKey] = true;
         });
       }
-      if (isArray(___inputArray)) {
-        collectUniqueValues(___inputArray);
+      if (isArray(____inputArray)) {
+        recordUniqueValues(____inputArray);
       } else {
-        collectUniqueValues(String(___inputArray).split(_delimiter));
+        recordUniqueValues(String(____inputArray).split(delimiter));
       }
       return uniqueValuesMap;
     },
-    toCamelCase: function (_________inputString) {
-      return _________inputString
+    toCamelCase: function (___________inputString) {
+      return ___________inputString
         .toLowerCase()
         .replace(
           /[-_\s]([a-z\d])(\w*)/g,
-          function (_eventParameter, textParameter, additionalString) {
-            return textParameter.toUpperCase() + additionalString;
+          function (____event, textInput, additionalString) {
+            return textInput.toUpperCase() + additionalString;
           },
         );
     },
     noop: function () {},
     toFiniteNumber: function (
-      ________________________inputValue,
+      _______________________inputValue,
       fallbackValue,
     ) {
-      ________________________inputValue = +________________________inputValue;
-      if (Number.isFinite(________________________inputValue)) {
-        return ________________________inputValue;
+      _______________________inputValue = +_______________________inputValue;
+      if (Number.isFinite(_______________________inputValue)) {
+        return _______________________inputValue;
       } else {
         return fallbackValue;
       }
@@ -672,74 +660,77 @@
     findKey: findMatchingKey,
     global: globalContext,
     isContextDefined: isInputValueValid,
-    ALPHABET: characterSets,
+    ALPHABET: textualCharacterSets,
     generateString: function () {
-      var lengthOrDefault =
+      var lengthOfCharactersToGenerate =
         arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 16;
       var characterSet =
         arguments.length > 1 && arguments[1] !== undefined
           ? arguments[1]
-          : characterSets.ALPHA_DIGIT;
+          : textualCharacterSets.ALPHA_DIGIT;
       var randomString = "";
-      for (var characterSetLength = characterSet.length; lengthOrDefault--; ) {
+      for (
+        var characterSetLength = characterSet.length;
+        lengthOfCharactersToGenerate--;
+
+      ) {
         randomString += characterSet[(Math.random() * characterSetLength) | 0];
       }
       return randomString;
     },
-    isSpecCompliantForm: function (__formData) {
+    isSpecCompliantForm: function (___formData) {
       return (
-        !!__formData &&
-        !!isExpectedTypeFunction(__formData.append) &&
-        __formData[Symbol.toStringTag] === "FormData" &&
-        !!__formData[Symbol.iterator]
+        !!___formData &&
+        !!isFunctionType(___formData.append) &&
+        ___formData[Symbol.toStringTag] === "FormData" &&
+        !!___formData[Symbol.iterator]
       );
     },
-    toJSONObject: function (___inputValue) {
-      var nestedArray = new Array(10);
-      return (function transformData(__________inputValue, depthLevel) {
-        if (isInputValueObject(__________inputValue)) {
-          if (nestedArray.indexOf(__________inputValue) >= 0) {
+    toJSONObject: function (inputParameter) {
+      var trackedArray = new Array(10);
+      return (function processNestedObject(________inputValue, currentDepth) {
+        if (isNonNullObject(________inputValue)) {
+          if (trackedArray.indexOf(________inputValue) >= 0) {
             return;
           }
-          if (!("toJSON" in __________inputValue)) {
-            nestedArray[depthLevel] = __________inputValue;
-            var outputObject = isArray(__________inputValue) ? [] : {};
-            processCollection(
-              __________inputValue,
-              function (____inputData, outputKey) {
-                var transformedData = transformData(
-                  ____inputData,
-                  depthLevel + 1,
+          if (!("toJSON" in ________inputValue)) {
+            trackedArray[currentDepth] = ________inputValue;
+            var structuredClone = isArray(________inputValue) ? [] : {};
+            processInputData(
+              ________inputValue,
+              function (nestedObject, cloneIndex) {
+                var processedNestedObject = processNestedObject(
+                  nestedObject,
+                  currentDepth + 1,
                 );
-                if (!isUndefined(transformedData)) {
-                  outputObject[outputKey] = transformedData;
+                if (!isUndefinedChecker(processedNestedObject)) {
+                  structuredClone[cloneIndex] = processedNestedObject;
                 }
               },
             );
-            nestedArray[depthLevel] = undefined;
-            return outputObject;
+            trackedArray[currentDepth] = undefined;
+            return structuredClone;
           }
         }
-        return __________inputValue;
-      })(___inputValue, 0);
+        return ________inputValue;
+      })(inputParameter, 0);
     },
     isAsyncFn: isAsyncFunction,
-    isThenable: function (_______event) {
+    isThenable: function (__event) {
       return (
-        _______event &&
-        (isInputValueObject(_______event) ||
-          isExpectedTypeFunction(_______event)) &&
-        isExpectedTypeFunction(_______event.then) &&
-        isExpectedTypeFunction(_______event.catch)
+        __event &&
+        (isNonNullObject(__event) || isFunctionType(__event)) &&
+        isFunctionType(__event.then) &&
+        isFunctionType(__event.catch)
       );
     },
   };
-  function createAxiosError(
+  function AxiosError(
     errorMessage,
     errorCode,
-    __requestConfig,
-    requestPayload,
-    responseData,
+    _config,
+    requestObject,
+    httpResponse,
   ) {
     Error.call(this);
     if (Error.captureStackTrace) {
@@ -752,17 +743,17 @@
     if (errorCode) {
       this.code = errorCode;
     }
-    if (__requestConfig) {
-      this.config = __requestConfig;
+    if (_config) {
+      this.config = _config;
     }
-    if (requestPayload) {
-      this.request = requestPayload;
+    if (requestObject) {
+      this.request = requestObject;
     }
-    if (responseData) {
-      this.response = responseData;
+    if (httpResponse) {
+      this.response = httpResponse;
     }
   }
-  utilityFunctions.inherits(createAxiosError, Error, {
+  typeCheckFunctions.inherits(AxiosError, Error, {
     toJSON: function () {
       return {
         message: this.message,
@@ -773,15 +764,15 @@
         lineNumber: this.lineNumber,
         columnNumber: this.columnNumber,
         stack: this.stack,
-        config: utilityFunctions.toJSONObject(this.config),
+        config: typeCheckFunctions.toJSONObject(this.config),
         code: this.code,
         status:
           this.response && this.response.status ? this.response.status : null,
       };
     },
   });
-  var createAxiosErrorPrototype = createAxiosError.prototype;
-  var axiosErrorCodes = {};
+  var axiosErrorPrototype = AxiosError.prototype;
+  var axiosErrorConstants = {};
   [
     "ERR_BAD_OPTION_VALUE",
     "ERR_BAD_OPTION",
@@ -795,100 +786,98 @@
     "ERR_CANCELED",
     "ERR_NOT_SUPPORT",
     "ERR_INVALID_URL",
-  ].forEach(function (__errorCode) {
-    axiosErrorCodes[__errorCode] = {
-      value: __errorCode,
+  ].forEach(function (_____errorCode) {
+    axiosErrorConstants[_____errorCode] = {
+      value: _____errorCode,
     };
   });
-  Object.defineProperties(createAxiosError, axiosErrorCodes);
-  Object.defineProperty(createAxiosErrorPrototype, "isAxiosError", {
+  Object.defineProperties(AxiosError, axiosErrorConstants);
+  Object.defineProperty(axiosErrorPrototype, "isAxiosError", {
     value: true,
   });
-  createAxiosError.from = function (
-    error,
-    errorDetails,
+  AxiosError.from = function (
+    errorObject,
     _errorCode,
-    axiosErrorInstance,
-    axiosErrorConfig,
-    errorProperties,
+    __errorCode,
+    ___errorCode,
+    errorResponse,
+    additionalProperties,
   ) {
-    var errorObjectPrototype = Object.create(createAxiosErrorPrototype);
-    utilityFunctions.toFlatObject(
-      error,
-      errorObjectPrototype,
-      function (_errorObject) {
-        return _errorObject !== Error.prototype;
-      },
-      function (errorType) {
-        return errorType !== "isAxiosError";
-      },
-    );
-    createAxiosError.call(
-      errorObjectPrototype,
-      error.message,
-      errorDetails,
-      _errorCode,
+    var axiosErrorInstance = Object.create(axiosErrorPrototype);
+    typeCheckFunctions.toFlatObject(
+      errorObject,
       axiosErrorInstance,
-      axiosErrorConfig,
+      function (__errorObject) {
+        return __errorObject !== Error.prototype;
+      },
+      function (_errorType) {
+        return _errorType !== "isAxiosError";
+      },
     );
-    errorObjectPrototype.cause = error;
-    errorObjectPrototype.name = error.name;
-    if (errorProperties) {
-      Object.assign(errorObjectPrototype, errorProperties);
+    AxiosError.call(
+      axiosErrorInstance,
+      errorObject.message,
+      _errorCode,
+      __errorCode,
+      ___errorCode,
+      errorResponse,
+    );
+    axiosErrorInstance.cause = errorObject;
+    axiosErrorInstance.name = errorObject.name;
+    if (additionalProperties) {
+      Object.assign(axiosErrorInstance, additionalProperties);
     }
-    return errorObjectPrototype;
+    return axiosErrorInstance;
   };
-  function isPlainObjectOrArray(_________________________________inputValue) {
+  function isObjectOrArray(______________________________inputValue) {
     return (
-      utilityFunctions.isPlainObject(
-        _________________________________inputValue,
-      ) || utilityFunctions.isArray(_________________________________inputValue)
+      typeCheckFunctions.isPlainObject(
+        ______________________________inputValue,
+      ) || typeCheckFunctions.isArray(______________________________inputValue)
     );
   }
-  function removeArrayBracketsIfExists(___________inputString) {
-    if (utilityFunctions.endsWith(___________inputString, "[]")) {
-      return ___________inputString.slice(0, -2);
+  function removeTrailingArrayBrackets(arrayEndingString) {
+    if (typeCheckFunctions.endsWith(arrayEndingString, "[]")) {
+      return arrayEndingString.slice(0, -2);
     } else {
-      return ___________inputString;
+      return arrayEndingString;
     }
   }
-  function concatArrayWithDelimiter(
-    arrayToConcat,
+  function concatAndFormatArray(
+    ___inputArray,
     additionalElement,
-    delimiter,
+    isArrayNotEmpty,
   ) {
-    if (arrayToConcat) {
-      return arrayToConcat
+    if (___inputArray) {
+      return ___inputArray
         .concat(additionalElement)
-        .map(function (______________________inputValue, delimiterCondition) {
-          ______________________inputValue = removeArrayBracketsIfExists(
-            ______________________inputValue,
-          );
-          if (!delimiter && delimiterCondition) {
-            return "[" + ______________________inputValue + "]";
+        .map(function (elementValue, formatString) {
+          elementValue = removeTrailingArrayBrackets(elementValue);
+          if (!isArrayNotEmpty && formatString) {
+            return "[" + elementValue + "]";
           } else {
-            return ______________________inputValue;
+            return elementValue;
           }
         })
-        .join(delimiter ? "." : "");
+        .join(isArrayNotEmpty ? "." : "");
     } else {
       return additionalElement;
     }
   }
-  var _utilityFunctions = utilityFunctions.toFlatObject(
-    utilityFunctions,
+  var _typeCheckFunctions = typeCheckFunctions.toFlatObject(
+    typeCheckFunctions,
     {},
     null,
-    function (_____________inputString) {
-      return /^is[A-Z]/.test(_____________inputString);
+    function (isUppercasePrefix) {
+      return /^is[A-Z]/.test(isUppercasePrefix);
     },
   );
-  function _processFormData(targetObject, formDataInstance, options) {
-    if (!utilityFunctions.isObject(targetObject)) {
+  function _processFormData(targetObject, formData, options) {
+    if (!typeCheckFunctions.isObject(targetObject)) {
       throw new TypeError("target must be an object");
     }
-    formDataInstance = formDataInstance || new FormData();
-    var metaTokens = (options = utilityFunctions.toFlatObject(
+    formData = formData || new FormData();
+    var metaTokensOptions = (options = typeCheckFunctions.toFlatObject(
       options,
       {
         metaTokens: true,
@@ -896,151 +885,152 @@
         indexes: false,
       },
       false,
-      function (key, _propertyValue) {
-        return !utilityFunctions.isUndefined(_propertyValue[key]);
+      function (__propertyKey, dataForKey) {
+        return !typeCheckFunctions.isUndefined(dataForKey[__propertyKey]);
       },
     )).metaTokens;
-    var ____index = options.visitor || processInputData;
-    var shouldIncludeDots = options.dots;
-    var isIndexArray = options.indexes;
+    var ________currentIndex = options.visitor || __processInputValue;
+    var optionsDots = options.dots;
+    var isIndexesEnabled = options.indexes;
     var isBlobSupported =
       (options.Blob || (typeof Blob != "undefined" && Blob)) &&
-      utilityFunctions.isSpecCompliantForm(formDataInstance);
-    if (!utilityFunctions.isFunction(____index)) {
+      typeCheckFunctions.isSpecCompliantForm(formData);
+    if (!typeCheckFunctions.isFunction(________currentIndex)) {
       throw new TypeError("visitor must be a function");
     }
-    function _processInputValue(________inputValue) {
-      if (________inputValue === null) {
+    function _processInputValue(______inputValue) {
+      if (______inputValue === null) {
         return "";
       }
-      if (utilityFunctions.isDate(________inputValue)) {
-        return ________inputValue.toISOString();
+      if (typeCheckFunctions.isDate(______inputValue)) {
+        return ______inputValue.toISOString();
       }
-      if (!isBlobSupported && utilityFunctions.isBlob(________inputValue)) {
-        throw new createAxiosError(
-          "Blob is not supported. Use a Buffer instead.",
-        );
+      if (!isBlobSupported && typeCheckFunctions.isBlob(______inputValue)) {
+        throw new AxiosError("Blob is not supported. Use a Buffer instead.");
       }
       if (
-        utilityFunctions.isArrayBuffer(________inputValue) ||
-        utilityFunctions.isTypedArray(________inputValue)
+        typeCheckFunctions.isArrayBuffer(______inputValue) ||
+        typeCheckFunctions.isTypedArray(______inputValue)
       ) {
         if (isBlobSupported && typeof Blob == "function") {
-          return new Blob([________inputValue]);
+          return new Blob([______inputValue]);
         } else {
-          return Buffer.from(________inputValue);
+          return Buffer.from(______inputValue);
         }
       } else {
-        return ________inputValue;
+        return ______inputValue;
       }
     }
-    function processInputData(_inputData, resourceName, __inputValue) {
-      var _______inputData = _inputData;
-      if (_inputData && !__inputValue && getType(_inputData) === "object") {
-        if (utilityFunctions.endsWith(resourceName, "{}")) {
-          if (metaTokens) {
-            resourceName = resourceName;
+    function __processInputValue(__inputValue, variableName, ___inputValue) {
+      var _______________________________________inputValue = __inputValue;
+      if (
+        __inputValue &&
+        !___inputValue &&
+        getType(__inputValue) === "object"
+      ) {
+        if (typeCheckFunctions.endsWith(variableName, "{}")) {
+          if (metaTokensOptions) {
+            variableName = variableName;
           } else {
-            resourceName = resourceName.slice(0, -2);
+            variableName = variableName.slice(0, -2);
           }
-          _inputData = JSON.stringify(_inputData);
+          __inputValue = JSON.stringify(__inputValue);
         } else if (
-          (utilityFunctions.isArray(_inputData) &&
-            (function (______inputArray) {
+          (typeCheckFunctions.isArray(__inputValue) &&
+            (function (________inputArray) {
               return (
-                utilityFunctions.isArray(______inputArray) &&
-                !______inputArray.some(isPlainObjectOrArray)
+                typeCheckFunctions.isArray(________inputArray) &&
+                !________inputArray.some(isObjectOrArray)
               );
-            })(_inputData)) ||
-          ((utilityFunctions.isFileList(_inputData) ||
-            utilityFunctions.endsWith(resourceName, "[]")) &&
-            (_______inputData = utilityFunctions.toArray(_inputData)))
+            })(__inputValue)) ||
+          ((typeCheckFunctions.isFileList(__inputValue) ||
+            typeCheckFunctions.endsWith(variableName, "[]")) &&
+            (_______________________________________inputValue =
+              typeCheckFunctions.toArray(__inputValue)))
         ) {
-          resourceName = removeArrayBracketsIfExists(resourceName);
-          _______inputData.forEach(function (_____event, formDataField) {
-            if (
-              !utilityFunctions.isUndefined(_____event) &&
-              _____event !== null
-            ) {
-              formDataInstance.append(
-                isIndexArray === true
-                  ? concatArrayWithDelimiter(
-                      [resourceName],
-                      formDataField,
-                      shouldIncludeDots,
-                    )
-                  : isIndexArray === null
-                    ? resourceName
-                    : resourceName + "[]",
-                _processInputValue(_____event),
-              );
-            }
-          });
+          variableName = removeTrailingArrayBrackets(variableName);
+          _______________________________________inputValue.forEach(
+            function (eventData, formDataValue) {
+              if (
+                !typeCheckFunctions.isUndefined(eventData) &&
+                eventData !== null
+              ) {
+                formData.append(
+                  isIndexesEnabled === true
+                    ? concatAndFormatArray(
+                        [variableName],
+                        formDataValue,
+                        optionsDots,
+                      )
+                    : isIndexesEnabled === null
+                      ? variableName
+                      : variableName + "[]",
+                  _processInputValue(eventData),
+                );
+              }
+            },
+          );
           return false;
         }
       }
       return (
-        !!isPlainObjectOrArray(_inputData) ||
-        (formDataInstance.append(
-          concatArrayWithDelimiter(
-            __inputValue,
-            resourceName,
-            shouldIncludeDots,
-          ),
-          _processInputValue(_inputData),
+        !!isObjectOrArray(__inputValue) ||
+        (formData.append(
+          concatAndFormatArray(___inputValue, variableName, optionsDots),
+          _processInputValue(__inputValue),
         ),
         false)
       );
     }
-    var visitedItems = [];
-    var utilityFunctionsMapping = Object.assign(_utilityFunctions, {
-      defaultVisitor: processInputData,
+    var circularReferenceTracker = [];
+    var formDataOptions = Object.assign(_typeCheckFunctions, {
+      defaultVisitor: __processInputValue,
       convertValue: _processInputValue,
-      isVisitable: isPlainObjectOrArray,
+      isVisitable: isObjectOrArray,
     });
-    if (!utilityFunctions.isObject(targetObject)) {
+    if (!typeCheckFunctions.isObject(targetObject)) {
       throw new TypeError("data must be an object");
     }
-    (function detectCircularReference(currentItem, referencePath) {
-      if (!utilityFunctions.isUndefined(currentItem)) {
-        if (visitedItems.indexOf(currentItem) !== -1) {
+    (function processReferenceElement(referenceElement, propertyPath) {
+      if (!typeCheckFunctions.isUndefined(referenceElement)) {
+        if (circularReferenceTracker.indexOf(referenceElement) !== -1) {
           throw Error(
-            "Circular reference detected in " + referencePath.join("."),
+            "Circular reference detected in " + propertyPath.join("."),
           );
         }
-        visitedItems.push(currentItem);
-        utilityFunctions.forEach(
-          currentItem,
-          function (formDataValue, valueOrDefault) {
+        circularReferenceTracker.push(referenceElement);
+        typeCheckFunctions.forEach(
+          referenceElement,
+          function (__________________inputValue, __propertyValue) {
             if (
-              (!utilityFunctions.isUndefined(formDataValue) &&
-                formDataValue !== null &&
-                ____index.call(
-                  formDataInstance,
-                  formDataValue,
-                  utilityFunctions.isString(valueOrDefault)
-                    ? valueOrDefault.trim()
-                    : valueOrDefault,
-                  referencePath,
-                  utilityFunctionsMapping,
+              (!typeCheckFunctions.isUndefined(__________________inputValue) &&
+                __________________inputValue !== null &&
+                ________currentIndex.call(
+                  formData,
+                  __________________inputValue,
+                  typeCheckFunctions.isString(__propertyValue)
+                    ? __propertyValue.trim()
+                    : __propertyValue,
+                  propertyPath,
+                  formDataOptions,
                 )) === true
             ) {
-              detectCircularReference(
-                formDataValue,
-                referencePath
-                  ? referencePath.concat(valueOrDefault)
-                  : [valueOrDefault],
+              processReferenceElement(
+                __________________inputValue,
+                propertyPath
+                  ? propertyPath.concat(__propertyValue)
+                  : [__propertyValue],
               );
             }
           },
         );
-        visitedItems.pop();
+        circularReferenceTracker.pop();
       }
     })(targetObject);
-    return formDataInstance;
+    return formData;
   }
-  function encodeURIComponentWithMapping(__inputString) {
-    var characterToEncodingMap = {
+  function encodeSpecialCharacters(___inputString) {
+    var specialCharacterEncodingMap = {
       "!": "%21",
       "'": "%27",
       "(": "%28",
@@ -1049,22 +1039,22 @@
       "%20": "+",
       "%00": "\0",
     };
-    return encodeURIComponent(__inputString).replace(
+    return encodeURIComponent(___inputString).replace(
       /[!'()~]|%20|%00/g,
-      function (__propertyIndex) {
-        return characterToEncodingMap[__propertyIndex];
+      function (_key) {
+        return specialCharacterEncodingMap[_key];
       },
     );
   }
-  function handleEvent(_eventData, contextParameter) {
+  function _processInputData(__inputData, ____callbackFunction) {
     this._pairs = [];
-    if (_eventData) {
-      _processFormData(_eventData, this, contextParameter);
+    if (__inputData) {
+      _processFormData(__inputData, this, ____callbackFunction);
     }
   }
-  var handleEventPrototype = handleEvent.prototype;
-  function encodeUriComponentWithFormatting(______inputString) {
-    return encodeURIComponent(______inputString)
+  var __processInputData = _processInputData.prototype;
+  function encodeUriComponent(________inputString) {
+    return encodeURIComponent(________inputString)
       .replace(/%3A/gi, ":")
       .replace(/%24/g, "$")
       .replace(/%2C/gi, ",")
@@ -1072,60 +1062,56 @@
       .replace(/%5B/gi, "[")
       .replace(/%5D/gi, "]");
   }
-  function constructUrlWithParams(baseUrl, queryString, urlParams) {
-    if (!queryString) {
+  function generateUrlWithParams(baseUrl, queryStringParameters, parameters) {
+    if (!queryStringParameters) {
       return baseUrl;
     }
-    var formattedQueryString;
-    var urlEncoder =
-      (urlParams && urlParams.encode) || encodeUriComponentWithFormatting;
-    var serializeQueryParamsFunction = urlParams && urlParams.serialize;
+    var serializedQueryString;
+    var uriEncodingFunction =
+      (parameters && parameters.encode) || encodeUriComponent;
+    var queryStringSerializer = parameters && parameters.serialize;
     if (
-      (formattedQueryString = serializeQueryParamsFunction
-        ? serializeQueryParamsFunction(queryString, urlParams)
-        : utilityFunctions.isURLSearchParams(queryString)
-          ? queryString.toString()
-          : new handleEvent(queryString, urlParams).toString(urlEncoder))
+      (serializedQueryString = queryStringSerializer
+        ? queryStringSerializer(queryStringParameters, parameters)
+        : typeCheckFunctions.isURLSearchParams(queryStringParameters)
+          ? queryStringParameters.toString()
+          : new _processInputData(queryStringParameters, parameters).toString(
+              uriEncodingFunction,
+            ))
     ) {
       var hashIndex = baseUrl.indexOf("#");
       if (hashIndex !== -1) {
         baseUrl = baseUrl.slice(0, hashIndex);
       }
       baseUrl +=
-        (baseUrl.indexOf("?") === -1 ? "?" : "&") + formattedQueryString;
+        (baseUrl.indexOf("?") === -1 ? "?" : "&") + serializedQueryString;
     }
     return baseUrl;
   }
-  handleEventPrototype.append = function (firstValue, __value) {
-    this._pairs.push([firstValue, __value]);
+  __processInputData.append = function (__element, _value) {
+    this._pairs.push([__element, _value]);
   };
-  handleEventPrototype.toString = function (encodeURIComponentCallback) {
-    var encodeParameter = encodeURIComponentCallback
-      ? function (___________________________________inputValue) {
-          return encodeURIComponentCallback.call(
-            this,
-            ___________________________________inputValue,
-            encodeURIComponentWithMapping,
-          );
+  __processInputData.toString = function (eventHandler) {
+    var transformValue = eventHandler
+      ? function (___eventData) {
+          return eventHandler.call(this, ___eventData, encodeSpecialCharacters);
         }
-      : encodeURIComponentWithMapping;
+      : encodeSpecialCharacters;
     return this._pairs
-      .map(function (parameterPair) {
+      .map(function (valuePair) {
         return (
-          encodeParameter(parameterPair[0]) +
-          "=" +
-          encodeParameter(parameterPair[1])
+          transformValue(valuePair[0]) + "=" + transformValue(valuePair[1])
         );
       }, "")
       .join("&");
   };
-  var typeOfVariable;
-  var requestInterceptor = (function () {
-    function __parserFunction() {
-      parserOption(this, __parserFunction);
+  var typeOf;
+  var initializeHandler = (function () {
+    function initializeParser() {
+      _parserOption(this, initializeParser);
       this.handlers = [];
     }
-    _propertyCount(__parserFunction, [
+    _propertyCount(initializeParser, [
       {
         key: "use",
         value: function (fulfilledHandler, rejectedHandler, handlerOptions) {
@@ -1140,8 +1126,8 @@
       },
       {
         key: "eject",
-        value: function (eventType) {
-          this.handlers[eventType] &&= null;
+        value: function (eventKey) {
+          this.handlers[eventKey] &&= null;
         },
       },
       {
@@ -1153,34 +1139,39 @@
       {
         key: "forEach",
         value: function (handlerCallback) {
-          utilityFunctions.forEach(this.handlers, function (___inputParameter) {
-            if (___inputParameter !== null) {
-              handlerCallback(___inputParameter);
-            }
-          });
+          typeCheckFunctions.forEach(
+            this.handlers,
+            function (_____inputParameter) {
+              if (_____inputParameter !== null) {
+                handlerCallback(_____inputParameter);
+              }
+            },
+          );
         },
       },
     ]);
-    return __parserFunction;
+    return initializeParser;
   })();
-  var requestConfigOptions = {
+  var axiosRequestConfig = {
     silentJSONParsing: true,
     forcedJSONParsing: true,
     clarifyTimeoutError: false,
   };
-  var environmentConfig = {
+  var environmentSupportFeatures = {
     isBrowser: true,
     classes: {
       URLSearchParams:
-        typeof URLSearchParams != "undefined" ? URLSearchParams : handleEvent,
+        typeof URLSearchParams != "undefined"
+          ? URLSearchParams
+          : _processInputData,
       FormData: typeof FormData != "undefined" ? FormData : null,
       Blob: typeof Blob != "undefined" ? Blob : null,
     },
     isStandardBrowserEnv:
       (typeof navigator == "undefined" ||
-        ((typeOfVariable = navigator.product) !== "ReactNative" &&
-          typeOfVariable !== "NativeScript" &&
-          typeOfVariable !== "NS")) &&
+        ((typeOf = navigator.product) !== "ReactNative" &&
+          typeOf !== "NativeScript" &&
+          typeOf !== "NS")) &&
       typeof window != "undefined" &&
       typeof document != "undefined",
     isStandardBrowserWebWorkerEnv:
@@ -1189,79 +1180,76 @@
       typeof self.importScripts == "function",
     protocols: ["http", "https", "file", "blob", "url", "data"],
   };
-  function processFormData(formData) {
-    function ___currentKey(inputArray, valueIndex, resultArray, currentIndex) {
-      var currentElement = inputArray[currentIndex++];
-      var isFiniteValue = Number.isFinite(+currentElement);
-      var isAtEndOfInputArray = currentIndex >= inputArray.length;
-      if (!currentElement && utilityFunctions.isArray(resultArray)) {
-        currentElement = resultArray.length;
+  function processFormData(_formData) {
+    function __currentKey(inputArray, index, resultArray, currentIndex) {
+      var currentValue = inputArray[currentIndex++];
+      var isFiniteValue = Number.isFinite(+currentValue);
+      var isEndOfArray = currentIndex >= inputArray.length;
+      if (!currentValue && typeCheckFunctions.isArray(resultArray)) {
+        currentValue = resultArray.length;
       } else {
-        currentElement = currentElement;
+        currentValue = currentValue;
       }
-      if (isAtEndOfInputArray) {
-        if (utilityFunctions.hasOwnProp(resultArray, currentElement)) {
-          resultArray[currentElement] = [
-            resultArray[currentElement],
-            valueIndex,
-          ];
+      if (isEndOfArray) {
+        if (typeCheckFunctions.hasOwnProp(resultArray, currentValue)) {
+          resultArray[currentValue] = [resultArray[currentValue], index];
         } else {
-          resultArray[currentElement] = valueIndex;
+          resultArray[currentValue] = index;
         }
         return !isFiniteValue;
       } else {
         if (
-          !resultArray[currentElement] ||
-          !utilityFunctions.isObject(resultArray[currentElement])
+          !resultArray[currentValue] ||
+          !typeCheckFunctions.isObject(resultArray[currentValue])
         ) {
-          resultArray[currentElement] = [];
+          resultArray[currentValue] = [];
         }
         if (
-          ___currentKey(
+          __currentKey(
             inputArray,
-            valueIndex,
-            resultArray[currentElement],
+            index,
+            resultArray[currentValue],
             currentIndex,
           ) &&
-          utilityFunctions.isArray(resultArray[currentElement])
+          typeCheckFunctions.isArray(resultArray[currentValue])
         ) {
-          resultArray[currentElement] = (function (__inputObject) {
-            var _index;
+          resultArray[currentValue] = (function (_inputObject) {
+            var __index;
             var currentKey;
             var mappedObject = {};
-            var objectKeys = Object.keys(__inputObject);
-            var _keysCount = objectKeys.length;
-            for (_index = 0; _index < _keysCount; _index++) {
-              mappedObject[(currentKey = objectKeys[_index])] =
-                __inputObject[currentKey];
+            var _objectKeys = Object.keys(_inputObject);
+            var keysCount = _objectKeys.length;
+            for (__index = 0; __index < keysCount; __index++) {
+              mappedObject[(currentKey = _objectKeys[__index])] =
+                _inputObject[currentKey];
             }
             return mappedObject;
-          })(resultArray[currentElement]);
+          })(resultArray[currentValue]);
         }
         return !isFiniteValue;
       }
     }
     if (
-      utilityFunctions.isFormData(formData) &&
-      utilityFunctions.isFunction(formData.entries)
+      typeCheckFunctions.isFormData(_formData) &&
+      typeCheckFunctions.isFunction(_formData.entries)
     ) {
       var formDataMap = {};
-      utilityFunctions.forEachEntry(
-        formData,
-        function (_inputString, matchedPatterns) {
-          ___currentKey(
-            (function (____inputString) {
-              return utilityFunctions
-                .matchAll(/\w+|\[(\w*)]/g, ____inputString)
-                .map(function (____inputArray) {
-                  if (____inputArray[0] === "[]") {
+      typeCheckFunctions.forEachEntry(
+        _formData,
+        function (__inputString, matchedResults) {
+          __currentKey(
+            (function (_____inputString) {
+              return typeCheckFunctions
+                .matchAll(/\w+|\[(\w*)]/g, _____inputString)
+                .map(function (_____inputArray) {
+                  if (_____inputArray[0] === "[]") {
                     return "";
                   } else {
-                    return ____inputArray[1] || ____inputArray[0];
+                    return _____inputArray[1] || _____inputArray[0];
                   }
                 });
-            })(_inputString),
-            matchedPatterns,
+            })(__inputString),
+            matchedResults,
             formDataMap,
             0,
           );
@@ -1271,19 +1259,19 @@
     }
     return null;
   }
-  var axiosRequestConfig = {
-    transitional: requestConfigOptions,
+  var _axiosRequestConfig = {
+    transitional: axiosRequestConfig,
     adapter: ["xhr", "http"],
     transformRequest: [
-      function (inputData, requestHandler) {
-        var isFileList;
-        var _contentType = requestHandler.getContentType() || "";
+      function (inputData, contentHandler) {
+        var parsedContent;
+        var _contentType = contentHandler.getContentType() || "";
         var isJsonContentType = _contentType.indexOf("application/json") > -1;
-        var isInputDataObject = utilityFunctions.isObject(inputData);
-        if (isInputDataObject && utilityFunctions.isHTMLForm(inputData)) {
+        var isInputDataValid = typeCheckFunctions.isObject(inputData);
+        if (isInputDataValid && typeCheckFunctions.isHTMLForm(inputData)) {
           inputData = new FormData(inputData);
         }
-        if (utilityFunctions.isFormData(inputData)) {
+        if (typeCheckFunctions.isFormData(inputData)) {
           if (isJsonContentType && isJsonContentType) {
             return JSON.stringify(processFormData(inputData));
           } else {
@@ -1291,43 +1279,46 @@
           }
         }
         if (
-          utilityFunctions.isArrayBuffer(inputData) ||
-          utilityFunctions.isBuffer(inputData) ||
-          utilityFunctions.isStream(inputData) ||
-          utilityFunctions.isFile(inputData) ||
-          utilityFunctions.isBlob(inputData)
+          typeCheckFunctions.isArrayBuffer(inputData) ||
+          typeCheckFunctions.isBuffer(inputData) ||
+          typeCheckFunctions.isStream(inputData) ||
+          typeCheckFunctions.isFile(inputData) ||
+          typeCheckFunctions.isBlob(inputData)
         ) {
           return inputData;
         }
-        if (utilityFunctions.isArrayBufferView(inputData)) {
+        if (typeCheckFunctions.isArrayBufferView(inputData)) {
           return inputData.buffer;
         }
-        if (utilityFunctions.isURLSearchParams(inputData)) {
-          requestHandler.setContentType(
+        if (typeCheckFunctions.isURLSearchParams(inputData)) {
+          contentHandler.setContentType(
             "application/x-www-form-urlencoded;charset=utf-8",
             false,
           );
           return inputData.toString();
         }
-        if (isInputDataObject) {
+        if (isInputDataValid) {
           if (_contentType.indexOf("application/x-www-form-urlencoded") > -1) {
-            return (function (event, additionalParams) {
+            return (function (event, urlSearchParamsOptions) {
               return _processFormData(
                 event,
-                new environmentConfig.classes.URLSearchParams(),
+                new environmentSupportFeatures.classes.URLSearchParams(),
                 Object.assign(
                   {
                     visitor: function (
-                      __inputData,
-                      dataType,
-                      ___inputData,
+                      inputElement,
+                      base64StringKey,
+                      bufferData,
                       defaultVisitorFunction,
                     ) {
                       if (
-                        environmentConfig.isNode &&
-                        utilityFunctions.isBuffer(__inputData)
+                        environmentSupportFeatures.isNode &&
+                        typeCheckFunctions.isBuffer(inputElement)
                       ) {
-                        this.append(dataType, __inputData.toString("base64"));
+                        this.append(
+                          base64StringKey,
+                          inputElement.toString("base64"),
+                        );
                         return false;
                       } else {
                         return defaultVisitorFunction.defaultVisitor.apply(
@@ -1337,41 +1328,41 @@
                       }
                     },
                   },
-                  additionalParams,
+                  urlSearchParamsOptions,
                 ),
               );
             })(inputData, this.formSerializer).toString();
           }
           if (
-            (isFileList = utilityFunctions.isFileList(inputData)) ||
+            (parsedContent = typeCheckFunctions.isFileList(inputData)) ||
             _contentType.indexOf("multipart/form-data") > -1
           ) {
-            var formDataEnv = this.env && this.env.FormData;
+            var formDataConstructor = this.env && this.env.FormData;
             return _processFormData(
-              isFileList
+              parsedContent
                 ? {
                     "files[]": inputData,
                   }
                 : inputData,
-              formDataEnv && new formDataEnv(),
+              formDataConstructor && new formDataConstructor(),
               this.formSerializer,
             );
           }
         }
-        if (isInputDataObject || isJsonContentType) {
-          requestHandler.setContentType("application/json", false);
-          return (function (inputString, _parserFunction, jsonStringify) {
-            if (utilityFunctions.isString(inputString)) {
+        if (isInputDataValid || isJsonContentType) {
+          contentHandler.setContentType("application/json", false);
+          return (function (_inputString, jsonParser, jsonStringifier) {
+            if (typeCheckFunctions.isString(_inputString)) {
               try {
-                (_parserFunction || JSON.parse)(inputString);
-                return utilityFunctions.trim(inputString);
-              } catch (__error) {
-                if (__error.name !== "SyntaxError") {
-                  throw __error;
+                (jsonParser || JSON.parse)(_inputString);
+                return typeCheckFunctions.trim(_inputString);
+              } catch (_error) {
+                if (_error.name !== "SyntaxError") {
+                  throw _error;
                 }
               }
             }
-            return (jsonStringify || JSON.stringify)(inputString);
+            return (jsonStringifier || JSON.stringify)(_inputString);
           })(inputData);
         } else {
           return inputData;
@@ -1379,38 +1370,39 @@
       },
     ],
     transformResponse: [
-      function (jsonString) {
-        var transitionalConfig =
-          this.transitional || axiosRequestConfig.transitional;
-        var isForcedJSONParsing =
-          transitionalConfig && transitionalConfig.forcedJSONParsing;
+      function (jsonResponse) {
+        var transitionalSettings =
+          this.transitional || _axiosRequestConfig.transitional;
+        var isJsonParsingForced =
+          transitionalSettings && transitionalSettings.forcedJSONParsing;
         var isResponseJson = this.responseType === "json";
         if (
-          jsonString &&
-          utilityFunctions.isString(jsonString) &&
-          ((isForcedJSONParsing && !this.responseType) || isResponseJson)
+          jsonResponse &&
+          typeCheckFunctions.isString(jsonResponse) &&
+          ((isJsonParsingForced && !this.responseType) || isResponseJson)
         ) {
           var shouldParseJson =
-            (!transitionalConfig || !transitionalConfig.silentJSONParsing) &&
+            (!transitionalSettings ||
+              !transitionalSettings.silentJSONParsing) &&
             isResponseJson;
           try {
-            return JSON.parse(jsonString);
-          } catch (_error) {
+            return JSON.parse(jsonResponse);
+          } catch (error) {
             if (shouldParseJson) {
-              if (_error.name === "SyntaxError") {
-                throw createAxiosError.from(
-                  _error,
-                  createAxiosError.ERR_BAD_RESPONSE,
+              if (error.name === "SyntaxError") {
+                throw AxiosError.from(
+                  error,
+                  AxiosError.ERR_BAD_RESPONSE,
                   this,
                   null,
                   this.response,
                 );
               }
-              throw _error;
+              throw error;
             }
           }
         }
-        return jsonString;
+        return jsonResponse;
       },
     ],
     timeout: 0,
@@ -1419,11 +1411,11 @@
     maxContentLength: -1,
     maxBodyLength: -1,
     env: {
-      FormData: environmentConfig.classes.FormData,
-      Blob: environmentConfig.classes.Blob,
+      FormData: environmentSupportFeatures.classes.FormData,
+      Blob: environmentSupportFeatures.classes.Blob,
     },
-    validateStatus: function (httpStatusCode) {
-      return httpStatusCode >= 200 && httpStatusCode < 300;
+    validateStatus: function (httpResponseStatus) {
+      return httpResponseStatus >= 200 && httpResponseStatus < 300;
     },
     headers: {
       common: {
@@ -1432,14 +1424,14 @@
       },
     },
   };
-  utilityFunctions.forEach(
+  typeCheckFunctions.forEach(
     ["delete", "get", "head", "post", "put", "patch"],
-    function (__headerKey) {
-      axiosRequestConfig.headers[__headerKey] = {};
+    function (___headerKey) {
+      _axiosRequestConfig.headers[___headerKey] = {};
     },
   );
-  var axiosHttpClient = axiosRequestConfig;
-  var httpHeadersSet = utilityFunctions.toObjectSet([
+  var axiosInstance = _axiosRequestConfig;
+  var headerFieldsSet = typeCheckFunctions.toObjectSet([
     "age",
     "authorization",
     "content-length",
@@ -1459,42 +1451,42 @@
     "user-agent",
   ]);
   var internalSymbol = Symbol("internals");
-  function normalizeInput(________________________________inputValue) {
+  function normalizeInput(_____________________________inputValue) {
     return (
-      ________________________________inputValue &&
-      String(________________________________inputValue).trim().toLowerCase()
+      _____________________________inputValue &&
+      String(_____________________________inputValue).trim().toLowerCase()
     );
   }
-  function formatInputValue(____________________inputValue) {
+  function transformInputValue(_____________________inputValue) {
     if (
-      ____________________inputValue === false ||
-      ____________________inputValue == null
+      _____________________inputValue === false ||
+      _____________________inputValue == null
     ) {
-      return ____________________inputValue;
-    } else if (utilityFunctions.isArray(____________________inputValue)) {
-      return ____________________inputValue.map(formatInputValue);
+      return _____________________inputValue;
+    } else if (typeCheckFunctions.isArray(_____________________inputValue)) {
+      return _____________________inputValue.map(transformInputValue);
     } else {
-      return String(____________________inputValue);
+      return String(_____________________inputValue);
     }
   }
-  function evaluateCondition(
-    ___________inputValue,
-    currentValue,
-    indexValue,
-    callbackOrPattern,
-    shouldUpdateValue,
+  function executeSearchCriteria(
+    _________inputValue,
+    targetString,
+    __________inputValue,
+    searchCriteria,
+    shouldReplaceTargetString,
   ) {
-    if (utilityFunctions.isFunction(callbackOrPattern)) {
-      return callbackOrPattern.call(this, currentValue, indexValue);
+    if (typeCheckFunctions.isFunction(searchCriteria)) {
+      return searchCriteria.call(this, targetString, __________inputValue);
     } else {
-      if (shouldUpdateValue) {
-        currentValue = indexValue;
+      if (shouldReplaceTargetString) {
+        targetString = __________inputValue;
       }
-      if (utilityFunctions.isString(currentValue)) {
-        if (utilityFunctions.isString(callbackOrPattern)) {
-          return currentValue.indexOf(callbackOrPattern) !== -1;
-        } else if (utilityFunctions.isRegExp(callbackOrPattern)) {
-          return callbackOrPattern.test(currentValue);
+      if (typeCheckFunctions.isString(targetString)) {
+        if (typeCheckFunctions.isString(searchCriteria)) {
+          return targetString.indexOf(searchCriteria) !== -1;
+        } else if (typeCheckFunctions.isRegExp(searchCriteria)) {
+          return searchCriteria.test(targetString);
         } else {
           return undefined;
         }
@@ -1503,80 +1495,73 @@
       }
     }
   }
-  var axiosHeaderManager = (function () {
-    function __currentKey(_____________________________inputValue) {
-      parserOption(this, __currentKey);
-      if (_____________________________inputValue) {
-        this.set(_____________________________inputValue);
+  var keyFilterHandler = (function () {
+    function isKeyFiltered(option) {
+      _parserOption(this, isKeyFiltered);
+      if (option) {
+        this.set(option);
       }
     }
     _propertyCount(
-      __currentKey,
+      isKeyFiltered,
       [
         {
           key: "set",
-          value: function (headerInput, headerName, headerValue) {
-            var contextReference = this;
-            function validatedHeaderName(
+          value: function (__input, headerField, headerName) {
+            var context = this;
+            function __headerName(
               __headerValue,
-              ___headerName,
-              isUndefinedOrTrue,
+              _headerName,
+              isHeaderRequired,
             ) {
-              var __headerName = normalizeInput(___headerName);
-              if (!__headerName) {
+              var validatedHeaderName = normalizeInput(_headerName);
+              if (!validatedHeaderName) {
                 throw new Error("header name must be a non-empty string");
               }
-              var headerNameIndex = utilityFunctions.findKey(
-                contextReference,
-                __headerName,
+              var headerNameIndex = typeCheckFunctions.findKey(
+                context,
+                validatedHeaderName,
               );
               if (
                 !headerNameIndex ||
-                contextReference[headerNameIndex] === undefined ||
-                isUndefinedOrTrue === true ||
-                (isUndefinedOrTrue === undefined &&
-                  contextReference[headerNameIndex] !== false)
+                context[headerNameIndex] === undefined ||
+                isHeaderRequired === true ||
+                (isHeaderRequired === undefined &&
+                  context[headerNameIndex] !== false)
               ) {
-                contextReference[headerNameIndex || ___headerName] =
-                  formatInputValue(__headerValue);
+                context[headerNameIndex || _headerName] =
+                  transformInputValue(__headerValue);
               }
             }
+            var headerValue;
             var headerKey;
-            var _headerName;
             var _headerValue;
             var headerValueIndex;
-            var headerValueMap;
-            function processValidatedHeaderNames(
-              headerEntries,
-              headerValidationOptions,
-            ) {
-              return utilityFunctions.forEach(
-                headerEntries,
-                function (_____headerName, ______headerName) {
-                  return validatedHeaderName(
-                    _____headerName,
-                    ______headerName,
-                    headerValidationOptions,
-                  );
+            var headerMap;
+            function processHeaderItems(headerElements, ____headerName) {
+              return typeCheckFunctions.forEach(
+                headerElements,
+                function (headerEvent, headerIndex) {
+                  return __headerName(headerEvent, headerIndex, ____headerName);
                 },
               );
             }
             if (
-              utilityFunctions.isPlainObject(headerInput) ||
-              headerInput instanceof this.constructor
+              typeCheckFunctions.isPlainObject(__input) ||
+              __input instanceof this.constructor
             ) {
-              processValidatedHeaderNames(headerInput, headerName);
+              processHeaderItems(__input, headerField);
             } else if (
-              utilityFunctions.isString(headerInput) &&
-              (headerInput = headerInput.trim()) &&
-              !/^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(headerInput.trim())
+              typeCheckFunctions.isString(__input) &&
+              (__input = __input.trim()) &&
+              !/^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(__input.trim())
             ) {
-              processValidatedHeaderNames(
-                ((headerValueMap = {}),
-                (headerKey = headerInput) &&
-                  headerKey.split("\n").forEach(function (headerLine) {
+              processHeaderItems(
+                ((headerMap = {}),
+                (headerValue = __input) &&
+                  headerValue.split("\n").forEach(function (headerLine) {
                     headerValueIndex = headerLine.indexOf(":");
-                    _headerName = headerLine
+                    headerKey = headerLine
                       .substring(0, headerValueIndex)
                       .trim()
                       .toLowerCase();
@@ -1584,63 +1569,60 @@
                       .substring(headerValueIndex + 1)
                       .trim();
                     if (
-                      !!_headerName &&
-                      (!headerValueMap[_headerName] ||
-                        !httpHeadersSet[_headerName])
+                      !!headerKey &&
+                      (!headerMap[headerKey] || !headerFieldsSet[headerKey])
                     ) {
-                      if (_headerName === "set-cookie") {
-                        if (headerValueMap[_headerName]) {
-                          headerValueMap[_headerName].push(_headerValue);
+                      if (headerKey === "set-cookie") {
+                        if (headerMap[headerKey]) {
+                          headerMap[headerKey].push(_headerValue);
                         } else {
-                          headerValueMap[_headerName] = [_headerValue];
+                          headerMap[headerKey] = [_headerValue];
                         }
                       } else {
-                        headerValueMap[_headerName] = headerValueMap[
-                          _headerName
-                        ]
-                          ? headerValueMap[_headerName] + ", " + _headerValue
+                        headerMap[headerKey] = headerMap[headerKey]
+                          ? headerMap[headerKey] + ", " + _headerValue
                           : _headerValue;
                       }
                     }
                   }),
-                headerValueMap),
-                headerName,
+                headerMap),
+                headerField,
               );
-            } else if (headerInput != null) {
-              validatedHeaderName(headerName, headerInput, headerValue);
+            } else if (__input != null) {
+              __headerName(headerField, __input, headerName);
             }
             return this;
           },
         },
         {
           key: "get",
-          value: function (inputElement, parserFunction) {
-            if ((inputElement = normalizeInput(inputElement))) {
-              var foundKey = utilityFunctions.findKey(this, inputElement);
+          value: function (_inputValue, parserOption) {
+            if ((_inputValue = normalizeInput(_inputValue))) {
+              var foundKey = typeCheckFunctions.findKey(this, _inputValue);
               if (foundKey) {
-                var value = this[foundKey];
-                if (!parserFunction) {
-                  return value;
+                var parsedData = this[foundKey];
+                if (!parserOption) {
+                  return parsedData;
                 }
-                if (parserFunction === true) {
-                  return (function (___inputString) {
+                if (parserOption === true) {
+                  return (function (____inputString) {
                     var regexMatch;
-                    var propertiesMap = Object.create(null);
+                    var parsedObject = Object.create(null);
                     for (
-                      var propertyRegex = /([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;
-                      (regexMatch = propertyRegex.exec(___inputString));
+                      var regexPattern = /([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;
+                      (regexMatch = regexPattern.exec(____inputString));
 
                     ) {
-                      propertiesMap[regexMatch[1]] = regexMatch[2];
+                      parsedObject[regexMatch[1]] = regexMatch[2];
                     }
-                    return propertiesMap;
-                  })(value);
+                    return parsedObject;
+                  })(parsedData);
                 }
-                if (utilityFunctions.isFunction(parserFunction)) {
-                  return parserFunction.call(this, value, foundKey);
+                if (typeCheckFunctions.isFunction(parserOption)) {
+                  return parserOption.call(this, parsedData, foundKey);
                 }
-                if (utilityFunctions.isRegExp(parserFunction)) {
-                  return parserFunction.exec(value);
+                if (typeCheckFunctions.isRegExp(parserOption)) {
+                  return parserOption.exec(parsedData);
                 }
                 throw new TypeError("parser must be boolean|regexp|function");
               }
@@ -1649,18 +1631,18 @@
         },
         {
           key: "has",
-          value: function (___event, searchKey) {
-            if ((___event = normalizeInput(___event))) {
-              var ___foundKey = utilityFunctions.findKey(this, ___event);
+          value: function (_element, queryOrCondition) {
+            if ((_element = normalizeInput(_element))) {
+              var ___foundKey = typeCheckFunctions.findKey(this, _element);
               return (
                 !!___foundKey &&
                 this[___foundKey] !== undefined &&
-                (!searchKey ||
-                  !!evaluateCondition(
+                (!queryOrCondition ||
+                  !!executeSearchCriteria(
                     0,
                     this[___foundKey],
                     ___foundKey,
-                    searchKey,
+                    queryOrCondition,
                   ))
               );
             }
@@ -1669,143 +1651,133 @@
         },
         {
           key: "delete",
-          value: function (elementToRemove, conditionalParam) {
-            var _contextObject = this;
+          value: function (elementToRemove, filterCondition) {
+            var _currentContext = this;
             var isModified = false;
-            function keyToRemove(_inputElement) {
-              if ((_inputElement = normalizeInput(_inputElement))) {
-                var _foundKey = utilityFunctions.findKey(
-                  _contextObject,
-                  _inputElement,
+            function keyToDelete(element) {
+              if ((element = normalizeInput(element))) {
+                var _foundKey = typeCheckFunctions.findKey(
+                  _currentContext,
+                  element,
                 );
                 if (
                   !!_foundKey &&
-                  (!conditionalParam ||
-                    !!evaluateCondition(
+                  (!filterCondition ||
+                    !!executeSearchCriteria(
                       0,
-                      _contextObject[_foundKey],
+                      _currentContext[_foundKey],
                       _foundKey,
-                      conditionalParam,
+                      filterCondition,
                     ))
                 ) {
-                  delete _contextObject[_foundKey];
+                  delete _currentContext[_foundKey];
                   isModified = true;
                 }
               }
             }
-            if (utilityFunctions.isArray(elementToRemove)) {
-              elementToRemove.forEach(keyToRemove);
+            if (typeCheckFunctions.isArray(elementToRemove)) {
+              elementToRemove.forEach(keyToDelete);
             } else {
-              keyToRemove(elementToRemove);
+              keyToDelete(elementToRemove);
             }
             return isModified;
           },
         },
         {
           key: "clear",
-          value: function (filterCondition) {
-            var keysArray = Object.keys(this);
-            var keysCount = keysArray.length;
-            for (var isFiltered = false; keysCount--; ) {
-              var _currentKey = keysArray[keysCount];
+          value: function (filterCriteria) {
+            var objectKeys = Object.keys(this);
+            var keyCount = objectKeys.length;
+            for (var isDeleted = false; keyCount--; ) {
+              var _currentKey = objectKeys[keyCount];
               if (
-                !filterCondition ||
-                !!evaluateCondition(
+                !filterCriteria ||
+                !!executeSearchCriteria(
                   0,
                   this[_currentKey],
                   _currentKey,
-                  filterCondition,
+                  filterCriteria,
                   true,
                 )
               ) {
                 delete this[_currentKey];
-                isFiltered = true;
+                isDeleted = true;
               }
             }
-            return isFiltered;
+            return isDeleted;
           },
         },
         {
           key: "normalize",
-          value: function (shouldTransformKey) {
-            var contextObject = this;
-            var mappedKeys = {};
-            utilityFunctions.forEach(
-              this,
-              function (______inputValue, _______inputValue) {
-                var foundKeyIndex = utilityFunctions.findKey(
-                  mappedKeys,
-                  _______inputValue,
-                );
-                if (foundKeyIndex) {
-                  contextObject[foundKeyIndex] =
-                    formatInputValue(______inputValue);
-                  delete contextObject[_______inputValue];
-                  return;
-                }
-                var formattedKey = shouldTransformKey
-                  ? (function (_______inputString) {
-                      return _______inputString
-                        .trim()
-                        .toLowerCase()
-                        .replace(
-                          /([a-z\d])(\w*)/g,
-                          function (________event, textInput, suffix) {
-                            return textInput.toUpperCase() + suffix;
-                          },
-                        );
-                    })(_______inputValue)
-                  : String(_______inputValue).trim();
-                if (formattedKey !== _______inputValue) {
-                  delete contextObject[_______inputValue];
-                }
-                contextObject[formattedKey] =
-                  formatInputValue(______inputValue);
-                mappedKeys[formattedKey] = true;
-              },
-            );
+          value: function (inputString) {
+            var currentContext = this;
+            var namespaceMap = {};
+            typeCheckFunctions.forEach(this, function (_inputParameter, key) {
+              var foundKeyIndex = typeCheckFunctions.findKey(namespaceMap, key);
+              if (foundKeyIndex) {
+                currentContext[foundKeyIndex] =
+                  transformInputValue(_inputParameter);
+                delete currentContext[key];
+                return;
+              }
+              var formattedKey = inputString
+                ? (function (_________inputString) {
+                    return _________inputString
+                      .trim()
+                      .toLowerCase()
+                      .replace(
+                        /([a-z\d])(\w*)/g,
+                        function (_eventParameter, textToConvert, suffix) {
+                          return textToConvert.toUpperCase() + suffix;
+                        },
+                      );
+                  })(key)
+                : String(key).trim();
+              if (formattedKey !== key) {
+                delete currentContext[key];
+              }
+              currentContext[formattedKey] =
+                transformInputValue(_inputParameter);
+              namespaceMap[formattedKey] = true;
+            });
             return this;
           },
         },
         {
           key: "concat",
           value: function () {
-            var constructorRef;
-            var argumentsLength = arguments.length;
-            var _argumentsArray = new Array(argumentsLength);
-            for (
-              var __argumentIndex = 0;
-              __argumentIndex < argumentsLength;
-              __argumentIndex++
-            ) {
-              _argumentsArray[__argumentIndex] = arguments[__argumentIndex];
+            var constructorFunction;
+            var _argumentCount = arguments.length;
+            var argsArray = new Array(_argumentCount);
+            for (var argIndex = 0; argIndex < _argumentCount; argIndex++) {
+              argsArray[argIndex] = arguments[argIndex];
             }
-            return (constructorRef = this.constructor).concat.apply(
-              constructorRef,
-              [this].concat(_argumentsArray),
+            return (constructorFunction = this.constructor).concat.apply(
+              constructorFunction,
+              [this].concat(argsArray),
             );
           },
         },
         {
           key: "toJSON",
-          value: function (_____________inputValue) {
-            var resultMap = Object.create(null);
-            utilityFunctions.forEach(
+          value: function (inputEvent) {
+            var formattedValues = Object.create(null);
+            typeCheckFunctions.forEach(
               this,
-              function (_______________________inputValue, resultKey) {
+              function (______________________inputValue, formattedValueIndex) {
                 if (
-                  _______________________inputValue != null &&
-                  _______________________inputValue !== false
+                  ______________________inputValue != null &&
+                  ______________________inputValue !== false
                 ) {
-                  resultMap[resultKey] =
-                    _____________inputValue &&
-                    utilityFunctions.isArray(_______________________inputValue)
-                      ? _______________________inputValue.join(", ")
-                      : _______________________inputValue;
+                  formattedValues[formattedValueIndex] =
+                    inputEvent &&
+                    typeCheckFunctions.isArray(______________________inputValue)
+                      ? ______________________inputValue.join(", ")
+                      : ______________________inputValue;
                 }
               },
             );
-            return resultMap;
+            return formattedValues;
           },
         },
         {
@@ -1818,9 +1790,9 @@
           key: "toString",
           value: function () {
             return Object.entries(this.toJSON())
-              .map(function (_itemsToIterate) {
-                var itemsAfterIteration = iterateOverItems(_itemsToIterate, 2);
-                return itemsAfterIteration[0] + ": " + itemsAfterIteration[1];
+              .map(function (__inputElement) {
+                var __iteratorResult = iteratorFunction(__inputElement, 2);
+                return __iteratorResult[0] + ": " + __iteratorResult[1];
               })
               .join("\n");
           },
@@ -1835,18 +1807,18 @@
       [
         {
           key: "from",
-          value: function (instanceOrNew) {
-            if (instanceOrNew instanceof this) {
-              return instanceOrNew;
+          value: function (___inputParameter) {
+            if (___inputParameter instanceof this) {
+              return ___inputParameter;
             } else {
-              return new this(instanceOrNew);
+              return new this(___inputParameter);
             }
           },
         },
         {
           key: "concat",
-          value: function (_event) {
-            var instanceOfClass = new this(_event);
+          value: function (__inputParameter) {
+            var instance = new this(__inputParameter);
             var argumentCount = arguments.length;
             var argumentsArray = new Array(
               argumentCount > 1 ? argumentCount - 1 : 0,
@@ -1858,43 +1830,43 @@
             ) {
               argumentsArray[argumentIndex - 1] = arguments[argumentIndex];
             }
-            argumentsArray.forEach(function (____________event) {
-              return instanceOfClass.set(____________event);
+            argumentsArray.forEach(function (_______event) {
+              return instance.set(_______event);
             });
-            return instanceOfClass;
+            return instance;
           },
         },
         {
           key: "accessor",
-          value: function (accessorKey) {
+          value: function (propertyName) {
             var accessorMap = (this[internalSymbol] = this[internalSymbol] =
               {
                 accessors: {},
               }).accessors;
             var prototypeObject = this.prototype;
-            function inputKey(____inputValue) {
-              var computedPropertyKey = normalizeInput(____inputValue);
-              if (!accessorMap[computedPropertyKey]) {
-                (function (___targetObject, ___propertyName) {
-                  var camelCaseProperty = utilityFunctions.toCamelCase(
+            function _processEvent(____inputValue) {
+              var processEvent = normalizeInput(____inputValue);
+              if (!accessorMap[processEvent]) {
+                (function (objectWithProperties, ___propertyName) {
+                  var formattedPropertyName = typeCheckFunctions.toCamelCase(
                     " " + ___propertyName,
                   );
-                  ["get", "set", "has"].forEach(function (propertyKey) {
+                  ["get", "set", "has"].forEach(function (_propertyKey) {
                     Object.defineProperty(
-                      ___targetObject,
-                      propertyKey + camelCaseProperty,
+                      objectWithProperties,
+                      _propertyKey + formattedPropertyName,
                       {
                         value: function (
                           eventParameter,
-                          eventData,
-                          callbackOption,
+                          _eventData,
+                          _callback,
                         ) {
-                          return this[propertyKey].call(
+                          return this[_propertyKey].call(
                             this,
                             ___propertyName,
                             eventParameter,
-                            eventData,
-                            callbackOption,
+                            _eventData,
+                            _callback,
                           );
                         },
                         configurable: true,
@@ -1902,22 +1874,22 @@
                     );
                   });
                 })(prototypeObject, ____inputValue);
-                accessorMap[computedPropertyKey] = true;
+                accessorMap[processEvent] = true;
               }
             }
-            if (utilityFunctions.isArray(accessorKey)) {
-              accessorKey.forEach(inputKey);
+            if (typeCheckFunctions.isArray(propertyName)) {
+              propertyName.forEach(_processEvent);
             } else {
-              inputKey(accessorKey);
+              _processEvent(propertyName);
             }
             return this;
           },
         },
       ],
     );
-    return __currentKey;
+    return isKeyFiltered;
   })();
-  axiosHeaderManager.accessor([
+  keyFilterHandler.accessor([
     "Content-Type",
     "Content-Length",
     "Accept",
@@ -1925,102 +1897,98 @@
     "User-Agent",
     "Authorization",
   ]);
-  utilityFunctions.reduceDescriptors(
-    axiosHeaderManager.prototype,
-    function (__inputElement, ____propertyName) {
-      var _________________inputValue = __inputElement.value;
-      var capitalizedPropertyName =
-        ____propertyName[0].toUpperCase() + ____propertyName.slice(1);
+  typeCheckFunctions.reduceDescriptors(
+    keyFilterHandler.prototype,
+    function (_inputElement, ______inputString) {
+      var _______________inputValue = _inputElement.value;
+      var formattedInputString =
+        ______inputString[0].toUpperCase() + ______inputString.slice(1);
       return {
         get: function () {
-          return _________________inputValue;
+          return _______________inputValue;
         },
-        set: function (_____________event) {
-          this[capitalizedPropertyName] = _____________event;
+        set: function (________event) {
+          this[formattedInputString] = ________event;
         },
       };
     },
   );
-  utilityFunctions.freezeMethods(axiosHeaderManager);
-  var axiosHeadersInstance = axiosHeaderManager;
-  function executeCallbacks(callbackFunctions, _requestOptions) {
-    var contextOrDefault = this || axiosHttpClient;
-    var ______requestOptions = _requestOptions || contextOrDefault;
-    var _normalizedHeaders = axiosHeadersInstance.from(
-      ______requestOptions.headers,
-    );
-    var _responseData = ______requestOptions.data;
-    utilityFunctions.forEach(callbackFunctions, function (______event) {
-      _responseData = ______event.call(
-        contextOrDefault,
-        _responseData,
+  typeCheckFunctions.freezeMethods(keyFilterHandler);
+  var keyFilter = keyFilterHandler;
+  function executeCallbackChain(callbackFunctions, requestOptions) {
+    var contextObject = this || axiosInstance;
+    var requestOptionsOrDefault = requestOptions || contextObject;
+    var _normalizedHeaders = keyFilter.from(requestOptionsOrDefault.headers);
+    var __requestData = requestOptionsOrDefault.data;
+    typeCheckFunctions.forEach(callbackFunctions, function (_eventHandler) {
+      __requestData = _eventHandler.call(
+        contextObject,
+        __requestData,
         _normalizedHeaders.normalize(),
-        _requestOptions ? _requestOptions.status : undefined,
+        requestOptions ? requestOptions.status : undefined,
       );
     });
     _normalizedHeaders.normalize();
-    return _responseData;
+    return __requestData;
   }
-  function isCancelEvent(cancelToken) {
+  function isCancelledEvent(cancelToken) {
     return !!cancelToken && !!cancelToken.__CANCEL__;
   }
-  function cancelErrorHandler(
-    _errorMessage,
-    _____requestConfig,
-    ______requestConfig,
-  ) {
-    createAxiosError.call(
+  function canceledError(_errorMessage, errorContext, ____errorCode) {
+    AxiosError.call(
       this,
       _errorMessage == null ? "canceled" : _errorMessage,
-      createAxiosError.ERR_CANCELED,
-      _____requestConfig,
-      ______requestConfig,
+      AxiosError.ERR_CANCELED,
+      errorContext,
+      ____errorCode,
     );
     this.name = "CanceledError";
   }
-  utilityFunctions.inherits(cancelErrorHandler, createAxiosError, {
+  typeCheckFunctions.inherits(canceledError, AxiosError, {
     __CANCEL__: true,
   });
-  var cookieHandler = environmentConfig.isStandardBrowserEnv
+  var cookieHandler = environmentSupportFeatures.isStandardBrowserEnv
     ? {
         write: function (
           cookieName,
           cookieValue,
-          cookieExpirationTime,
+          expirationTime,
           cookiePath,
-          cookieDomain,
+          domainName,
           isSecure,
         ) {
-          var cookieParts = [];
-          cookieParts.push(cookieName + "=" + encodeURIComponent(cookieValue));
-          if (utilityFunctions.isNumber(cookieExpirationTime)) {
-            cookieParts.push(
-              "expires=" + new Date(cookieExpirationTime).toGMTString(),
+          var cookieAttributes = [];
+          cookieAttributes.push(
+            cookieName + "=" + encodeURIComponent(cookieValue),
+          );
+          if (typeCheckFunctions.isNumber(expirationTime)) {
+            cookieAttributes.push(
+              "expires=" + new Date(expirationTime).toGMTString(),
             );
           }
-          if (utilityFunctions.isString(cookiePath)) {
-            cookieParts.push("path=" + cookiePath);
+          if (typeCheckFunctions.isString(cookiePath)) {
+            cookieAttributes.push("path=" + cookiePath);
           }
-          if (utilityFunctions.isString(cookieDomain)) {
-            cookieParts.push("domain=" + cookieDomain);
+          if (typeCheckFunctions.isString(domainName)) {
+            cookieAttributes.push("domain=" + domainName);
           }
           if (isSecure === true) {
-            cookieParts.push("secure");
+            cookieAttributes.push("secure");
           }
-          document.cookie = cookieParts.join("; ");
+          document.cookie = cookieAttributes.join("; ");
         },
         read: function (_cookieName) {
-          var cookieValueMatch = document.cookie.match(
+          var cookieMatch = document.cookie.match(
             new RegExp("(^|;\\s*)(" + _cookieName + ")=([^;]*)"),
           );
-          if (cookieValueMatch) {
-            return decodeURIComponent(cookieValueMatch[3]);
+          if (cookieMatch) {
+            return decodeURIComponent(cookieMatch[3]);
           } else {
             return null;
           }
         },
-        remove: function (eventPayload) {
-          this.write(eventPayload, "", Date.now() - 86400000);
+        remove: function (__eventData) {
+          this.write(__eventData, "", Date.now() - 86400000);
         },
       }
     : {
@@ -2030,12 +1998,14 @@
         },
         remove: function () {},
       };
-  function formatUrl(_baseUrl, urlPath) {
+  function buildUrl(_baseUrl, urlPath) {
     if (_baseUrl && !/^([a-z][a-z\d+\-.]*:)?\/\//i.test(urlPath)) {
-      return (function (_urlPath, pathSuffix) {
-        if (pathSuffix) {
+      return (function (_urlPath, relativePath) {
+        if (relativePath) {
           return (
-            _urlPath.replace(/\/+$/, "") + "/" + pathSuffix.replace(/^\/+/, "")
+            _urlPath.replace(/\/+$/, "") +
+            "/" +
+            relativePath.replace(/^\/+/, "")
           );
         } else {
           return _urlPath;
@@ -2045,14 +2015,14 @@
       return urlPath;
     }
   }
-  var isStandardBrowserEnvironment = environmentConfig.isStandardBrowserEnv
+  var isSameOriginUrl = environmentSupportFeatures.isStandardBrowserEnv
     ? (function () {
         var parsedUrl;
-        var isOldBrowser = /(msie|trident)/i.test(navigator.userAgent);
+        var isInternetExplorer = /(msie|trident)/i.test(navigator.userAgent);
         var anchorElement = document.createElement("a");
         function __url(_url) {
           var url = _url;
-          if (isOldBrowser) {
+          if (isInternetExplorer) {
             anchorElement.setAttribute("href", url);
             url = anchorElement.href;
           }
@@ -2078,62 +2048,56 @@
           };
         }
         parsedUrl = __url(window.location.href);
-        return function (__________________________inputValue) {
-          var normalizedUrl = utilityFunctions.isString(
-            __________________________inputValue,
-          )
-            ? __url(__________________________inputValue)
-            : __________________________inputValue;
+        return function (inputUrl) {
+          var parsedInputUrl = typeCheckFunctions.isString(inputUrl)
+            ? __url(inputUrl)
+            : inputUrl;
           return (
-            normalizedUrl.protocol === parsedUrl.protocol &&
-            normalizedUrl.host === parsedUrl.host
+            parsedInputUrl.protocol === parsedUrl.protocol &&
+            parsedInputUrl.host === parsedUrl.host
           );
         };
       })()
     : function () {
         return true;
       };
-  function createProgressHandler(callback, timeInterval) {
-    var previousLoadedBytes = 0;
-    var progressCalculator = (function (maxSamples, _timeInterval) {
-      maxSamples = maxSamples || 10;
-      var lastTimestamp;
-      var sampleValuesArray = new Array(maxSamples);
-      var timestampArray = new Array(maxSamples);
-      var currentSampleIndex = 0;
-      var _currentSampleIndex = 0;
-      if (_timeInterval !== undefined) {
-        _timeInterval = _timeInterval;
+  function progressHandler(callback, durationThreshold) {
+    var lastLoadedBytes = 0;
+    var rateCalculator = (function (arraySize, timeInterval) {
+      arraySize = arraySize || 10;
+      var lastUpdateTime;
+      var ringBuffer = new Array(arraySize);
+      var timestampsArray = new Array(arraySize);
+      var ___currentIndex = 0;
+      var ____currentIndex = 0;
+      if (timeInterval !== undefined) {
+        timeInterval = timeInterval;
       } else {
-        _timeInterval = 1000;
+        timeInterval = 1000;
       }
       return function (_____inputValue) {
-        var currentTimestamp = Date.now();
-        var previousTimestamp = timestampArray[_currentSampleIndex];
-        lastTimestamp ||= currentTimestamp;
-        sampleValuesArray[currentSampleIndex] = _____inputValue;
-        timestampArray[currentSampleIndex] = currentTimestamp;
-        var currentSampleIndexForTotal = _currentSampleIndex;
-        for (
-          var totalSamples = 0;
-          currentSampleIndexForTotal !== currentSampleIndex;
-
-        ) {
-          totalSamples += sampleValuesArray[currentSampleIndexForTotal++];
-          currentSampleIndexForTotal %= maxSamples;
+        var currentTime = Date.now();
+        var previousTimestamp = timestampsArray[____currentIndex];
+        lastUpdateTime ||= currentTime;
+        ringBuffer[___currentIndex] = _____inputValue;
+        timestampsArray[___currentIndex] = currentTime;
+        var bufferIndex = ____currentIndex;
+        for (var accumulatedValue = 0; bufferIndex !== ___currentIndex; ) {
+          accumulatedValue += ringBuffer[bufferIndex++];
+          bufferIndex %= arraySize;
         }
         if (
-          (currentSampleIndex = (currentSampleIndex + 1) % maxSamples) ===
-          _currentSampleIndex
+          (___currentIndex = (___currentIndex + 1) % arraySize) ===
+          ____currentIndex
         ) {
-          _currentSampleIndex = (_currentSampleIndex + 1) % maxSamples;
+          ____currentIndex = (____currentIndex + 1) % arraySize;
         }
-        if (!(currentTimestamp - lastTimestamp < _timeInterval)) {
-          var timeElapsedSinceLastUpdate =
-            previousTimestamp && currentTimestamp - previousTimestamp;
-          if (timeElapsedSinceLastUpdate) {
+        if (!(currentTime - lastUpdateTime < timeInterval)) {
+          var elapsedTimeSinceLastUpdate =
+            previousTimestamp && currentTime - previousTimestamp;
+          if (elapsedTimeSinceLastUpdate) {
             return Math.round(
-              (totalSamples * 1000) / timeElapsedSinceLastUpdate,
+              (accumulatedValue * 1000) / elapsedTimeSinceLastUpdate,
             );
           } else {
             return undefined;
@@ -2146,60 +2110,57 @@
       var totalBytes = progressEvent.lengthComputable
         ? progressEvent.total
         : undefined;
-      var bytesTransferred = bytesLoaded - previousLoadedBytes;
-      var transferRate = progressCalculator(bytesTransferred);
-      previousLoadedBytes = bytesLoaded;
+      var bytesDownloaded = bytesLoaded - lastLoadedBytes;
+      var downloadRate = rateCalculator(bytesDownloaded);
+      lastLoadedBytes = bytesLoaded;
       var progressData = {
         loaded: bytesLoaded,
         total: totalBytes,
         progress: totalBytes ? bytesLoaded / totalBytes : undefined,
-        bytes: bytesTransferred,
-        rate: transferRate || undefined,
+        bytes: bytesDownloaded,
+        rate: downloadRate || undefined,
         estimated:
-          transferRate && totalBytes && bytesLoaded <= totalBytes
-            ? (totalBytes - bytesLoaded) / transferRate
+          downloadRate && totalBytes && bytesLoaded <= totalBytes
+            ? (totalBytes - bytesLoaded) / downloadRate
             : undefined,
         event: progressEvent,
       };
-      progressData[timeInterval ? "download" : "upload"] = true;
+      progressData[durationThreshold ? "download" : "upload"] = true;
       callback(progressData);
     };
   }
-  var httpAdapter = {
+  var httpRequestAdapters = {
     http: null,
     xhr:
       typeof XMLHttpRequest != "undefined" &&
       function (requestConfig) {
-        return new Promise(function (resolveResponse, errorCallback) {
-          var abortRequestHandler;
+        return new Promise(function (successCallback, errorCallback) {
+          var abortHandler;
           var contentType;
           var requestData = requestConfig.data;
-          var normalizedHeaders = axiosHeadersInstance
+          var normalizedHeaders = keyFilter
             .from(requestConfig.headers)
             .normalize();
           var responseType = requestConfig.responseType;
           function cleanupAbortHandlers() {
             if (requestConfig.cancelToken) {
-              requestConfig.cancelToken.unsubscribe(abortRequestHandler);
+              requestConfig.cancelToken.unsubscribe(abortHandler);
             }
             if (requestConfig.signal) {
-              requestConfig.signal.removeEventListener(
-                "abort",
-                abortRequestHandler,
-              );
+              requestConfig.signal.removeEventListener("abort", abortHandler);
             }
           }
-          if (utilityFunctions.isFormData(requestData)) {
+          if (typeCheckFunctions.isFormData(requestData)) {
             if (
-              environmentConfig.isStandardBrowserEnv ||
-              environmentConfig.isStandardBrowserWebWorkerEnv
+              environmentSupportFeatures.isStandardBrowserEnv ||
+              environmentSupportFeatures.isStandardBrowserWebWorkerEnv
             ) {
               normalizedHeaders.setContentType(false);
             } else if (
               normalizedHeaders.getContentType(/^\s*multipart\/form-data/)
             ) {
               if (
-                utilityFunctions.isString(
+                typeCheckFunctions.isString(
                   (contentType = normalizedHeaders.getContentType()),
                 )
               ) {
@@ -2211,7 +2172,7 @@
               normalizedHeaders.setContentType("multipart/form-data");
             }
           }
-          var _xmlHttpRequest = new XMLHttpRequest();
+          var xmlHttpRequest = new XMLHttpRequest();
           if (requestConfig.auth) {
             var authUsername = requestConfig.auth.username || "";
             var authPassword = requestConfig.auth.password
@@ -2222,15 +2183,12 @@
               "Basic " + btoa(authUsername + ":" + authPassword),
             );
           }
-          var formattedUrl = formatUrl(
-            requestConfig.baseURL,
-            requestConfig.url,
-          );
+          var _requestUrl = buildUrl(requestConfig.baseURL, requestConfig.url);
           function handleHttpRequest() {
-            if (_xmlHttpRequest) {
-              var responseHeaders = axiosHeadersInstance.from(
-                "getAllResponseHeaders" in _xmlHttpRequest &&
-                  _xmlHttpRequest.getAllResponseHeaders(),
+            if (xmlHttpRequest) {
+              var responseHeaders = keyFilter.from(
+                "getAllResponseHeaders" in xmlHttpRequest &&
+                  xmlHttpRequest.getAllResponseHeaders(),
               );
               (function (handleResponse, _errorCallback, response) {
                 var validateStatusFunction = response.config.validateStatus;
@@ -2240,12 +2198,11 @@
                   !validateStatusFunction(response.status)
                 ) {
                   _errorCallback(
-                    new createAxiosError(
+                    new AxiosError(
                       "Request failed with status code " + response.status,
-                      [
-                        createAxiosError.ERR_BAD_REQUEST,
-                        createAxiosError.ERR_BAD_RESPONSE,
-                      ][Math.floor(response.status / 100) - 4],
+                      [AxiosError.ERR_BAD_REQUEST, AxiosError.ERR_BAD_RESPONSE][
+                        Math.floor(response.status / 100) - 4
+                      ],
                       response.config,
                       response.request,
                       response,
@@ -2255,8 +2212,8 @@
                   handleResponse(response);
                 }
               })(
-                function (_________event) {
-                  resolveResponse(_________event);
+                function (___event) {
+                  successCallback(___event);
                   cleanupAbortHandlers();
                 },
                 function (errorEvent) {
@@ -2268,390 +2225,389 @@
                     responseType &&
                     responseType !== "text" &&
                     responseType !== "json"
-                      ? _xmlHttpRequest.response
-                      : _xmlHttpRequest.responseText,
-                  status: _xmlHttpRequest.status,
-                  statusText: _xmlHttpRequest.statusText,
+                      ? xmlHttpRequest.response
+                      : xmlHttpRequest.responseText,
+                  status: xmlHttpRequest.status,
+                  statusText: xmlHttpRequest.statusText,
                   headers: responseHeaders,
                   config: requestConfig,
-                  request: _xmlHttpRequest,
+                  request: xmlHttpRequest,
                 },
               );
-              _xmlHttpRequest = null;
+              xmlHttpRequest = null;
             }
           }
-          _xmlHttpRequest.open(
+          xmlHttpRequest.open(
             requestConfig.method.toUpperCase(),
-            constructUrlWithParams(
-              formattedUrl,
+            generateUrlWithParams(
+              _requestUrl,
               requestConfig.params,
               requestConfig.paramsSerializer,
             ),
             true,
           );
-          _xmlHttpRequest.timeout = requestConfig.timeout;
-          if ("onloadend" in _xmlHttpRequest) {
-            _xmlHttpRequest.onloadend = handleHttpRequest;
+          xmlHttpRequest.timeout = requestConfig.timeout;
+          if ("onloadend" in xmlHttpRequest) {
+            xmlHttpRequest.onloadend = handleHttpRequest;
           } else {
-            _xmlHttpRequest.onreadystatechange = function () {
+            xmlHttpRequest.onreadystatechange = function () {
               if (
-                _xmlHttpRequest &&
-                _xmlHttpRequest.readyState === 4 &&
-                (_xmlHttpRequest.status !== 0 ||
-                  (_xmlHttpRequest.responseURL &&
-                    _xmlHttpRequest.responseURL.indexOf("file:") === 0))
+                xmlHttpRequest &&
+                xmlHttpRequest.readyState === 4 &&
+                (xmlHttpRequest.status !== 0 ||
+                  (xmlHttpRequest.responseURL &&
+                    xmlHttpRequest.responseURL.indexOf("file:") === 0))
               ) {
                 setTimeout(handleHttpRequest);
               }
             };
           }
-          _xmlHttpRequest.onabort = function () {
-            if (_xmlHttpRequest) {
+          xmlHttpRequest.onabort = function () {
+            if (xmlHttpRequest) {
               errorCallback(
-                new createAxiosError(
+                new AxiosError(
                   "Request aborted",
-                  createAxiosError.ECONNABORTED,
+                  AxiosError.ECONNABORTED,
                   requestConfig,
-                  _xmlHttpRequest,
+                  xmlHttpRequest,
                 ),
               );
-              _xmlHttpRequest = null;
+              xmlHttpRequest = null;
             }
           };
-          _xmlHttpRequest.onerror = function () {
+          xmlHttpRequest.onerror = function () {
             errorCallback(
-              new createAxiosError(
+              new AxiosError(
                 "Network Error",
-                createAxiosError.ERR_NETWORK,
+                AxiosError.ERR_NETWORK,
                 requestConfig,
-                _xmlHttpRequest,
+                xmlHttpRequest,
               ),
             );
-            _xmlHttpRequest = null;
+            xmlHttpRequest = null;
           };
-          _xmlHttpRequest.ontimeout = function () {
+          xmlHttpRequest.ontimeout = function () {
             var timeoutErrorMessage = requestConfig.timeout
               ? "timeout of " + requestConfig.timeout + "ms exceeded"
               : "timeout exceeded";
-            var transitionalRequestOptions =
-              requestConfig.transitional || requestConfigOptions;
+            var requestTransitionalConfig =
+              requestConfig.transitional || axiosRequestConfig;
             if (requestConfig.timeoutErrorMessage) {
               timeoutErrorMessage = requestConfig.timeoutErrorMessage;
             }
             errorCallback(
-              new createAxiosError(
+              new AxiosError(
                 timeoutErrorMessage,
-                transitionalRequestOptions.clarifyTimeoutError
-                  ? createAxiosError.ETIMEDOUT
-                  : createAxiosError.ECONNABORTED,
+                requestTransitionalConfig.clarifyTimeoutError
+                  ? AxiosError.ETIMEDOUT
+                  : AxiosError.ECONNABORTED,
                 requestConfig,
-                _xmlHttpRequest,
+                xmlHttpRequest,
               ),
             );
-            _xmlHttpRequest = null;
+            xmlHttpRequest = null;
           };
-          if (environmentConfig.isStandardBrowserEnv) {
-            var xsrfToken =
-              isStandardBrowserEnvironment(formattedUrl) &&
+          if (environmentSupportFeatures.isStandardBrowserEnv) {
+            var xsrfTokenValue =
+              isSameOriginUrl(_requestUrl) &&
               requestConfig.xsrfCookieName &&
               cookieHandler.read(requestConfig.xsrfCookieName);
-            if (xsrfToken) {
-              normalizedHeaders.set(requestConfig.xsrfHeaderName, xsrfToken);
+            if (xsrfTokenValue) {
+              normalizedHeaders.set(
+                requestConfig.xsrfHeaderName,
+                xsrfTokenValue,
+              );
             }
           }
           if (requestData === undefined) {
             normalizedHeaders.setContentType(null);
           }
-          if ("setRequestHeader" in _xmlHttpRequest) {
-            utilityFunctions.forEach(
+          if ("setRequestHeader" in xmlHttpRequest) {
+            typeCheckFunctions.forEach(
               normalizedHeaders.toJSON(),
-              function (____headerValue, _____headerValue) {
-                _xmlHttpRequest.setRequestHeader(
+              function (_____headerValue, _____headerName) {
+                xmlHttpRequest.setRequestHeader(
+                  _____headerName,
                   _____headerValue,
-                  ____headerValue,
                 );
               },
             );
           }
-          if (!utilityFunctions.isUndefined(requestConfig.withCredentials)) {
-            _xmlHttpRequest.withCredentials = !!requestConfig.withCredentials;
+          if (!typeCheckFunctions.isUndefined(requestConfig.withCredentials)) {
+            xmlHttpRequest.withCredentials = !!requestConfig.withCredentials;
           }
           if (responseType && responseType !== "json") {
-            _xmlHttpRequest.responseType = requestConfig.responseType;
+            xmlHttpRequest.responseType = requestConfig.responseType;
           }
           if (typeof requestConfig.onDownloadProgress == "function") {
-            _xmlHttpRequest.addEventListener(
+            xmlHttpRequest.addEventListener(
               "progress",
-              createProgressHandler(requestConfig.onDownloadProgress, true),
+              progressHandler(requestConfig.onDownloadProgress, true),
             );
           }
           if (
             typeof requestConfig.onUploadProgress == "function" &&
-            _xmlHttpRequest.upload
+            xmlHttpRequest.upload
           ) {
-            _xmlHttpRequest.upload.addEventListener(
+            xmlHttpRequest.upload.addEventListener(
               "progress",
-              createProgressHandler(requestConfig.onUploadProgress),
+              progressHandler(requestConfig.onUploadProgress),
             );
           }
           if (requestConfig.cancelToken || requestConfig.signal) {
-            abortRequestHandler = function (errorResponse) {
-              if (_xmlHttpRequest) {
+            abortHandler = function (_errorResponse) {
+              if (xmlHttpRequest) {
                 errorCallback(
-                  !errorResponse || errorResponse.type
-                    ? new cancelErrorHandler(
-                        null,
-                        requestConfig,
-                        _xmlHttpRequest,
-                      )
-                    : errorResponse,
+                  !_errorResponse || _errorResponse.type
+                    ? new canceledError(null, requestConfig, xmlHttpRequest)
+                    : _errorResponse,
                 );
-                _xmlHttpRequest.abort();
-                _xmlHttpRequest = null;
+                xmlHttpRequest.abort();
+                xmlHttpRequest = null;
               }
             };
             if (requestConfig.cancelToken) {
-              requestConfig.cancelToken.subscribe(abortRequestHandler);
+              requestConfig.cancelToken.subscribe(abortHandler);
             }
             if (requestConfig.signal) {
               if (requestConfig.signal.aborted) {
-                abortRequestHandler();
+                abortHandler();
               } else {
-                requestConfig.signal.addEventListener(
-                  "abort",
-                  abortRequestHandler,
-                );
+                requestConfig.signal.addEventListener("abort", abortHandler);
               }
             }
           }
-          var parsedUrlProtocol;
-          var requestedProtocol =
-            ((parsedUrlProtocol = /^([-+\w]{1,25})(:?\/\/|:)/.exec(
-              formattedUrl,
-            )) &&
-              parsedUrlProtocol[1]) ||
+          var urlProtocol;
+          var requestProtocol =
+            ((urlProtocol = /^([-+\w]{1,25})(:?\/\/|:)/.exec(_requestUrl)) &&
+              urlProtocol[1]) ||
             "";
           if (
-            requestedProtocol &&
-            environmentConfig.protocols.indexOf(requestedProtocol) === -1
+            requestProtocol &&
+            environmentSupportFeatures.protocols.indexOf(requestProtocol) === -1
           ) {
             errorCallback(
-              new createAxiosError(
-                "Unsupported protocol " + requestedProtocol + ":",
-                createAxiosError.ERR_BAD_REQUEST,
+              new AxiosError(
+                "Unsupported protocol " + requestProtocol + ":",
+                AxiosError.ERR_BAD_REQUEST,
                 requestConfig,
               ),
             );
           } else {
-            _xmlHttpRequest.send(requestData || null);
+            xmlHttpRequest.send(requestData || null);
           }
         });
       },
   };
-  utilityFunctions.forEach(httpAdapter, function (__event, _adapterName) {
-    if (__event) {
-      try {
-        Object.defineProperty(__event, "name", {
+  typeCheckFunctions.forEach(
+    httpRequestAdapters,
+    function (entity, _adapterName) {
+      if (entity) {
+        try {
+          Object.defineProperty(entity, "name", {
+            value: _adapterName,
+          });
+        } catch (_____error) {}
+        Object.defineProperty(entity, "adapterName", {
           value: _adapterName,
         });
-      } catch (______error) {}
-      Object.defineProperty(__event, "adapterName", {
-        value: _adapterName,
-      });
-    }
-  });
+      }
+    },
+  );
   function formatStringWithDash(__errorMessage) {
     return `- ${__errorMessage}`;
   }
-  function isValidInput(_______________________________inputValue) {
+  function isFunctionOrNullOrFalse(____________________________inputValue) {
     return (
-      utilityFunctions.isFunction(_______________________________inputValue) ||
-      _______________________________inputValue === null ||
-      _______________________________inputValue === false
+      typeCheckFunctions.isFunction(____________________________inputValue) ||
+      ____________________________inputValue === null ||
+      ____________________________inputValue === false
     );
   }
-  function getHttpAdapter(adapterInput) {
-    var adapter;
+  function getAdapterFromList(adaptersList) {
     var currentAdapter;
-    var adapterInputLength = (adapterInput = utilityFunctions.isArray(
-      adapterInput,
-    )
-      ? adapterInput
-      : [adapterInput]).length;
-    var adapterMap = {};
-    for (
-      var adapterIndex = 0;
-      adapterIndex < adapterInputLength;
-      adapterIndex++
-    ) {
+    var selectedAdapter;
+    var adaptersCount = (adaptersList = typeCheckFunctions.isArray(adaptersList)
+      ? adaptersList
+      : [adaptersList]).length;
+    var adapterMapping = {};
+    for (var adapterIndex = 0; adapterIndex < adaptersCount; adapterIndex++) {
       var adapterName = undefined;
-      currentAdapter = adapter = adapterInput[adapterIndex];
+      selectedAdapter = currentAdapter = adaptersList[adapterIndex];
       if (
-        !isValidInput(adapter) &&
-        (currentAdapter =
-          httpAdapter[(adapterName = String(adapter)).toLowerCase()]) ===
-          undefined
+        !isFunctionOrNullOrFalse(currentAdapter) &&
+        (selectedAdapter =
+          httpRequestAdapters[
+            (adapterName = String(currentAdapter)).toLowerCase()
+          ]) === undefined
       ) {
-        throw new createAxiosError(`Unknown adapter '${adapterName}'`);
+        throw new AxiosError(`Unknown adapter '${adapterName}'`);
       }
-      if (currentAdapter) {
+      if (selectedAdapter) {
         break;
       }
-      adapterMap[adapterName || "#" + adapterIndex] = currentAdapter;
+      adapterMapping[adapterName || "#" + adapterIndex] = selectedAdapter;
     }
-    if (!currentAdapter) {
-      var unavailableAdaptersMessages = Object.entries(adapterMap).map(
-        function (itemsToIterate) {
-          var itemsIteration = iterateOverItems(itemsToIterate, 2);
-          var firstItem = itemsIteration[0];
-          var secondItemStatus = itemsIteration[1];
-          return `adapter ${firstItem} ${secondItemStatus === false ? "is not supported by the environment" : "is not available in the build"}`;
+    if (!selectedAdapter) {
+      var adapterAvailabilityMessages = Object.entries(adapterMapping).map(
+        function (environmentParameter) {
+          var iteratorResult = iteratorFunction(environmentParameter, 2);
+          var firstIteratorResult = iteratorResult[0];
+          var isAvailableInBuild = iteratorResult[1];
+          return `adapter ${firstIteratorResult} ${isAvailableInBuild === false ? "is not supported by the environment" : "is not available in the build"}`;
         },
       );
-      throw new createAxiosError(
+      throw new AxiosError(
         "There is no suitable adapter to dispatch the request " +
-          (adapterInputLength
-            ? unavailableAdaptersMessages.length > 1
+          (adaptersCount
+            ? adapterAvailabilityMessages.length > 1
               ? "since :\n" +
-                unavailableAdaptersMessages.map(formatStringWithDash).join("\n")
-              : " " + formatStringWithDash(unavailableAdaptersMessages[0])
+                adapterAvailabilityMessages.map(formatStringWithDash).join("\n")
+              : " " + formatStringWithDash(adapterAvailabilityMessages[0])
             : "as no adapter specified"),
         "ERR_NOT_SUPPORT",
       );
     }
-    return currentAdapter;
+    return selectedAdapter;
   }
-  function handleRequestConfig(___requestConfig) {
+  function ______requestConfig(___requestConfig) {
     if (___requestConfig.cancelToken) {
       ___requestConfig.cancelToken.throwIfRequested();
     }
     if (___requestConfig.signal && ___requestConfig.signal.aborted) {
-      throw new cancelErrorHandler(null, ___requestConfig);
+      throw new canceledError(null, ___requestConfig);
     }
   }
-  function _handleHttpRequest(_requestConfig) {
-    handleRequestConfig(_requestConfig);
-    _requestConfig.headers = axiosHeadersInstance.from(_requestConfig.headers);
-    _requestConfig.data = executeCallbacks.call(
-      _requestConfig,
-      _requestConfig.transformRequest,
+  function processRequestConfig(__requestConfig) {
+    ______requestConfig(__requestConfig);
+    __requestConfig.headers = keyFilter.from(__requestConfig.headers);
+    __requestConfig.data = executeCallbackChain.call(
+      __requestConfig,
+      __requestConfig.transformRequest,
     );
-    if (["post", "put", "patch"].indexOf(_requestConfig.method) !== -1) {
-      _requestConfig.headers.setContentType(
+    if (["post", "put", "patch"].indexOf(__requestConfig.method) !== -1) {
+      __requestConfig.headers.setContentType(
         "application/x-www-form-urlencoded",
         false,
       );
     }
-    return getHttpAdapter(_requestConfig.adapter || axiosHttpClient.adapter)(
-      _requestConfig,
+    return getAdapterFromList(__requestConfig.adapter || axiosInstance.adapter)(
+      __requestConfig,
     ).then(
       function (____requestConfig) {
-        handleRequestConfig(_requestConfig);
-        ____requestConfig.data = executeCallbacks.call(
-          _requestConfig,
-          _requestConfig.transformResponse,
+        ______requestConfig(__requestConfig);
+        ____requestConfig.data = executeCallbackChain.call(
+          __requestConfig,
+          __requestConfig.transformResponse,
           ____requestConfig,
         );
-        ____requestConfig.headers = axiosHeadersInstance.from(
-          ____requestConfig.headers,
-        );
+        ____requestConfig.headers = keyFilter.from(____requestConfig.headers);
         return ____requestConfig;
       },
-      function (responseObject) {
-        if (!isCancelEvent(responseObject)) {
-          handleRequestConfig(_requestConfig);
-          if (responseObject && responseObject.response) {
-            responseObject.response.data = executeCallbacks.call(
-              _requestConfig,
-              _requestConfig.transformResponse,
-              responseObject.response,
+      function (request) {
+        if (!isCancelledEvent(request)) {
+          ______requestConfig(__requestConfig);
+          if (request && request.response) {
+            request.response.data = executeCallbackChain.call(
+              __requestConfig,
+              __requestConfig.transformResponse,
+              request.response,
             );
-            responseObject.response.headers = axiosHeadersInstance.from(
-              responseObject.response.headers,
-            );
+            request.response.headers = keyFilter.from(request.response.headers);
           }
         }
-        return Promise.reject(responseObject);
+        return Promise.reject(request);
       },
     );
   }
-  function convertToJson(___________________________inputValue) {
-    if (___________________________inputValue instanceof axiosHeadersInstance) {
-      return ___________________________inputValue.toJSON();
+  function convertToJson(____inputParameter) {
+    if (____inputParameter instanceof keyFilter) {
+      return ____inputParameter.toJSON();
     } else {
-      return ___________________________inputValue;
+      return ____inputParameter;
     }
   }
-  function mergeOptionsFromSource(sourceObject, _options) {
+  function mergeOptions(inputObject, _options) {
     _options = _options || {};
     var mergedOptions = {};
-    function _mergeObjects(__sourceObject, ____targetObject, isCaseless) {
+    function mergeObjects(__sourceObject, __targetObject, isCaselessMerge) {
       if (
-        utilityFunctions.isPlainObject(__sourceObject) &&
-        utilityFunctions.isPlainObject(____targetObject)
+        typeCheckFunctions.isPlainObject(__sourceObject) &&
+        typeCheckFunctions.isPlainObject(__targetObject)
       ) {
-        return utilityFunctions.merge.call(
+        return typeCheckFunctions.merge.call(
           {
-            caseless: isCaseless,
+            caseless: isCaselessMerge,
           },
           __sourceObject,
-          ____targetObject,
+          __targetObject,
         );
-      } else if (utilityFunctions.isPlainObject(____targetObject)) {
-        return utilityFunctions.merge({}, ____targetObject);
-      } else if (utilityFunctions.isArray(____targetObject)) {
-        return ____targetObject.slice();
+      } else if (typeCheckFunctions.isPlainObject(__targetObject)) {
+        return typeCheckFunctions.merge({}, __targetObject);
+      } else if (typeCheckFunctions.isArray(__targetObject)) {
+        return __targetObject.slice();
       } else {
-        return ____targetObject;
+        return __targetObject;
       }
     }
-    function performOperation(firstParameter, _value, thirdParameter) {
-      if (utilityFunctions.isUndefined(_value)) {
-        if (utilityFunctions.isUndefined(firstParameter)) {
-          return undefined;
-        } else {
-          return _mergeObjects(undefined, firstParameter, thirdParameter);
-        }
-      } else {
-        return _mergeObjects(firstParameter, _value, thirdParameter);
-      }
-    }
-    function inputHandler(__inputParameter, callbackParam) {
-      if (!utilityFunctions.isUndefined(callbackParam)) {
-        return _mergeObjects(undefined, callbackParam);
-      }
-    }
-    function processInputValue(
-      _______________inputValue,
-      ________________inputValue,
+    function ______________________________________inputValue(
+      _____________inputValue,
+      secondParameter,
+      defaultValue,
     ) {
-      if (utilityFunctions.isUndefined(________________inputValue)) {
-        if (utilityFunctions.isUndefined(_______________inputValue)) {
+      if (typeCheckFunctions.isUndefined(secondParameter)) {
+        if (typeCheckFunctions.isUndefined(_____________inputValue)) {
           return undefined;
         } else {
-          return _mergeObjects(undefined, _______________inputValue);
+          return mergeObjects(undefined, _____________inputValue, defaultValue);
         }
       } else {
-        return _mergeObjects(undefined, ________________inputValue);
+        return mergeObjects(
+          _____________inputValue,
+          secondParameter,
+          defaultValue,
+        );
       }
     }
-    function mergeInputBasedOnKey(
+    function isUndefinedCheckFunction(
+      _________________________inputValue,
+      valueToCheck,
+    ) {
+      if (!typeCheckFunctions.isUndefined(valueToCheck)) {
+        return mergeObjects(undefined, valueToCheck);
+      }
+    }
+    function processInputValue(______________inputValue, value) {
+      if (typeCheckFunctions.isUndefined(value)) {
+        if (typeCheckFunctions.isUndefined(______________inputValue)) {
+          return undefined;
+        } else {
+          return mergeObjects(undefined, ______________inputValue);
+        }
+      } else {
+        return mergeObjects(undefined, value);
+      }
+    }
+    function mergeBasedOnInputKey(
       ___________________inputValue,
-      optionValue,
-      _inputKey,
+      ____________________inputValue,
+      inputKey,
     ) {
-      if (_inputKey in _options) {
-        return _mergeObjects(___________________inputValue, optionValue);
-      } else if (_inputKey in sourceObject) {
-        return _mergeObjects(undefined, ___________________inputValue);
+      if (inputKey in _options) {
+        return mergeObjects(
+          ___________________inputValue,
+          ____________________inputValue,
+        );
+      } else if (inputKey in inputObject) {
+        return mergeObjects(undefined, ___________________inputValue);
       } else {
         return undefined;
       }
     }
-    var optionHandlers = {
-      url: inputHandler,
-      method: inputHandler,
-      data: inputHandler,
+    var optionsHandlers = {
+      url: isUndefinedCheckFunction,
+      method: isUndefinedCheckFunction,
+      data: isUndefinedCheckFunction,
       baseURL: processInputValue,
       transformRequest: processInputValue,
       transformResponse: processInputValue,
@@ -2675,82 +2631,88 @@
       cancelToken: processInputValue,
       socketPath: processInputValue,
       responseEncoding: processInputValue,
-      validateStatus: mergeInputBasedOnKey,
-      headers: function (__________event, _targetValue) {
-        return performOperation(
-          convertToJson(__________event),
-          convertToJson(_targetValue),
+      validateStatus: mergeBasedOnInputKey,
+      headers: function (_____event, targetElement) {
+        return ______________________________________inputValue(
+          convertToJson(_____event),
+          convertToJson(targetElement),
           true,
         );
       },
     };
-    utilityFunctions.forEach(
-      Object.keys(Object.assign({}, sourceObject, _options)),
-      function (sourceIndex) {
-        var inputFunction = optionHandlers[sourceIndex] || performOperation;
-        var functionResult = inputFunction(
-          sourceObject[sourceIndex],
-          _options[sourceIndex],
-          sourceIndex,
+    typeCheckFunctions.forEach(
+      Object.keys(Object.assign({}, inputObject, _options)),
+      function (inputIndex) {
+        var processingFunction =
+          optionsHandlers[inputIndex] ||
+          ______________________________________inputValue;
+        var processedValue = processingFunction(
+          inputObject[inputIndex],
+          _options[inputIndex],
+          inputIndex,
         );
         if (
-          !utilityFunctions.isUndefined(functionResult) ||
-          inputFunction === mergeInputBasedOnKey
+          !typeCheckFunctions.isUndefined(processedValue) ||
+          processingFunction === mergeBasedOnInputKey
         ) {
-          mergedOptions[sourceIndex] = functionResult;
+          mergedOptions[inputIndex] = processedValue;
         }
       },
     );
     return mergedOptions;
   }
   var axiosVersion = "1.6.0";
-  var typeCheck = {};
+  var typeChecker = {};
   ["object", "boolean", "number", "function", "string", "symbol"].forEach(
-    function (expectedType, typeCheckThreshold) {
-      typeCheck[expectedType] = function (
-        ______________________________inputValue,
+    function (expectedType, typeCheckCounter) {
+      typeChecker[expectedType] = function (
+        ___________________________inputValue,
       ) {
         return (
-          getType(______________________________inputValue) === expectedType ||
-          "a" + (typeCheckThreshold < 1 ? "n " : " ") + expectedType
+          getType(___________________________inputValue) === expectedType ||
+          "a" + (typeCheckCounter < 1 ? "n " : " ") + expectedType
         );
       };
     },
   );
   var transitionalOptions = {};
-  typeCheck.transitional = function (
-    isEnabled,
+  typeChecker.transitional = function (
+    isTransitionalOptionEnabled,
     transitionalVersion,
-    transitionalOptionWarning,
+    transitionalWarningMessage,
   ) {
     function generateTransitionalOptionMessage(
-      transitionalOptionName,
-      transitionalOptionValue,
+      transitionalOption,
+      _transitionalOption,
     ) {
       return (
         "[Axios v1.6.0] Transitional option '" +
-        transitionalOptionName +
+        transitionalOption +
         "'" +
-        transitionalOptionValue +
-        (transitionalOptionWarning ? ". " + transitionalOptionWarning : "")
+        _transitionalOption +
+        (transitionalWarningMessage ? ". " + transitionalWarningMessage : "")
       );
     }
-    return function (_callbackFunction, optionName, optionsCallback) {
-      if (isEnabled === false) {
-        throw new createAxiosError(
+    return function (
+      transitionalOptionValue,
+      optionKey,
+      transitionalOptionCallback,
+    ) {
+      if (isTransitionalOptionEnabled === false) {
+        throw new AxiosError(
           generateTransitionalOptionMessage(
-            optionName,
+            optionKey,
             " has been removed" +
               (transitionalVersion ? " in " + transitionalVersion : ""),
           ),
-          createAxiosError.ERR_DEPRECATED,
+          AxiosError.ERR_DEPRECATED,
         );
       }
-      if (transitionalVersion && !transitionalOptions[optionName]) {
-        transitionalOptions[optionName] = true;
+      if (transitionalVersion && !transitionalOptions[optionKey]) {
+        transitionalOptions[optionKey] = true;
         console.warn(
           generateTransitionalOptionMessage(
-            optionName,
+            optionKey,
             " has been deprecated since v" +
               transitionalVersion +
               " and will be removed in the near future",
@@ -2758,149 +2720,144 @@
         );
       }
       return (
-        !isEnabled || isEnabled(_callbackFunction, optionName, optionsCallback)
+        !isTransitionalOptionEnabled ||
+        isTransitionalOptionEnabled(
+          transitionalOptionValue,
+          optionKey,
+          transitionalOptionCallback,
+        )
       );
     };
   };
-  var _optionsValidator = {
+  var _optionValidator = {
     assertOptions: function (
-      optionsObject,
-      optionsValidator,
-      isStrictValidationMode,
+      __options,
+      optionValidators,
+      isStrictValidationEnabled,
     ) {
-      if (getType(optionsObject) !== "object") {
-        throw new createAxiosError(
+      if (getType(__options) !== "object") {
+        throw new AxiosError(
           "options must be an object",
-          createAxiosError.ERR_BAD_OPTION_VALUE,
+          AxiosError.ERR_BAD_OPTION_VALUE,
         );
       }
-      var optionKeys = Object.keys(optionsObject);
-      for (var optionIndex = optionKeys.length; optionIndex-- > 0; ) {
-        var currentOptionKey = optionKeys[optionIndex];
-        var validatorFunction = optionsValidator[currentOptionKey];
-        if (validatorFunction) {
-          var validatedOptionValue = optionsObject[currentOptionKey];
-          var isOptionValid =
-            validatedOptionValue === undefined ||
-            validatorFunction(
-              validatedOptionValue,
-              currentOptionKey,
-              optionsObject,
-            );
-          if (isOptionValid !== true) {
-            throw new createAxiosError(
-              "option " + currentOptionKey + " must be " + isOptionValid,
-              createAxiosError.ERR_BAD_OPTION_VALUE,
+      var optionKeys = Object.keys(__options);
+      for (var optionKeyIndex = optionKeys.length; optionKeyIndex-- > 0; ) {
+        var currentOptionKey = optionKeys[optionKeyIndex];
+        var optionValidator = optionValidators[currentOptionKey];
+        if (optionValidator) {
+          var optionValue = __options[currentOptionKey];
+          var isOptionValueValid =
+            optionValue === undefined ||
+            optionValidator(optionValue, currentOptionKey, __options);
+          if (isOptionValueValid !== true) {
+            throw new AxiosError(
+              "option " + currentOptionKey + " must be " + isOptionValueValid,
+              AxiosError.ERR_BAD_OPTION_VALUE,
             );
           }
-        } else if (isStrictValidationMode !== true) {
-          throw new createAxiosError(
+        } else if (isStrictValidationEnabled !== true) {
+          throw new AxiosError(
             "Unknown option " + currentOptionKey,
-            createAxiosError.ERR_BAD_OPTION,
+            AxiosError.ERR_BAD_OPTION,
           );
         }
       }
     },
-    validators: typeCheck,
+    validators: typeChecker,
   };
-  var __optionsValidator = _optionsValidator.validators;
-  var RequestHandler = (function () {
-    function inputParameter(inputParameterValue) {
-      parserOption(this, inputParameter);
-      this.defaults = inputParameterValue;
+  var __optionValidator = _optionValidator.validators;
+  var createAxiosInstance = (function () {
+    function _input(defaultInputValue) {
+      _parserOption(this, _input);
+      this.defaults = defaultInputValue;
       this.interceptors = {
-        request: new requestInterceptor(),
-        response: new requestInterceptor(),
+        request: new initializeHandler(),
+        response: new initializeHandler(),
       };
     }
-    _propertyCount(inputParameter, [
+    _propertyCount(_input, [
       {
         key: "request",
-        value: function (inputValue, configOptions) {
-          if (typeof inputValue == "string") {
-            (configOptions = configOptions || {}).url = inputValue;
+        value: function (input, config) {
+          if (typeof input == "string") {
+            (config = config || {}).url = input;
           } else {
-            configOptions = inputValue || {};
+            config = input || {};
           }
-          var requestOptions = (configOptions = mergeOptionsFromSource(
-            this.defaults,
-            configOptions,
-          ));
-          var _transitionalOptions = requestOptions.transitional;
-          var paramsSerializer = requestOptions.paramsSerializer;
-          var requestHeaders = requestOptions.headers;
+          var _requestConfig = (config = mergeOptions(this.defaults, config));
+          var _transitionalOptions = _requestConfig.transitional;
+          var paramsSerializer = _requestConfig.paramsSerializer;
+          var requestHeaders = _requestConfig.headers;
           if (_transitionalOptions !== undefined) {
-            _optionsValidator.assertOptions(
+            _optionValidator.assertOptions(
               _transitionalOptions,
               {
-                silentJSONParsing: __optionsValidator.transitional(
-                  __optionsValidator.boolean,
+                silentJSONParsing: __optionValidator.transitional(
+                  __optionValidator.boolean,
                 ),
-                forcedJSONParsing: __optionsValidator.transitional(
-                  __optionsValidator.boolean,
+                forcedJSONParsing: __optionValidator.transitional(
+                  __optionValidator.boolean,
                 ),
-                clarifyTimeoutError: __optionsValidator.transitional(
-                  __optionsValidator.boolean,
+                clarifyTimeoutError: __optionValidator.transitional(
+                  __optionValidator.boolean,
                 ),
               },
               false,
             );
           }
           if (paramsSerializer != null) {
-            if (utilityFunctions.isFunction(paramsSerializer)) {
-              configOptions.paramsSerializer = {
+            if (typeCheckFunctions.isFunction(paramsSerializer)) {
+              config.paramsSerializer = {
                 serialize: paramsSerializer,
               };
             } else {
-              _optionsValidator.assertOptions(
+              _optionValidator.assertOptions(
                 paramsSerializer,
                 {
-                  encode: __optionsValidator.function,
-                  serialize: __optionsValidator.function,
+                  encode: __optionValidator.function,
+                  serialize: __optionValidator.function,
                 },
                 true,
               );
             }
           }
-          configOptions.method = (
-            configOptions.method ||
+          config.method = (
+            config.method ||
             this.defaults.method ||
             "get"
           ).toLowerCase();
           var mergedHeaders =
             requestHeaders &&
-            utilityFunctions.merge(
+            typeCheckFunctions.merge(
               requestHeaders.common,
-              requestHeaders[configOptions.method],
+              requestHeaders[config.method],
             );
           if (requestHeaders) {
-            utilityFunctions.forEach(
+            typeCheckFunctions.forEach(
               ["delete", "get", "head", "post", "put", "patch", "common"],
-              function (_headerKey) {
-                delete requestHeaders[_headerKey];
+              function (__headerKey) {
+                delete requestHeaders[__headerKey];
               },
             );
           }
-          configOptions.headers = axiosHeadersInstance.concat(
-            mergedHeaders,
-            requestHeaders,
-          );
-          var interceptorHandlers = [];
+          config.headers = keyFilter.concat(mergedHeaders, requestHeaders);
+          var interceptorFunctionsQueue = [];
           var areAllInterceptorsSynchronous = true;
-          this.interceptors.request.forEach(function (interceptorConfig) {
+          this.interceptors.request.forEach(function (interceptorObject) {
             if (
-              typeof interceptorConfig.runWhen != "function" ||
-              interceptorConfig.runWhen(configOptions) !== false
+              typeof interceptorObject.runWhen != "function" ||
+              interceptorObject.runWhen(config) !== false
             ) {
               areAllInterceptorsSynchronous =
-                areAllInterceptorsSynchronous && interceptorConfig.synchronous;
-              interceptorHandlers.unshift(
-                interceptorConfig.fulfilled,
-                interceptorConfig.rejected,
+                areAllInterceptorsSynchronous && interceptorObject.synchronous;
+              interceptorFunctionsQueue.unshift(
+                interceptorObject.fulfilled,
+                interceptorObject.rejected,
               );
             }
           });
-          var promiseResult;
+          var promiseChain;
           var responseInterceptors = [];
           this.interceptors.response.forEach(function (interceptor) {
             responseInterceptors.push(
@@ -2909,154 +2866,152 @@
             );
           });
           var promiseChainLength;
-          var currentInterceptorIndex = 0;
+          var promiseIndex = 0;
           if (!areAllInterceptorsSynchronous) {
-            var promiseChain = [_handleHttpRequest.bind(this), undefined];
-            promiseChain.unshift.apply(promiseChain, interceptorHandlers);
-            promiseChain.push.apply(promiseChain, responseInterceptors);
-            promiseChainLength = promiseChain.length;
-            promiseResult = Promise.resolve(configOptions);
-            while (currentInterceptorIndex < promiseChainLength) {
-              promiseResult = promiseResult.then(
-                promiseChain[currentInterceptorIndex++],
-                promiseChain[currentInterceptorIndex++],
+            var _promiseChain = [processRequestConfig.bind(this), undefined];
+            _promiseChain.unshift.apply(
+              _promiseChain,
+              interceptorFunctionsQueue,
+            );
+            _promiseChain.push.apply(_promiseChain, responseInterceptors);
+            promiseChainLength = _promiseChain.length;
+            promiseChain = Promise.resolve(config);
+            while (promiseIndex < promiseChainLength) {
+              promiseChain = promiseChain.then(
+                _promiseChain[promiseIndex++],
+                _promiseChain[promiseIndex++],
               );
             }
-            return promiseResult;
+            return promiseChain;
           }
-          promiseChainLength = interceptorHandlers.length;
-          var configOptionsFinal = configOptions;
-          for (
-            currentInterceptorIndex = 0;
-            currentInterceptorIndex < promiseChainLength;
-
-          ) {
-            var _currentInterceptorHandler =
-              interceptorHandlers[currentInterceptorIndex++];
-            var _errorHandler = interceptorHandlers[currentInterceptorIndex++];
+          promiseChainLength = interceptorFunctionsQueue.length;
+          var _____requestConfig = config;
+          for (promiseIndex = 0; promiseIndex < promiseChainLength; ) {
+            var currentInterceptorFunction =
+              interceptorFunctionsQueue[promiseIndex++];
+            var errorHandler = interceptorFunctionsQueue[promiseIndex++];
             try {
-              configOptionsFinal =
-                _currentInterceptorHandler(configOptionsFinal);
-            } catch (___error) {
-              _errorHandler.call(this, ___error);
+              _____requestConfig =
+                currentInterceptorFunction(_____requestConfig);
+            } catch (__error) {
+              errorHandler.call(this, __error);
               break;
             }
           }
           try {
-            promiseResult = _handleHttpRequest.call(this, configOptionsFinal);
-          } catch (____error) {
-            return Promise.reject(____error);
+            promiseChain = processRequestConfig.call(this, _____requestConfig);
+          } catch (___error) {
+            return Promise.reject(___error);
           }
-          currentInterceptorIndex = 0;
+          promiseIndex = 0;
           promiseChainLength = responseInterceptors.length;
-          while (currentInterceptorIndex < promiseChainLength) {
-            promiseResult = promiseResult.then(
-              responseInterceptors[currentInterceptorIndex++],
-              responseInterceptors[currentInterceptorIndex++],
+          while (promiseIndex < promiseChainLength) {
+            promiseChain = promiseChain.then(
+              responseInterceptors[promiseIndex++],
+              responseInterceptors[promiseIndex++],
             );
           }
-          return promiseResult;
+          return promiseChain;
         },
       },
       {
         key: "getUri",
-        value: function (____requestOptions) {
-          return constructUrlWithParams(
-            formatUrl(
-              (____requestOptions = mergeOptionsFromSource(
-                this.defaults,
-                ____requestOptions,
-              )).baseURL,
-              ____requestOptions.url,
+        value: function (__requestOptions) {
+          return generateUrlWithParams(
+            buildUrl(
+              (__requestOptions = mergeOptions(this.defaults, __requestOptions))
+                .baseURL,
+              __requestOptions.url,
             ),
-            ____requestOptions.params,
-            ____requestOptions.paramsSerializer,
+            __requestOptions.params,
+            __requestOptions.paramsSerializer,
           );
         },
       },
     ]);
-    return inputParameter;
+    return _input;
   })();
-  utilityFunctions.forEach(
+  typeCheckFunctions.forEach(
     ["delete", "get", "head", "options"],
     function (_httpMethod) {
-      RequestHandler.prototype[_httpMethod] = function (
-        _requestUrl,
-        ___requestOptions,
+      createAxiosInstance.prototype[_httpMethod] = function (
+        ___url,
+        _requestOptions,
       ) {
         return this.request(
-          mergeOptionsFromSource(___requestOptions || {}, {
+          mergeOptions(_requestOptions || {}, {
             method: _httpMethod,
-            url: _requestUrl,
-            data: (___requestOptions || {}).data,
+            url: ___url,
+            data: (_requestOptions || {}).data,
           }),
         );
       };
     },
   );
-  utilityFunctions.forEach(["post", "put", "patch"], function (httpMethod) {
-    function __requestHeaders(_requestHeaders) {
-      return function (requestUrl, __requestData, __requestOptions) {
+  typeCheckFunctions.forEach(["post", "put", "patch"], function (httpMethod) {
+    function _contentTypeHeaders(contentTypeHeaders) {
+      return function (requestUrl, _requestData, ___options) {
         return this.request(
-          mergeOptionsFromSource(__requestOptions || {}, {
+          mergeOptions(___options || {}, {
             method: httpMethod,
-            headers: _requestHeaders
+            headers: contentTypeHeaders
               ? {
                   "Content-Type": "multipart/form-data",
                 }
               : {},
             url: requestUrl,
-            data: __requestData,
+            data: _requestData,
           }),
         );
       };
     }
-    RequestHandler.prototype[httpMethod] = __requestHeaders();
-    RequestHandler.prototype[httpMethod + "Form"] = __requestHeaders(true);
+    createAxiosInstance.prototype[httpMethod] = _contentTypeHeaders();
+    createAxiosInstance.prototype[httpMethod + "Form"] =
+      _contentTypeHeaders(true);
   });
-  var functionExecutor = RequestHandler;
-  var cancelTokenExecutor = (function () {
+  var requestHandler = createAxiosInstance;
+  var CancelToken = (function () {
     function executorFunction(_executorFunction) {
-      parserOption(this, executorFunction);
+      _parserOption(this, executorFunction);
       if (typeof _executorFunction != "function") {
         throw new TypeError("executor must be a function.");
       }
-      var resolvePromise;
-      this.promise = new Promise(function (_________________event) {
-        resolvePromise = _________________event;
+      var resolveFunction;
+      this.promise = new Promise(function (___________event) {
+        resolveFunction = ___________event;
       });
-      var executorContext = this;
-      this.promise.then(function (______________event) {
-        if (executorContext._listeners) {
+      var __context = this;
+      this.promise.then(function (_________event) {
+        if (__context._listeners) {
           for (
-            var listenerCount = executorContext._listeners.length;
+            var listenerCount = __context._listeners.length;
             listenerCount-- > 0;
 
           ) {
-            executorContext._listeners[listenerCount](______________event);
+            __context._listeners[listenerCount](_________event);
           }
-          executorContext._listeners = null;
+          __context._listeners = null;
         }
       });
-      this.promise.then = function (_promiseExecutor) {
-        var promiseResolveCallback;
-        var promiseWithCancel = new Promise(function (_______________event) {
-          executorContext.subscribe(_______________event);
-          promiseResolveCallback = _______________event;
-        }).then(_promiseExecutor);
+      this.promise.then = function (promiseResolver) {
+        var resolveCallback;
+        var promiseWithCancel = new Promise(function (___eventHandler) {
+          __context.subscribe(___eventHandler);
+          resolveCallback = ___eventHandler;
+        }).then(promiseResolver);
         promiseWithCancel.cancel = function () {
-          executorContext.unsubscribe(promiseResolveCallback);
+          __context.unsubscribe(resolveCallback);
         };
         return promiseWithCancel;
       };
-      _executorFunction(function (_errorEvent, reasonDetails, notification) {
-        if (!executorContext.reason) {
-          executorContext.reason = new cancelErrorHandler(
+      _executorFunction(function (_errorEvent, errorType, reasonData) {
+        if (!__context.reason) {
+          __context.reason = new canceledError(
             _errorEvent,
-            reasonDetails,
-            notification,
+            errorType,
+            reasonData,
           );
-          resolvePromise(executorContext.reason);
+          resolveFunction(__context.reason);
         }
       });
     }
@@ -3085,9 +3040,9 @@
         },
         {
           key: "unsubscribe",
-          value: function (____event) {
+          value: function (eventListener) {
             if (this._listeners) {
-              var listenerIndex = this._listeners.indexOf(____event);
+              var listenerIndex = this._listeners.indexOf(eventListener);
               if (listenerIndex !== -1) {
                 this._listeners.splice(listenerIndex, 1);
               }
@@ -3099,12 +3054,12 @@
         {
           key: "source",
           value: function () {
-            var executionToken;
+            var tokenValue;
             return {
-              token: new executorFunction(function (executionEvent) {
-                executionToken = executionEvent;
+              token: new executorFunction(function (tokenValueFromEvent) {
+                tokenValue = tokenValueFromEvent;
               }),
-              cancel: executionToken,
+              cancel: tokenValue,
             };
           },
         },
@@ -3177,70 +3132,73 @@
     NotExtended: 510,
     NetworkAuthenticationRequired: 511,
   };
-  Object.entries(httpStatusCodes).forEach(function (itemsToProcess) {
-    var iteratedItems = iterateOverItems(itemsToProcess, 2);
-    var _firstItem = iteratedItems[0];
-    var responseCodeIndex = iteratedItems[1];
-    httpStatusCodes[responseCodeIndex] = _firstItem;
-  });
-  var HttpStatusCodes = httpStatusCodes;
-  var axiosDefaultConfig = (function createRequestWithHeader(_requestData) {
-    var requestInstance = new functionExecutor(_requestData);
-    var requestWithHeader = headerString(
-      functionExecutor.prototype.request,
-      requestInstance,
+  Object.entries(httpStatusCodes).forEach(
+    function (__________________________inputValue) {
+      var httpStatusCodeData = iteratorFunction(
+        __________________________inputValue,
+        2,
+      );
+      var httpStatusCodeDescription = httpStatusCodeData[0];
+      var httpStatusCodeValue = httpStatusCodeData[1];
+      httpStatusCodes[httpStatusCodeValue] = httpStatusCodeDescription;
+    },
+  );
+  var _httpStatusCodes = httpStatusCodes;
+  var _axiosInstance = (function createRequestObject(headerRequest) {
+    var headerObject = new requestHandler(headerRequest);
+    var _requestObject = headerValueString(
+      requestHandler.prototype.request,
+      headerObject,
     );
-    utilityFunctions.extend(
-      requestWithHeader,
-      functionExecutor.prototype,
-      requestInstance,
+    typeCheckFunctions.extend(
+      _requestObject,
+      requestHandler.prototype,
+      headerObject,
       {
         allOwnKeys: true,
       },
     );
-    utilityFunctions.extend(requestWithHeader, requestInstance, null, {
+    typeCheckFunctions.extend(_requestObject, headerObject, null, {
       allOwnKeys: true,
     });
-    requestWithHeader.create = function (_____requestOptions) {
-      return createRequestWithHeader(
-        mergeOptionsFromSource(_requestData, _____requestOptions),
-      );
+    _requestObject.create = function (requestPayload) {
+      return createRequestObject(mergeOptions(headerRequest, requestPayload));
     };
-    return requestWithHeader;
-  })(axiosHttpClient);
-  axiosDefaultConfig.Axios = functionExecutor;
-  axiosDefaultConfig.CanceledError = cancelErrorHandler;
-  axiosDefaultConfig.CancelToken = cancelTokenExecutor;
-  axiosDefaultConfig.isCancel = isCancelEvent;
-  axiosDefaultConfig.VERSION = axiosVersion;
-  axiosDefaultConfig.toFormData = _processFormData;
-  axiosDefaultConfig.AxiosError = createAxiosError;
-  axiosDefaultConfig.Cancel = axiosDefaultConfig.CanceledError;
-  axiosDefaultConfig.all = function (promiseArray) {
+    return _requestObject;
+  })(axiosInstance);
+  _axiosInstance.Axios = requestHandler;
+  _axiosInstance.CanceledError = canceledError;
+  _axiosInstance.CancelToken = CancelToken;
+  _axiosInstance.isCancel = isCancelledEvent;
+  _axiosInstance.VERSION = axiosVersion;
+  _axiosInstance.toFormData = _processFormData;
+  _axiosInstance.AxiosError = AxiosError;
+  _axiosInstance.Cancel = _axiosInstance.CanceledError;
+  _axiosInstance.all = function (promiseArray) {
     return Promise.all(promiseArray);
   };
-  axiosDefaultConfig.spread = function (functionToBeApplied) {
-    return function (__argumentsArray) {
-      return functionToBeApplied.apply(null, __argumentsArray);
+  _axiosInstance.spread = function (__eventHandler) {
+    return function (eventArguments) {
+      return __eventHandler.apply(null, eventArguments);
     };
   };
-  axiosDefaultConfig.isAxiosError = function (errorObject) {
+  _axiosInstance.isAxiosError = function (_errorObject) {
     return (
-      utilityFunctions.isObject(errorObject) &&
-      errorObject.isAxiosError === true
+      typeCheckFunctions.isObject(_errorObject) &&
+      _errorObject.isAxiosError === true
     );
   };
-  axiosDefaultConfig.mergeConfig = mergeOptionsFromSource;
-  axiosDefaultConfig.AxiosHeaders = axiosHeadersInstance;
-  axiosDefaultConfig.formToJSON = function (htmlFormElement) {
+  _axiosInstance.mergeConfig = mergeOptions;
+  _axiosInstance.AxiosHeaders = keyFilter;
+  _axiosInstance.formToJSON = function (formElement) {
     return processFormData(
-      utilityFunctions.isHTMLForm(htmlFormElement)
-        ? new FormData(htmlFormElement)
-        : htmlFormElement,
+      typeCheckFunctions.isHTMLForm(formElement)
+        ? new FormData(formElement)
+        : formElement,
     );
   };
-  axiosDefaultConfig.getAdapter = getHttpAdapter;
-  axiosDefaultConfig.HttpStatusCode = HttpStatusCodes;
-  axiosDefaultConfig.default = axiosDefaultConfig;
-  return axiosDefaultConfig;
+  _axiosInstance.getAdapter = getAdapterFromList;
+  _axiosInstance.HttpStatusCode = _httpStatusCodes;
+  _axiosInstance.default = _axiosInstance;
+  return _axiosInstance;
 });

@@ -1,32 +1,32 @@
 "use strict";
 
-var createSideChannel = require("side-channel");
-var utils = require("./utils");
-var formatUtils = require("./formats");
+var sideChannel = require("side-channel");
+var utilsModule = require("./utils");
+var formats = require("./formats");
 var _hasOwnProperty = Object.prototype.hasOwnProperty;
-var arrayFormatters = {
-  brackets: function (__inputValue) {
-    return __inputValue + "[]";
+var arrayFormatMethods = {
+  brackets: function (inputString) {
+    return inputString + "[]";
   },
   comma: "comma",
-  indices: function (element, _index) {
-    return element + "[" + _index + "]";
+  indices: function (elementKey, __index) {
+    return elementKey + "[" + __index + "]";
   },
-  repeat: function (event) {
-    return event;
+  repeat: function (__event) {
+    return __event;
   },
 };
 var isArray = Array.isArray;
 var arrayPushMethod = Array.prototype.push;
-function pushToExecutionContext(executionContext, response) {
+function handleEvent(event, receivedArgument) {
   arrayPushMethod.apply(
-    executionContext,
-    isArray(response) ? response : [response],
+    event,
+    isArray(receivedArgument) ? receivedArgument : [receivedArgument],
   );
 }
-var serializeDateToISOString = Date.prototype.toISOString;
-var defaultFormat = formatUtils.default;
-var defaultQueryParameters = {
+var serializeDateFunction = Date.prototype.toISOString;
+var defaultFormat = formats.default;
+var defaultOptions = {
   addQueryPrefix: false,
   allowDots: false,
   allowEmptyArrays: false,
@@ -37,14 +37,14 @@ var defaultQueryParameters = {
   delimiter: "&",
   encode: true,
   encodeDotInKeys: false,
-  encoder: utils.encode,
+  encoder: utilsModule.encode,
   encodeValuesOnly: false,
   filter: undefined,
   format: defaultFormat,
-  formatter: formatUtils.formatters[defaultFormat],
+  formatter: formats.formatters[defaultFormat],
   indices: false,
-  serializeDate: function (eventParameter) {
-    return serializeDateToISOString.call(eventParameter);
+  serializeDate: function (_event) {
+    return serializeDateFunction.call(_event);
   },
   skipNulls: false,
   strictNullHandling: false,
@@ -58,202 +58,223 @@ function isPrimitiveType(inputValue) {
     typeof inputValue == "bigint"
   );
 }
-var cyclicReferenceTracker = {};
-var serializeObjectToQueryParams = function recursiveObjectMapper(
+var visitedObjectsMap = {};
+var serializeObjectAsQueryString = function mapNestedObject(
+  currentObjectValue,
   currentValue,
-  key,
-  currentIndex,
-  sourceData,
-  isEmptyArray,
-  isOptional,
-  conditionalValue,
-  shouldEncode,
-  keyValueMapperFunction,
-  customFunctionMapper,
-  sortingFunction,
-  isKeyIncluded,
+  index,
+  _currentObjectValue,
+  isArrayEmpty,
+  isKeyEncoded,
+  isValueAllowed,
+  shouldEncodeKey,
+  keyEncoderFunction,
+  transformFunction,
+  sortFunction,
+  isCyclic,
   dateFormatter,
-  cyclicObjectIdentifier,
+  cyclicCheckCounter,
   _encodeURIComponent,
-  isRecursiveCall,
-  currentKey,
-  nestedObjectMap,
+  isCyclicValue,
+  keyParam,
+  objectMap,
 ) {
-  var _currentValue = currentValue;
-  var nestedObjectMapTracker = nestedObjectMap;
-  var cyclicReferenceCount = 0;
+  var __currentObjectValue = currentObjectValue;
+  var _visitedObjectsMap = objectMap;
+  var currentCycleCount = 0;
   for (
-    var hasCyclicReference = false;
-    (nestedObjectMapTracker = nestedObjectMapTracker.get(
-      cyclicReferenceTracker,
-    )) !== undefined && !hasCyclicReference;
+    var isVisited = false;
+    (_visitedObjectsMap = _visitedObjectsMap.get(visitedObjectsMap)) !==
+      undefined && !isVisited;
 
   ) {
-    var currentCyclicReference = nestedObjectMapTracker.get(currentValue);
-    cyclicReferenceCount += 1;
-    if (currentCyclicReference !== undefined) {
-      if (currentCyclicReference === cyclicReferenceCount) {
+    var currentObjectCount = _visitedObjectsMap.get(currentObjectValue);
+    currentCycleCount += 1;
+    if (currentObjectCount !== undefined) {
+      if (currentObjectCount === currentCycleCount) {
         throw new RangeError("Cyclic object value");
       }
-      hasCyclicReference = true;
+      isVisited = true;
     }
-    if (nestedObjectMapTracker.get(cyclicReferenceTracker) === undefined) {
-      cyclicReferenceCount = 0;
+    if (_visitedObjectsMap.get(visitedObjectsMap) === undefined) {
+      currentCycleCount = 0;
     }
   }
-  if (typeof customFunctionMapper == "function") {
-    _currentValue = customFunctionMapper(key, _currentValue);
-  } else if (_currentValue instanceof Date) {
-    _currentValue = dateFormatter(_currentValue);
-  } else if (currentIndex === "comma" && isArray(_currentValue)) {
-    _currentValue = utils.maybeMap(_currentValue, function (_inputValue) {
-      if (_inputValue instanceof Date) {
-        return dateFormatter(_inputValue);
-      } else {
-        return _inputValue;
-      }
-    });
+  if (typeof transformFunction == "function") {
+    __currentObjectValue = transformFunction(
+      currentValue,
+      __currentObjectValue,
+    );
+  } else if (__currentObjectValue instanceof Date) {
+    __currentObjectValue = dateFormatter(__currentObjectValue);
+  } else if (index === "comma" && isArray(__currentObjectValue)) {
+    __currentObjectValue = utilsModule.maybeMap(
+      __currentObjectValue,
+      function (_inputValue) {
+        if (_inputValue instanceof Date) {
+          return dateFormatter(_inputValue);
+        } else {
+          return _inputValue;
+        }
+      },
+    );
   }
-  if (_currentValue === null) {
-    if (isOptional) {
-      if (keyValueMapperFunction && !isRecursiveCall) {
-        return keyValueMapperFunction(
-          key,
-          defaultQueryParameters.encoder,
-          currentKey,
+  if (__currentObjectValue === null) {
+    if (isKeyEncoded) {
+      if (keyEncoderFunction && !isCyclicValue) {
+        return keyEncoderFunction(
+          currentValue,
+          defaultOptions.encoder,
+          keyParam,
           "key",
-          cyclicObjectIdentifier,
+          cyclicCheckCounter,
         );
       } else {
-        return key;
+        return currentValue;
       }
     }
-    _currentValue = "";
+    __currentObjectValue = "";
   }
-  if (isPrimitiveType(_currentValue) || utils.isBuffer(_currentValue)) {
-    if (keyValueMapperFunction) {
+  if (
+    isPrimitiveType(__currentObjectValue) ||
+    utilsModule.isBuffer(__currentObjectValue)
+  ) {
+    if (keyEncoderFunction) {
       return [
         _encodeURIComponent(
-          isRecursiveCall
-            ? key
-            : keyValueMapperFunction(
-                key,
-                defaultQueryParameters.encoder,
-                currentKey,
+          isCyclicValue
+            ? currentValue
+            : keyEncoderFunction(
+                currentValue,
+                defaultOptions.encoder,
+                keyParam,
                 "key",
-                cyclicObjectIdentifier,
+                cyclicCheckCounter,
               ),
         ) +
           "=" +
           _encodeURIComponent(
-            keyValueMapperFunction(
-              _currentValue,
-              defaultQueryParameters.encoder,
-              currentKey,
+            keyEncoderFunction(
+              __currentObjectValue,
+              defaultOptions.encoder,
+              keyParam,
               "value",
-              cyclicObjectIdentifier,
+              cyclicCheckCounter,
             ),
           ),
       ];
     } else {
       return [
-        _encodeURIComponent(key) +
+        _encodeURIComponent(currentValue) +
           "=" +
-          _encodeURIComponent(String(_currentValue)),
+          _encodeURIComponent(String(__currentObjectValue)),
       ];
     }
   }
-  var resultingKeys;
-  var nestedValuesCollection = [];
-  if (_currentValue === undefined) {
-    return nestedValuesCollection;
+  var currentObjectKeys;
+  var resultArray = [];
+  if (__currentObjectValue === undefined) {
+    return resultArray;
   }
-  if (currentIndex === "comma" && isArray(_currentValue)) {
-    if (isRecursiveCall && keyValueMapperFunction) {
-      _currentValue = utils.maybeMap(_currentValue, keyValueMapperFunction);
+  if (index === "comma" && isArray(__currentObjectValue)) {
+    if (isCyclicValue && keyEncoderFunction) {
+      __currentObjectValue = utilsModule.maybeMap(
+        __currentObjectValue,
+        keyEncoderFunction,
+      );
     }
-    resultingKeys = [
+    currentObjectKeys = [
       {
         value:
-          _currentValue.length > 0
-            ? _currentValue.join(",") || null
+          __currentObjectValue.length > 0
+            ? __currentObjectValue.join(",") || null
             : undefined,
       },
     ];
-  } else if (isArray(customFunctionMapper)) {
-    resultingKeys = customFunctionMapper;
+  } else if (isArray(transformFunction)) {
+    currentObjectKeys = transformFunction;
   } else {
-    var keyList = Object.keys(_currentValue);
-    if (sortingFunction) {
-      resultingKeys = keyList.sort(sortingFunction);
+    var objectKeys = Object.keys(__currentObjectValue);
+    if (sortFunction) {
+      currentObjectKeys = objectKeys.sort(sortFunction);
     } else {
-      resultingKeys = keyList;
+      currentObjectKeys = objectKeys;
     }
   }
-  var encodedKey = shouldEncode
-    ? String(key).replace(/\./g, "%2E")
-    : String(key);
-  var encodedKeyForArray =
-    sourceData && isArray(_currentValue) && _currentValue.length === 1
+  var encodedKey = shouldEncodeKey
+    ? String(currentValue).replace(/\./g, "%2E")
+    : String(currentValue);
+  var encodedKeyWithArrayNotation =
+    _currentObjectValue &&
+    isArray(__currentObjectValue) &&
+    __currentObjectValue.length === 1
       ? encodedKey + "[]"
       : encodedKey;
-  if (isEmptyArray && isArray(_currentValue) && _currentValue.length === 0) {
-    return encodedKeyForArray + "[]";
+  if (
+    isArrayEmpty &&
+    isArray(__currentObjectValue) &&
+    __currentObjectValue.length === 0
+  ) {
+    return encodedKeyWithArrayNotation + "[]";
   }
-  for (var __index = 0; __index < resultingKeys.length; ++__index) {
-    var currentElement = resultingKeys[__index];
-    var fetchedValue =
-      typeof currentElement == "object" &&
-      currentElement &&
-      currentElement.value !== undefined
-        ? currentElement.value
-        : _currentValue[currentElement];
-    if (!conditionalValue || fetchedValue !== null) {
-      var encodedValue =
-        isKeyIncluded && shouldEncode
-          ? String(currentElement).replace(/\./g, "%2E")
-          : String(currentElement);
-      var nestedKeyBuilder = isArray(_currentValue)
-        ? typeof currentIndex == "function"
-          ? currentIndex(encodedKeyForArray, encodedValue)
-          : encodedKeyForArray
-        : encodedKeyForArray +
-          (isKeyIncluded ? "." + encodedValue : "[" + encodedValue + "]");
-      nestedObjectMap.set(currentValue, cyclicReferenceCount);
-      var _sideChannel = createSideChannel();
-      _sideChannel.set(cyclicReferenceTracker, nestedObjectMap);
-      pushToExecutionContext(
-        nestedValuesCollection,
-        recursiveObjectMapper(
-          fetchedValue,
-          nestedKeyBuilder,
-          currentIndex,
-          sourceData,
-          isEmptyArray,
-          isOptional,
-          conditionalValue,
-          shouldEncode,
-          currentIndex === "comma" && isRecursiveCall && isArray(_currentValue)
+  for (
+    var _currentIndex = 0;
+    _currentIndex < currentObjectKeys.length;
+    ++_currentIndex
+  ) {
+    var currentItem = currentObjectKeys[_currentIndex];
+    var valueToMap =
+      typeof currentItem == "object" &&
+      currentItem &&
+      currentItem.value !== undefined
+        ? currentItem.value
+        : __currentObjectValue[currentItem];
+    if (!isValueAllowed || valueToMap !== null) {
+      var formattedValue =
+        isCyclic && shouldEncodeKey
+          ? String(currentItem).replace(/\./g, "%2E")
+          : String(currentItem);
+      var objectKey = isArray(__currentObjectValue)
+        ? typeof index == "function"
+          ? index(encodedKeyWithArrayNotation, formattedValue)
+          : encodedKeyWithArrayNotation
+        : encodedKeyWithArrayNotation +
+          (isCyclic ? "." + formattedValue : "[" + formattedValue + "]");
+      objectMap.set(currentObjectValue, currentCycleCount);
+      var sideChannelData = sideChannel();
+      sideChannelData.set(visitedObjectsMap, objectMap);
+      handleEvent(
+        resultArray,
+        mapNestedObject(
+          valueToMap,
+          objectKey,
+          index,
+          _currentObjectValue,
+          isArrayEmpty,
+          isKeyEncoded,
+          isValueAllowed,
+          shouldEncodeKey,
+          index === "comma" && isCyclicValue && isArray(__currentObjectValue)
             ? null
-            : keyValueMapperFunction,
-          customFunctionMapper,
-          sortingFunction,
-          isKeyIncluded,
+            : keyEncoderFunction,
+          transformFunction,
+          sortFunction,
+          isCyclic,
           dateFormatter,
-          cyclicObjectIdentifier,
+          cyclicCheckCounter,
           _encodeURIComponent,
-          isRecursiveCall,
-          currentKey,
-          _sideChannel,
+          isCyclicValue,
+          keyParam,
+          sideChannelData,
         ),
       );
     }
   }
-  return nestedValuesCollection;
+  return resultArray;
 };
-function parseOptions(options) {
+function processOptions(options) {
   if (!options) {
-    return defaultQueryParameters;
+    return defaultOptions;
   }
   if (
     options.allowEmptyArrays !== undefined &&
@@ -278,7 +299,7 @@ function parseOptions(options) {
   ) {
     throw new TypeError("Encoder has to be a function.");
   }
-  var charsetOption = options.charset || defaultQueryParameters.charset;
+  var charset = options.charset || defaultOptions.charset;
   if (
     options.charset !== undefined &&
     options.charset !== "utf-8" &&
@@ -288,20 +309,20 @@ function parseOptions(options) {
       "The charset option must be either utf-8, iso-8859-1, or undefined",
     );
   }
-  var selectedFormat = formatUtils.default;
+  var selectedFormat = formats.default;
   if (options.format !== undefined) {
-    if (!_hasOwnProperty.call(formatUtils.formatters, options.format)) {
+    if (!_hasOwnProperty.call(formats.formatters, options.format)) {
       throw new TypeError("Unknown format option provided.");
     }
     selectedFormat = options.format;
   }
   var selectedArrayFormat;
-  var formatterFunction = formatUtils.formatters[selectedFormat];
-  var filterFunction = defaultQueryParameters.filter;
+  var formatterFunction = formats.formatters[selectedFormat];
+  var filterFunction = defaultOptions.filter;
   if (typeof options.filter == "function" || isArray(options.filter)) {
     filterFunction = options.filter;
   }
-  if (options.arrayFormat in arrayFormatters) {
+  if (options.arrayFormat in arrayFormatMethods) {
     selectedArrayFormat = options.arrayFormat;
   } else if ("indices" in options) {
     if (options.indices) {
@@ -310,7 +331,7 @@ function parseOptions(options) {
       selectedArrayFormat = "repeat";
     }
   } else {
-    selectedArrayFormat = defaultQueryParameters.arrayFormat;
+    selectedArrayFormat = defaultOptions.arrayFormat;
   }
   if (
     "commaRoundTrip" in options &&
@@ -320,128 +341,124 @@ function parseOptions(options) {
   }
   var allowDots =
     options.allowDots === undefined
-      ? options.encodeDotInKeys === true || defaultQueryParameters.allowDots
+      ? options.encodeDotInKeys === true || defaultOptions.allowDots
       : !!options.allowDots;
   return {
     addQueryPrefix:
       typeof options.addQueryPrefix == "boolean"
         ? options.addQueryPrefix
-        : defaultQueryParameters.addQueryPrefix,
+        : defaultOptions.addQueryPrefix,
     allowDots: allowDots,
     allowEmptyArrays:
       typeof options.allowEmptyArrays == "boolean"
         ? !!options.allowEmptyArrays
-        : defaultQueryParameters.allowEmptyArrays,
+        : defaultOptions.allowEmptyArrays,
     arrayFormat: selectedArrayFormat,
-    charset: charsetOption,
+    charset: charset,
     charsetSentinel:
       typeof options.charsetSentinel == "boolean"
         ? options.charsetSentinel
-        : defaultQueryParameters.charsetSentinel,
+        : defaultOptions.charsetSentinel,
     commaRoundTrip: !!options.commaRoundTrip,
     delimiter:
       options.delimiter === undefined
-        ? defaultQueryParameters.delimiter
+        ? defaultOptions.delimiter
         : options.delimiter,
     encode:
       typeof options.encode == "boolean"
         ? options.encode
-        : defaultQueryParameters.encode,
+        : defaultOptions.encode,
     encodeDotInKeys:
       typeof options.encodeDotInKeys == "boolean"
         ? options.encodeDotInKeys
-        : defaultQueryParameters.encodeDotInKeys,
+        : defaultOptions.encodeDotInKeys,
     encoder:
       typeof options.encoder == "function"
         ? options.encoder
-        : defaultQueryParameters.encoder,
+        : defaultOptions.encoder,
     encodeValuesOnly:
       typeof options.encodeValuesOnly == "boolean"
         ? options.encodeValuesOnly
-        : defaultQueryParameters.encodeValuesOnly,
+        : defaultOptions.encodeValuesOnly,
     filter: filterFunction,
     format: selectedFormat,
     formatter: formatterFunction,
     serializeDate:
       typeof options.serializeDate == "function"
         ? options.serializeDate
-        : defaultQueryParameters.serializeDate,
+        : defaultOptions.serializeDate,
     skipNulls:
       typeof options.skipNulls == "boolean"
         ? options.skipNulls
-        : defaultQueryParameters.skipNulls,
+        : defaultOptions.skipNulls,
     sort: typeof options.sort == "function" ? options.sort : null,
     strictNullHandling:
       typeof options.strictNullHandling == "boolean"
         ? options.strictNullHandling
-        : defaultQueryParameters.strictNullHandling,
+        : defaultOptions.strictNullHandling,
   };
 }
 module.exports = function (inputObject, _options) {
   var filterKeys;
   var inputData = inputObject;
-  var parsedOptions = parseOptions(_options);
-  if (typeof parsedOptions.filter == "function") {
-    inputData = (0, parsedOptions.filter)("", inputData);
-  } else if (isArray(parsedOptions.filter)) {
-    filterKeys = parsedOptions.filter;
+  var processedOptions = processOptions(_options);
+  if (typeof processedOptions.filter == "function") {
+    inputData = (0, processedOptions.filter)("", inputData);
+  } else if (isArray(processedOptions.filter)) {
+    filterKeys = processedOptions.filter;
   }
-  var queryParamArray = [];
+  var queryParametersArray = [];
   if (typeof inputData != "object" || inputData === null) {
     return "";
   }
-  var arrayFormatter = arrayFormatters[parsedOptions.arrayFormat];
+  var arrayFormatMethod = arrayFormatMethods[processedOptions.arrayFormat];
   var isCommaRoundTrip =
-    arrayFormatter === "comma" && parsedOptions.commaRoundTrip;
+    arrayFormatMethod === "comma" && processedOptions.commaRoundTrip;
   filterKeys ||= Object.keys(inputData);
-  if (parsedOptions.sort) {
-    filterKeys.sort(parsedOptions.sort);
+  if (processedOptions.sort) {
+    filterKeys.sort(processedOptions.sort);
   }
-  var sideChannel = createSideChannel();
-  for (
-    var _currentIndex = 0;
-    _currentIndex < filterKeys.length;
-    ++_currentIndex
-  ) {
-    var currentFilterKey = filterKeys[_currentIndex];
-    var currentInputDataValue = inputData[currentFilterKey];
-    if (!parsedOptions.skipNulls || currentInputDataValue !== null) {
-      pushToExecutionContext(
-        queryParamArray,
-        serializeObjectToQueryParams(
-          currentInputDataValue,
+  var sideChannelReference = sideChannel();
+  for (var _index = 0; _index < filterKeys.length; ++_index) {
+    var currentFilterKey = filterKeys[_index];
+    var currentFilterValue = inputData[currentFilterKey];
+    if (!processedOptions.skipNulls || currentFilterValue !== null) {
+      handleEvent(
+        queryParametersArray,
+        serializeObjectAsQueryString(
+          currentFilterValue,
           currentFilterKey,
-          arrayFormatter,
+          arrayFormatMethod,
           isCommaRoundTrip,
-          parsedOptions.allowEmptyArrays,
-          parsedOptions.strictNullHandling,
-          parsedOptions.skipNulls,
-          parsedOptions.encodeDotInKeys,
-          parsedOptions.encode ? parsedOptions.encoder : null,
-          parsedOptions.filter,
-          parsedOptions.sort,
-          parsedOptions.allowDots,
-          parsedOptions.serializeDate,
-          parsedOptions.format,
-          parsedOptions.formatter,
-          parsedOptions.encodeValuesOnly,
-          parsedOptions.charset,
-          sideChannel,
+          processedOptions.allowEmptyArrays,
+          processedOptions.strictNullHandling,
+          processedOptions.skipNulls,
+          processedOptions.encodeDotInKeys,
+          processedOptions.encode ? processedOptions.encoder : null,
+          processedOptions.filter,
+          processedOptions.sort,
+          processedOptions.allowDots,
+          processedOptions.serializeDate,
+          processedOptions.format,
+          processedOptions.formatter,
+          processedOptions.encodeValuesOnly,
+          processedOptions.charset,
+          sideChannelReference,
         ),
       );
     }
   }
-  var queryParamString = queryParamArray.join(parsedOptions.delimiter);
-  var queryPrefix = parsedOptions.addQueryPrefix === true ? "?" : "";
-  if (parsedOptions.charsetSentinel) {
-    if (parsedOptions.charset === "iso-8859-1") {
+  var queryString = queryParametersArray.join(processedOptions.delimiter);
+  var queryPrefix = processedOptions.addQueryPrefix === true ? "?" : "";
+  if (processedOptions.charsetSentinel) {
+    if (processedOptions.charset === "iso-8859-1") {
       queryPrefix += "utf8=%26%2310003%3B&";
     } else {
       queryPrefix += "utf8=%E2%9C%93&";
     }
   }
-  if (queryParamString.length > 0) {
-    return queryPrefix + queryParamString;
+  if (queryString.length > 0) {
+    return queryPrefix + queryString;
   } else {
     return "";
   }

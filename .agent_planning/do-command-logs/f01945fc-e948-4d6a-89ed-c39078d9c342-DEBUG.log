@@ -1,0 +1,22 @@
+2025-12-30T00:13:41.712902 ============================================================
+2025-12-30T00:13:41.713091 init.py: SESSION START
+2025-12-30T00:13:41.713186 init.py: session_id=f01945fc-e948-4d6a-89ed-c39078d9c342
+2025-12-30T00:13:41.713293 init.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T00:13:41.713371 init.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'hook_event_name', 'source']
+2025-12-30T00:13:41.713506 init.py: hook_event_name=SessionStart
+2025-12-30T00:13:41.713589 init.py: transcript_path=/Users/bmf/.claude/projects/-Users-bmf-code-brandon-fryslie-humanify/f01945fc-e948-4d6a-89ed-c39078d9c342.jsonl
+2025-12-30T00:13:41.713687 init.py: directory exists: .agent_planning/do-command-logs
+2025-12-30T00:13:41.713788 init.py: directory exists: .agent_planning/do-command-logs/partials
+2025-12-30T00:13:41.713871 init.py: initialization complete
+2025-12-30T00:20:51.597623 ------------------------------------------------------------
+2025-12-30T00:20:51.597827 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T00:20:51.598113 aggregate-exec.py: session_id=f01945fc-e948-4d6a-89ed-c39078d9c342
+2025-12-30T00:20:51.598218 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T00:20:51.598308 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T00:20:51.598383 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T00:20:51.598451 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T00:20:51.598521 aggregate-exec.py: stop_hook_active=False
+2025-12-30T00:20:51.598610 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T00:20:51.598722 aggregate-exec.py: scanning for partial files...
+2025-12-30T00:20:51.599087 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T00:20:51.599165 aggregate-exec.py: no partial files, nothing to aggregate
