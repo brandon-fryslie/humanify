@@ -95,10 +95,13 @@ export class Analyzer {
     const identifiers: AnalyzedIdentifier[] = [];
     const scopeIds = new Map<any, string>(); // Scope -> ID mapping
 
+    // Capture `this` for use in callbacks
+    const self = this;
+
     traverse(ast, {
       Scope(path) {
         // Generate unique scope ID
-        const scopeId = this.generateScopeId(path.scope);
+        const scopeId = self.generateScopeId(path.scope);
         scopeIds.set(path.scope, scopeId);
       },
 
@@ -113,24 +116,24 @@ export class Analyzer {
 
         // Skip if below minimum reference threshold
         const referenceCount = binding.referencePaths.length;
-        if (referenceCount < this.config.minReferences) {
+        if (referenceCount < self.config.minReferences) {
           return;
         }
 
         // Determine binding type
-        const bindingType = this.getBindingType(binding);
+        const bindingType = self.getBindingType(binding);
 
         // Get scope ID
         const scopeId = scopeIds.get(path.scope) ?? "unknown";
 
         // Generate stable identifier ID
-        const identifierId = this.generateIdentifierId(path.node.name, binding, path);
+        const identifierId = self.generateIdentifierId(path.node.name, binding, path);
 
         // Extract surrounding context
-        const context = this.extractContext(code, path);
+        const context = self.extractContext(code, path);
 
         // Calculate importance score
-        const importance = this.calculateImportance(binding, bindingType);
+        const importance = self.calculateImportance(binding, bindingType);
 
         // Get location
         const loc = path.node.loc;
