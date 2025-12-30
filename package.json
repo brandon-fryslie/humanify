@@ -21,7 +21,9 @@
     "lint": "npm run lint:prettier && npm run lint:eslint",
     "lint:prettier": "prettier --check src/* src/**/*",
     "lint:eslint": "eslint src/* src/**/*",
-    "download-ci-model": "npx humanify download 2b"
+    "download-ci-model": "npx humanify download 2b",
+    "compare": "tsx scripts/compare-unminified.ts",
+    "minify-samples": "tsx scripts/minify-canonical-samples.ts"
   },
   "bin": {
     "humanify": "dist/index.mjs"
@@ -73,6 +75,7 @@
     "globals": "^16.0.0",
     "pkgroll": "^2.4.2",
     "prettier": "^3.3.3",
+    "terser": "^5.44.1",
     "typescript-eslint": "^8.0.0"
   }
 }
