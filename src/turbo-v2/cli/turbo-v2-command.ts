@@ -139,6 +139,9 @@ async function createProcessor(
     });
   }
 
+  // ============================================================
+  // OPENAI PROVIDER
+  // ============================================================
   if (provider === "openai") {
     const { default: OpenAI } = await import("openai");
 
@@ -149,14 +152,14 @@ async function createProcessor(
 
     const modelName = model ?? "gpt-4o-mini";
 
-    return async (name: string, context: string): Promise<{ newName: string; confidence: number }> => {
+    return async (name: string, context: string): Promise<{ newName: string; confidence: number; tokens?: { prompt: number; completion: number; total: number } }> => {
       try {
         const prompt = buildPrompt(processorType, name, context);
 
         const response = await openai.chat.completions.create({
           model: modelName,
           messages: [{ role: "user", content: prompt }],
-          temperature: processorType === "refine" ? 0.4 : 0.3, // Slightly higher temp for refine
+          temperature: processorType === "refine" ? 0.4 : 0.3,
           max_tokens: 100,
           response_format: { type: "json_object" },
         });
@@ -167,9 +170,19 @@ async function createProcessor(
         }
 
         const parsed = JSON.parse(content);
+
+        const tokens = response.usage
+          ? {
+              prompt: response.usage.prompt_tokens,
+              completion: response.usage.completion_tokens,
+              total: response.usage.total_tokens,
+            }
+          : undefined;
+
         return {
           newName: parsed.name || name,
           confidence: parsed.confidence ?? 0.5,
+          tokens,
         };
       } catch (error: any) {
         console.warn(`Failed to ${processorType} ${name}: ${error.message}`);
@@ -179,13 +192,169 @@ async function createProcessor(
         };
       }
     };
-  } else if (provider === "gemini") {
-    throw new Error("Gemini provider not yet supported in turbo-v2 mode. Use --provider openai for now.");
-  } else if (provider === "local") {
-    throw new Error("Local provider not yet supported in turbo-v2 mode. Use --provider openai for now.");
-  } else {
-    throw new Error(`Unknown provider: ${provider}`);
   }
+
+  // ============================================================
+  // Z.AI PROVIDER (GLM models via OpenAI-compatible API)
+  // ============================================================
+  if (provider === "zai") {
+    const { default: OpenAI } = await import("openai");
+
+    const openai = new OpenAI({
+      apiKey: apiKey!,
+      baseURL: baseURL ?? "https://api.z.ai/api/coding/paas/v4",
+    });
+
+    const modelName = model ?? "GLM-4.7";
+
+    return async (name: string, context: string): Promise<{ newName: string; confidence: number; tokens?: { prompt: number; completion: number; total: number } }> => {
+      const maxRetries = 3;
+      let lastError: any;
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          // Use simplified prompt for z.ai - ask for JSON FIRST before any reasoning
+          const prompt = `OUTPUT THIS EXACT FORMAT FIRST (fill in the values):
+{"name": "newVariableName", "confidence": 0.85}
+
+Then you may explain your reasoning.
+
+Task: Rename JavaScript variable "${name}" to a semantic name.
+Context:
+${context}
+
+Use camelCase. Be specific.`;
+
+          // z.ai GLM-4.7 uses reasoning mode - needs many more tokens
+          // because it reasons at length before outputting the JSON
+          const response = await openai.chat.completions.create({
+            model: modelName,
+            messages: [{ role: "user", content: prompt }],
+            temperature: processorType === "refine" ? 0.4 : 0.3,
+            max_tokens: 1500, // GLM-4.7 reasons at length before outputting
+          });
+
+          // GLM-4.7 puts response in reasoning_content, not content
+          const message = response.choices[0]?.message as any;
+          let content = message?.content || message?.reasoning_content || "";
+
+          if (!content) {
+            throw new Error("Empty response from z.ai");
+          }
+
+
+        // Extract JSON from the response (may be in markdown code blocks or at end of reasoning)
+        let parsed: any;
+
+        // Try to find JSON in code blocks first (handles ```json, ```javascript, or just ```)
+        const codeBlockMatch = content.match(/```(?:json|javascript)?\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+          const codeContent = codeBlockMatch[1].trim();
+          // If it starts with {, try to parse directly
+          if (codeContent.startsWith('{')) {
+            parsed = JSON.parse(codeContent);
+          } else {
+            // Look for JSON object within the code block
+            const jsonInBlock = codeContent.match(/\{[\s\S]*"name"[\s\S]*\}/);
+            if (jsonInBlock) {
+              parsed = JSON.parse(jsonInBlock[0]);
+            }
+          }
+        }
+
+        // If no valid JSON found in code blocks, search for JSON pattern
+        if (!parsed) {
+          // Try to extract name directly using regex (more robust than JSON parsing)
+          const nameMatch = content.match(/"name"\s*:\s*"([^"]+)"/);
+          const confMatch = content.match(/"confidence"\s*:\s*([\d.]+)/);
+
+          if (nameMatch) {
+            // Found name, use it even if full JSON parsing fails
+            parsed = {
+              name: nameMatch[1],
+              confidence: confMatch ? parseFloat(confMatch[1]) : 0.5,
+            };
+          } else {
+            // Try full JSON object parsing as fallback
+            const jsonMatch = content.match(/\{[^{}]*"name"\s*:\s*"[^"]+"/);
+            if (jsonMatch) {
+              const startIdx = content.indexOf(jsonMatch[0]);
+              let braceCount = 0;
+              let endIdx = startIdx;
+              for (let i = startIdx; i < content.length; i++) {
+                if (content[i] === '{') braceCount++;
+                if (content[i] === '}') braceCount--;
+                if (braceCount === 0) {
+                  endIdx = i + 1;
+                  break;
+                }
+              }
+              try {
+                parsed = JSON.parse(content.substring(startIdx, endIdx));
+              } catch {
+                // JSON parsing failed, try regex extraction
+                const innerNameMatch = content.substring(startIdx).match(/"name"\s*:\s*"([^"]+)"/);
+                if (innerNameMatch) {
+                  parsed = { name: innerNameMatch[1], confidence: 0.5 };
+                }
+              }
+            }
+
+            if (!parsed) {
+              throw new Error("Could not find JSON in z.ai response");
+            }
+          }
+        }
+
+        const tokens = response.usage
+          ? {
+              prompt: response.usage.prompt_tokens,
+              completion: response.usage.completion_tokens,
+              total: response.usage.total_tokens,
+            }
+          : undefined;
+
+          return {
+            newName: parsed.name || name,
+            confidence: parsed.confidence ?? 0.5,
+            tokens,
+          };
+        } catch (error: any) {
+          lastError = error;
+
+          // Retry on rate limiting (429)
+          if (error.status === 429 || error.message?.includes('429')) {
+            const backoffMs = Math.min(1000 * Math.pow(2, attempt), 10000) + Math.random() * 1000;
+            await new Promise((resolve) => setTimeout(resolve, backoffMs));
+            continue;
+          }
+
+          // Don't retry on other errors
+          break;
+        }
+      }
+
+      // All retries exhausted
+      console.warn(`[z.ai] Failed to ${processorType} ${name}: ${lastError?.message || 'Unknown error'}`);
+      return {
+        newName: name,
+        confidence: 0,
+      };
+    };
+  }
+
+  // ============================================================
+  // OTHER PROVIDERS (not yet implemented)
+  // ============================================================
+  if (provider === "gemini") {
+    throw new Error("Gemini provider not yet supported in turbo-v2 mode. Use --provider openai or --provider zai.");
+  }
+
+  if (provider === "local") {
+    throw new Error("Local provider not yet supported in turbo-v2 mode. Use --provider openai or --provider zai.");
+  }
+
+  throw new Error(`Unknown provider: ${provider}. Supported: openai, zai`);
 }
 
 /**
@@ -206,9 +375,20 @@ async function createProcessors(
 }
 
 /**
+ * Result of turbo-v2 execution
+ */
+export interface TurboV2Result {
+  jobId: string;
+  jobDir: string;
+  success: boolean;
+  outputPath?: string;
+  durationMs?: number;
+}
+
+/**
  * Execute turbo-v2 pipeline
  */
-export async function executeTurboV2(options: TurboV2Options): Promise<void> {
+export async function executeTurboV2(options: TurboV2Options): Promise<TurboV2Result> {
   // Validate flag combinations
   validatePassFlags({
     passes: options.passes,
@@ -254,7 +434,7 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
   }
 
   // Initialize other components
-  const ledger = new Ledger(join(jobDir, "events.jsonl"));
+  const ledger = new Ledger(jobDir);
   const metrics = new MetricsCollector({
     outputDir: join(jobDir, "logs"),
     quiet: options.quiet,
@@ -326,6 +506,15 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
     if (!result.success) {
       process.exit(1);
     }
+
+    // Return result for callers (like the webapp)
+    return {
+      jobId,
+      jobDir,
+      success: result.success,
+      outputPath: result.finalSnapshotPath,
+      durationMs: result.totalDurationMs,
+    };
   } catch (error: any) {
     renderer.error(error.message);
 
@@ -333,7 +522,12 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
       console.error(`\nStack trace:\n${error.stack}`);
     }
 
-    throw error;
+    // Return failure result
+    return {
+      jobId,
+      jobDir,
+      success: false,
+    };
   }
 }
 
