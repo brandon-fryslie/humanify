@@ -1,0 +1,5 @@
+Agent: status-planner | 2025-12-31-003133
+Topic: turbo-v2-experiments
+Files: PLAN-2025-12-31-003133.md, DOD-2025-12-31-003133.md
+Items: 7 (P0: 3, P1: 2)
+Sprint Focus: TypeScript Experiment Registry (Define → Run → Compare)

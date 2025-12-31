@@ -4,7 +4,7 @@
   "originalIdentifierCount": 164,
   "unminifiedIdentifierCount": 176,
   "score": 55,
-  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names like 'ArrayBuffer', 'globalThis', and 'requestHeaders' are correctly identified, indicating a grasp of certain key concepts. However, many names are overly generic or incorrect, such as 'inputValue', 'inputString', and 'error', which do not capture the specific semantic meaning of the original identifiers like 'AxiosError' or 'CancelToken'. The presence of generic names like 'inputValue' and 'inputString' suggests a lack of precision in capturing the specific roles or functions of these identifiers in the code. Overall, while there is some semantic alignment, the deobfuscation lacks specificity and accuracy in many cases.",
-  "tokensUsed": 1607,
-  "cost": 0.008035
+  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names like 'ArrayBuffer', 'globalThis', and 'requestHeaders' are correctly identified, indicating a grasp of certain key concepts. However, many names are overly generic or incorrect, such as '________________inputValue' and '____error', which do not capture the specific semantic meaning of the original identifiers. There are also instances where the AI-generated names are too verbose or lack precision, such as 'httpHeaderHandler' instead of 'headers'. Overall, while there is some alignment with the original semantics, a significant portion of the names are generic or misrepresentative, leading to a moderate score.",
+  "tokensUsed": 1599,
+  "cost": 0.007995
 }

@@ -4,7 +4,7 @@
   "originalIdentifierCount": 164,
   "unminifiedIdentifierCount": 176,
   "score": 65,
-  "explanation": "The deobfuscated names show a moderate understanding of the semantic meaning of the code. Some names are well-matched, such as 'ArrayBuffer', 'Symbol', and 'globalThis', which align with the original identifiers. However, many names are generic or incorrect, such as '____eventData', '___inputObject', and 'inputPayload', which do not capture the specific meaning of the original identifiers like 'AxiosError', 'InterceptorManager', or 'CancelToken'. There are also instances where the deobfuscated names are overly verbose or lack precision, such as 'httpRequestAdapterCount' instead of 'adapters'. Overall, while there is some semantic alignment, there are significant areas where the names are too generic or fail to capture the specific functionality or role of the original identifiers.",
-  "tokensUsed": 1655,
-  "cost": 0.008275000000000001
+  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names are semantically equivalent or close synonyms, such as 'contentType' and 'error'. However, many names are generic or incorrect, such as 'inputObject' and 'inputValue', which do not capture the specific meaning of the original identifiers like '_FormData' or 'arg1'. There are also instances where the deobfuscated names are overly verbose or not specific enough, such as 'httpRequestConfig' for '_config'. Overall, while there is some semantic alignment, there are enough generic or incorrect names to warrant a moderate score.",
+  "tokensUsed": 1621,
+  "cost": 0.008105000000000001
 }

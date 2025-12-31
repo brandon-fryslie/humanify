@@ -4,7 +4,7 @@
   "originalIdentifierCount": 164,
   "unminifiedIdentifierCount": 176,
   "score": 40,
-  "explanation": "The deobfuscated names show a poor understanding of the semantic meaning of the original identifiers. Many names are overly generic or incorrect, such as using 'inputValue' for various unrelated identifiers and 'error' for multiple distinct error-related identifiers. While some names like 'ArrayBuffer' and 'FormData' are correctly identified, the majority are not semantically equivalent to the original names. The deobfuscator often resorts to generic terms like 'inputValue', 'event', and 'error', which do not capture the specific roles or meanings of the original identifiers.",
-  "tokensUsed": 1553,
-  "cost": 0.007765000000000001
+  "explanation": "The deobfuscated names show a poor understanding of the semantic meaning of the original identifiers. Many names are overly generic, such as 'inputValue', 'inputString', and 'inputParameter', which do not capture the specific roles or contexts of the original identifiers. There are also instances of repeated generic names, like 'inputValue', which suggest a lack of differentiation between distinct concepts. While some names like 'ArrayBuffer' and 'FormData' are correctly identified, the overall result is a mix of accurate and vague names, leading to a low score.",
+  "tokensUsed": 1552,
+  "cost": 0.00776
 }

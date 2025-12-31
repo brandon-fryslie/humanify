@@ -44,6 +44,17 @@ export const PRESETS: Record<string, PassConfig[]> = {
   ],
 
   /**
+   * THOROUGH: 3-pass with aggressive refinement
+   * Two rename passes build context, then aggressive refine
+   * Good quality with moderate cost
+   */
+  thorough: [
+    { processor: "rename", mode: "parallel", concurrency: 50 },
+    { processor: "rename", mode: "parallel", concurrency: 50 },
+    { processor: "refine", mode: "parallel", concurrency: 50 },
+  ],
+
+  /**
    * ANCHOR: Anchor-first hybrid strategy
    * Sequential processing of important identifiers first
    * Then parallel processing of rest with anchor context
@@ -80,6 +91,11 @@ export function listPresets(): Array<{ name: string; description: string; passes
       name: "balanced",
       description: "Good quality/speed - rename + refine",
       passes: 2,
+    },
+    {
+      name: "thorough",
+      description: "3-pass with aggressive refine - rename → rename → refine",
+      passes: 3,
     },
     {
       name: "quality",

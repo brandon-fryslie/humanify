@@ -50,6 +50,11 @@ export interface PassEngineConfig {
   retryCount: number; // Max retries per identifier (default: 3)
   retryDelayMs: number; // Delay between retries (default: 1000)
   onProgress?: ProgressCallback;
+  // Adaptive context sizing
+  previousConfidence?: Record<string, number>; // Confidence from previous pass
+  lowConfidenceThreshold?: number; // Threshold for expanding context (default: 0.7)
+  expandedContextSize?: number; // Larger context for low-confidence (default: 1500)
+  maxContextSize?: number; // Maximum context for very low confidence (default: 3000)
 }
 
 /**
@@ -58,6 +63,7 @@ export interface PassEngineConfig {
 export interface PassResult {
   renameMap: RenameMap;
   stats: PassStats;
+  confidenceMap: Record<string, number>; // identifier ID -> confidence score
 }
 
 /**
@@ -68,7 +74,8 @@ export class PassEngine {
   private transformer: Transformer;
   private vault: Vault;
   private ledger: Ledger;
-  private config: Required<PassEngineConfig>;
+  private config: Required<Omit<PassEngineConfig, 'previousConfidence'>> & { previousConfidence?: Record<string, number> };
+  private sourceCode: string = ""; // Stored for adaptive context re-extraction
 
   constructor(
     vault: Vault,
@@ -86,7 +93,55 @@ export class PassEngine {
       retryCount: config.retryCount ?? 3,
       retryDelayMs: config.retryDelayMs ?? 1000,
       onProgress: config.onProgress ?? (() => {}),
+      previousConfidence: config.previousConfidence,
+      lowConfidenceThreshold: config.lowConfidenceThreshold ?? 0.7,
+      expandedContextSize: config.expandedContextSize ?? 1500,
+      maxContextSize: config.maxContextSize ?? 3000,
     };
+  }
+
+  /**
+   * Get adaptive context size based on previous confidence
+   */
+  private getContextSizeForIdentifier(identifier: AnalyzedIdentifier): number {
+    if (!this.config.previousConfidence) {
+      return 500; // Default
+    }
+
+    const prevConfidence = this.config.previousConfidence[identifier.id];
+    if (prevConfidence === undefined) {
+      return 500; // No previous data, use default
+    }
+
+    if (prevConfidence < 0.5) {
+      // Very low confidence - use maximum context
+      return this.config.maxContextSize;
+    } else if (prevConfidence < this.config.lowConfidenceThreshold) {
+      // Low confidence - use expanded context
+      return this.config.expandedContextSize;
+    }
+
+    return 500; // Good confidence, default context is fine
+  }
+
+  /**
+   * Get context for identifier, potentially expanded based on previous confidence
+   */
+  private getContextForIdentifier(identifier: AnalyzedIdentifier): string {
+    const contextSize = this.getContextSizeForIdentifier(identifier);
+
+    if (contextSize === 500) {
+      // Use pre-computed context
+      return identifier.context;
+    }
+
+    // Re-extract with larger context window
+    return Analyzer.extractContextAtLocation(
+      this.sourceCode,
+      identifier.location.start.line,
+      identifier.location.start.column,
+      contextSize
+    );
   }
 
   /**
@@ -123,10 +178,21 @@ export class PassEngine {
   ): Promise<PassResult> {
     const startTime = performance.now();
 
+    // Store source code for adaptive context re-extraction
+    this.sourceCode = code;
+
     // Step 1: Analyze code
     console.log(`[pass-engine] Analyzing code for pass ${passNumber}...`);
     const analysis = await this.analyzer.analyze(code);
     console.log(`[pass-engine] Found ${analysis.totalIdentifiers} identifiers`);
+
+    // Log adaptive context info if enabled
+    if (this.config.previousConfidence) {
+      const lowConfCount = Object.values(this.config.previousConfidence).filter(c => c < this.config.lowConfidenceThreshold).length;
+      if (lowConfCount > 0) {
+        console.log(`[pass-engine] Adaptive context: ${lowConfCount} identifiers will get expanded context`);
+      }
+    }
 
     // Step 2: Emit PASS_STARTED event
     const passStartedEvent: PassStartedEvent = {
@@ -142,6 +208,7 @@ export class PassEngine {
     // Step 3: Process identifiers in batches
     const batches = this.createBatches(analysis.identifiers, this.config.batchSize);
     const renameMap: RenameMap = {};
+    const confidenceMap: Record<string, number> = {};
     let totalProcessed = 0;
     let totalRenamed = 0;
     let totalUnchanged = 0;
@@ -181,6 +248,9 @@ export class PassEngine {
 
       for (const result of batchResults) {
         totalProcessed++;
+
+        // Track confidence for all identifiers (for adaptive context in next pass)
+        confidenceMap[result.identifier.id] = result.confidence;
 
         if (result.error) {
           totalErrors++;
@@ -294,6 +364,7 @@ export class PassEngine {
     return {
       renameMap,
       stats: passStats,
+      confidenceMap,
     };
   }
 
@@ -379,9 +450,12 @@ export class PassEngine {
   }> {
     let lastError: Error | null = null;
 
+    // Get context (potentially expanded for low-confidence identifiers)
+    const context = this.getContextForIdentifier(identifier);
+
     for (let attempt = 0; attempt < this.config.retryCount; attempt++) {
       try {
-        const result = await processor(identifier.name, identifier.context);
+        const result = await processor(identifier.name, context);
         return result;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));

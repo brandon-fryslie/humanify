@@ -1,0 +1,10 @@
+{
+  "originalFile": "test-samples/canonical/medium-chart/original.js",
+  "unminifiedFile": "test-samples/canonical/medium-chart/output-turbo-v2/output.js",
+  "originalIdentifierCount": 182,
+  "unminifiedIdentifierCount": 175,
+  "score": 60,
+  "explanation": "The deobfuscated names show a moderate understanding of the code's semantic meaning. Some names are well-matched, such as 'Animation' and 'LinearScale', but many others are generic or incorrect, like 'ArcElement' for '_angleBetween' and 'Colors' for '_data'. There are also instances of overly verbose names that don't match the original intent, such as 'CanvasRenderingContextHandler' for 'BasePlatform'. Overall, while there are some correct matches, the presence of generic or incorrect names indicates a moderate level of semantic understanding.",
+  "tokensUsed": 1691,
+  "cost": 0.008455
+}

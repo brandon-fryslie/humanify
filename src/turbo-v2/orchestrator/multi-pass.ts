@@ -42,6 +42,27 @@ export interface GlossaryEntry {
 }
 
 /**
+ * Confidence tracking for adaptive context sizing
+ */
+export interface ConfidenceMap {
+  [identifierId: string]: number;
+}
+
+/**
+ * Context size tiers for adaptive expansion
+ */
+export const CONTEXT_TIERS = {
+  DEFAULT: 500,
+  MEDIUM: 1500,
+  LARGE: 3000,
+} as const;
+
+/**
+ * Confidence threshold below which context is expanded
+ */
+export const LOW_CONFIDENCE_THRESHOLD = 0.7;
+
+/**
  * Multi-pass configuration
  */
 export interface MultiPassConfig {
@@ -109,7 +130,7 @@ export class MultiPass {
    * 6. Return final result
    */
   async execute(
-    baseProcessor: ProcessorFunction
+    baseProcessor: ProcessorFunction | Map<string, ProcessorFunction>
   ): Promise<MultiPassResult> {
     const jobStartTime = performance.now();
 
@@ -172,6 +193,7 @@ export class MultiPass {
     const passResults: PassResult[] = [];
     let currentCode = inputCode;
     let previousPassGlossary: GlossaryEntry[] = [];
+    let previousConfidence: Record<string, number> = {}; // For adaptive context sizing
 
     for (let passIndex = 0; passIndex < this.config.passes.length; passIndex++) {
       const passNumber = passIndex + 1;
@@ -195,13 +217,24 @@ export class MultiPass {
         `[multi-pass] Pass ${passNumber} glossary: ${glossary.length} entries from previous pass`
       );
 
+      // Select the right processor for this pass type
+      let processor: ProcessorFunction;
+      if (baseProcessor instanceof Map) {
+        const processorType = passConfig.processor || "rename";
+        processor = baseProcessor.get(processorType) || baseProcessor.get("rename")!;
+      } else {
+        processor = baseProcessor;
+      }
+
       // Create processor with glossary injection
       const processorWithGlossary = this.createProcessorWithGlossary(
-        baseProcessor,
+        processor,
         glossary
       );
 
       // Create PassEngine for this pass
+      // For refine passes (pass > 1), enable adaptive context based on previous confidence
+      const isRefinePass = passConfig.processor === "refine" || passNumber > 1;
       const passEngine = new PassEngine(this.vault, this.ledger, {
         concurrency: passConfig.concurrency,
         batchSize: 50,
@@ -210,6 +243,11 @@ export class MultiPass {
         onProgress: (processed, total, errors) => {
           this.config.onProgress(passNumber, processed, total);
         },
+        // Enable adaptive context for refine passes
+        previousConfidence: isRefinePass ? previousConfidence : undefined,
+        lowConfidenceThreshold: LOW_CONFIDENCE_THRESHOLD,
+        expandedContextSize: CONTEXT_TIERS.MEDIUM,
+        maxContextSize: CONTEXT_TIERS.LARGE,
       });
 
       // Output snapshot path for this pass
@@ -229,6 +267,15 @@ export class MultiPass {
       );
 
       passResults.push(passResult);
+
+      // Update confidence map for next pass (for adaptive context sizing)
+      previousConfidence = passResult.confidenceMap;
+
+      // Log adaptive context stats
+      const lowConfCount = Object.values(previousConfidence).filter(c => c < LOW_CONFIDENCE_THRESHOLD).length;
+      if (lowConfCount > 0) {
+        console.log(`[multi-pass] ${lowConfCount} identifiers with low confidence (will get expanded context next pass)`);
+      }
 
       // Build glossary for next pass
       // Read the analysis again to get reference counts

@@ -4,7 +4,7 @@
   "originalIdentifierCount": 182,
   "unminifiedIdentifierCount": 146,
   "score": 50,
-  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names like 'LinearScale' and 'ScatterController' are correctly identified, indicating a grasp of specific components. However, many names are generic or incorrect, such as 'Animations' for 'animatedProps' and 'Interaction' for 'interpolators'. The use of generic names like 'data', 'value', and 'item' suggests a lack of precise semantic mapping. Overall, while there are instances of correct identification, the prevalence of generic or incorrect names limits the score.",
-  "tokensUsed": 1299,
-  "cost": 0.006495000000000001
+  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names like 'LinearScale' and 'ScatterController' are correctly identified, but many others are generic or incorrect, such as 'Animations' for 'animatedProps' and 'Interaction' for 'interpolators'. The use of generic names like 'data', 'value', and 'item' indicates a lack of semantic precision. While there are some correct matches, the overall semantic capture is inconsistent.",
+  "tokensUsed": 1283,
+  "cost": 0.0064150000000000006
 }

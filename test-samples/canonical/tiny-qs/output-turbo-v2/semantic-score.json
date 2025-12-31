@@ -1,0 +1,10 @@
+{
+  "originalFile": "test-samples/canonical/tiny-qs/original.js",
+  "unminifiedFile": "test-samples/canonical/tiny-qs/output-turbo-v2/output.js",
+  "originalIdentifierCount": 60,
+  "unminifiedIdentifierCount": 66,
+  "score": 75,
+  "explanation": "The deobfuscated names generally capture the semantic meaning of the original identifiers, with many names being descriptive and contextually appropriate. For example, 'arrayElementAppenderFunction' and 'arrayElementFormatterFunction' are clear and descriptive. However, there are some instances where the names are overly verbose or slightly off, such as 'cyclicObjectReferenceCount' for 'valueSideChannel' and 'queryStringOptionsHandlerFunction' for 'normalizeStringifyOptions'. These minor misses prevent a higher score, but overall, the understanding is good with mostly accurate semantic representation.",
+  "tokensUsed": 898,
+  "cost": 0.00449
+}

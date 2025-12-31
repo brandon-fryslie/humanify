@@ -252,15 +252,11 @@ score-medium-chart-turbo:
 
 # Score turbo-refine output
 score-turbo-refine sample:
-    npx tsx scripts/score-semantic.ts \
-      "test-samples/canonical/{{sample}}/original.js" \
-      "test-samples/canonical/{{sample}}/output-turbo-refine/deobfuscated.js"
+    ./scripts/score-sample.sh {{sample}} turbo-refine
 
 # Score turbo-v2 output
 score-turbo-v2 sample:
-    npx tsx scripts/score-semantic.ts \
-      "test-samples/canonical/{{sample}}/original.js" \
-      "test-samples/canonical/{{sample}}/output-turbo-v2/deobfuscated.js"
+    ./scripts/score-sample.sh {{sample}} turbo-v2
 
 # Score tiny-qs sample (turbo-v2 mode)
 score-tiny-qs-turbo-v2:

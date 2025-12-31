@@ -12,13 +12,19 @@ MODE="${2:-}"
 if [ -z "$SAMPLE" ] || [ -z "$MODE" ]; then
   echo "Usage: $0 <sample-name> <mode>"
   echo "Available samples: tiny-qs, small-axios, medium-chart"
-  echo "Available modes: sequential, turbo"
+  echo "Available modes: sequential, turbo, turbo-refine, turbo-v2"
   exit 1
 fi
 
 SAMPLE_DIR="test-samples/canonical/$SAMPLE"
 ORIGINAL="$SAMPLE_DIR/original.js"
-UNMINIFIED="$SAMPLE_DIR/output-$MODE/deobfuscated.js"
+OUTPUT_DIR="$SAMPLE_DIR/output-$MODE"
+
+# Check for output.js first (preferred), then deobfuscated.js (legacy)
+UNMINIFIED="$OUTPUT_DIR/output.js"
+if [ ! -f "$UNMINIFIED" ]; then
+  UNMINIFIED="$OUTPUT_DIR/deobfuscated.js"
+fi
 
 if [ ! -f "$ORIGINAL" ]; then
   echo "Error: Original file not found: $ORIGINAL"
@@ -26,7 +32,7 @@ if [ ! -f "$ORIGINAL" ]; then
 fi
 
 if [ ! -f "$UNMINIFIED" ]; then
-  echo "Error: Unminified file not found: $UNMINIFIED"
+  echo "Error: Output file not found in: $OUTPUT_DIR"
   echo "Run ./scripts/run-$MODE.sh $SAMPLE first"
   exit 1
 fi

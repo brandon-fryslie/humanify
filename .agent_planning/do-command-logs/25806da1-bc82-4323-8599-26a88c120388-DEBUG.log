@@ -1,0 +1,82 @@
+2025-12-30T22:56:01.196849 ============================================================
+2025-12-30T22:56:01.197041 init.py: SESSION START
+2025-12-30T22:56:01.197162 init.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T22:56:01.197307 init.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T22:56:01.197394 init.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'hook_event_name', 'source']
+2025-12-30T22:56:01.197466 init.py: hook_event_name=SessionStart
+2025-12-30T22:56:01.197537 init.py: transcript_path=/Users/bmf/.claude/projects/-Users-bmf-code-brandon-fryslie-humanify/25806da1-bc82-4323-8599-26a88c120388.jsonl
+2025-12-30T22:56:01.197666 init.py: directory exists: .agent_planning/do-command-logs
+2025-12-30T22:56:01.197765 init.py: directory exists: .agent_planning/do-command-logs/partials
+2025-12-30T22:56:01.197854 init.py: initialization complete
+2025-12-30T22:58:42.505465 ------------------------------------------------------------
+2025-12-30T22:58:42.505736 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T22:58:42.506030 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T22:58:42.506205 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T22:58:42.506344 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T22:58:42.506460 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T22:58:42.506580 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T22:58:42.506714 aggregate-exec.py: stop_hook_active=False
+2025-12-30T22:58:42.506860 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T22:58:42.506970 aggregate-exec.py: scanning for partial files...
+2025-12-30T22:58:42.507235 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T22:58:42.507339 aggregate-exec.py: no partial files, nothing to aggregate
+2025-12-30T23:11:43.873541 ------------------------------------------------------------
+2025-12-30T23:11:43.873759 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T23:11:43.873958 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T23:11:43.874111 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T23:11:43.874221 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T23:11:43.874303 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T23:11:43.874392 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T23:11:43.874478 aggregate-exec.py: stop_hook_active=False
+2025-12-30T23:11:43.874587 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T23:11:43.874698 aggregate-exec.py: scanning for partial files...
+2025-12-30T23:11:43.874978 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T23:11:43.875084 aggregate-exec.py: no partial files, nothing to aggregate
+2025-12-30T23:16:51.466355 ------------------------------------------------------------
+2025-12-30T23:16:51.466520 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T23:16:51.466605 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T23:16:51.466694 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T23:16:51.466768 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T23:16:51.466847 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T23:16:51.466953 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T23:16:51.467021 aggregate-exec.py: stop_hook_active=False
+2025-12-30T23:16:51.467107 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T23:16:51.467204 aggregate-exec.py: scanning for partial files...
+2025-12-30T23:16:51.467457 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T23:16:51.467568 aggregate-exec.py: no partial files, nothing to aggregate
+2025-12-30T23:17:47.658904 ------------------------------------------------------------
+2025-12-30T23:17:47.659151 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T23:17:47.659336 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T23:17:47.659552 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T23:17:47.659704 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T23:17:47.659876 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T23:17:47.660002 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T23:17:47.660110 aggregate-exec.py: stop_hook_active=False
+2025-12-30T23:17:47.660279 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T23:17:47.660422 aggregate-exec.py: scanning for partial files...
+2025-12-30T23:17:47.660700 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T23:17:47.660845 aggregate-exec.py: no partial files, nothing to aggregate
+2025-12-30T23:18:44.403797 ------------------------------------------------------------
+2025-12-30T23:18:44.403997 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T23:18:44.404344 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T23:18:44.404477 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T23:18:44.404652 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T23:18:44.404768 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T23:18:44.404854 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T23:18:44.404960 aggregate-exec.py: stop_hook_active=False
+2025-12-30T23:18:44.405103 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T23:18:44.405200 aggregate-exec.py: scanning for partial files...
+2025-12-30T23:18:44.405473 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T23:18:44.405664 aggregate-exec.py: no partial files, nothing to aggregate
+2025-12-30T23:19:57.821000 ------------------------------------------------------------
+2025-12-30T23:19:57.821301 aggregate-exec.py: STOP HOOK TRIGGERED
+2025-12-30T23:19:57.821564 aggregate-exec.py: session_id=25806da1-bc82-4323-8599-26a88c120388
+2025-12-30T23:19:57.821831 aggregate-exec.py: cwd=/Users/bmf/code/brandon-fryslie_humanify
+2025-12-30T23:19:57.822214 aggregate-exec.py: hook_input keys=['session_id', 'transcript_path', 'cwd', 'permission_mode', 'hook_event_name', 'stop_hook_active']
+2025-12-30T23:19:57.822486 aggregate-exec.py: hook_event_name=Stop
+2025-12-30T23:19:57.822629 aggregate-exec.py: permission_mode=bypassPermissions
+2025-12-30T23:19:57.822778 aggregate-exec.py: stop_hook_active=False
+2025-12-30T23:19:57.823022 aggregate-exec.py: checking partials_dir=.agent_planning/do-command-logs/partials
+2025-12-30T23:19:57.823173 aggregate-exec.py: scanning for partial files...
+2025-12-30T23:19:57.823427 aggregate-exec.py: found 0 files matching *-PARTIAL-*.txt
+2025-12-30T23:19:57.823564 aggregate-exec.py: no partial files, nothing to aggregate

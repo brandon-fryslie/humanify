@@ -53,17 +53,93 @@ export interface TurboV2Options {
 }
 
 /**
- * Create a processor function for the given provider
- *
- * Note: This is a simplified stub for Sprint 10 CLI integration.
- * Full processor implementations (Gap 6) are deferred to later sprints.
- * For now, this delegates to existing OpenAI rename logic.
+ * Processor type determines the prompt strategy
  */
-async function createProcessor(options: TurboV2Options): Promise<ProcessorFunction> {
-  const { provider, model, apiKey, baseURL, contextSize } = options;
+type ProcessorType = "rename" | "refine" | "analyze" | "transform";
+
+/**
+ * Build prompt based on processor type
+ */
+function buildPrompt(type: ProcessorType, name: string, context: string): string {
+  switch (type) {
+    case "rename":
+      return `You are renaming a JavaScript identifier in deobfuscated code.
+
+Current name: ${name}
+Surrounding code:
+${context}
+
+ANALYZE the code to understand:
+1. What is the PURPOSE of the containing function or block?
+2. What role does this identifier play? (input, output, counter, flag, handler, etc.)
+3. What domain is this code in? (chart rendering, network requests, form handling, animation, etc.)
+
+Provide a SEMANTIC variable name that describes what this identifier represents.
+- Use camelCase
+- Be specific: "userEmailList" not just "list"
+- Describe purpose: "retryAttemptCount" not just "count"
+- Consider the domain context
+
+Respond with JSON: { "name": "<new_name>", "confidence": <0-1> }`;
+
+    case "refine":
+      return `You are reviewing a JavaScript identifier that was renamed in an earlier pass.
+
+Current name: ${name}
+Surrounding code (with other renamed identifiers now visible):
+${context}
+
+ANALYSIS INSTRUCTIONS:
+1. What is the PURPOSE of the function or block containing this identifier?
+2. What does this identifier REPRESENT in that context?
+3. How is it USED - is it input data, output, a counter, a flag, a handler, etc.?
+
+NAMING DECISION:
+- If the name clearly describes its purpose and role → keep it
+- If the name is vague, generic, or doesn't capture the semantic meaning → improve it
+- Be AGGRESSIVE about improving unclear names like "data", "value", "item", "result", "temp", "obj", "handler", "callback", "config"
+- Name should describe WHAT IT IS, not just WHAT TYPE it is (e.g., "userList" not "array", "retryCount" not "counter")
+- Consider the domain: is this a chart, animation, network request, form validation, etc.?
+
+Respond with JSON: { "name": "<name>", "confidence": <0-1>, "action": "keep" | "improve" }`;
+
+    case "analyze":
+      // Analyze doesn't rename, just returns the same name with metadata
+      return `Analyze this JavaScript identifier for importance.
+
+Name: ${name}
+Context:
+${context}
+
+Respond with JSON: { "name": "${name}", "confidence": 1, "importance": "high" | "medium" | "low" }`;
+
+    case "transform":
+      // Transform applies rules, no LLM needed - just return unchanged
+      return "";
+
+    default:
+      return buildPrompt("rename", name, context);
+  }
+}
+
+/**
+ * Create a processor function for the given provider and type
+ */
+async function createProcessor(
+  options: TurboV2Options,
+  processorType: ProcessorType = "rename"
+): Promise<ProcessorFunction> {
+  const { provider, model, apiKey, baseURL } = options;
+
+  // Transform doesn't need LLM
+  if (processorType === "transform") {
+    return async (name: string, _context: string) => ({
+      newName: name,
+      confidence: 1,
+    });
+  }
 
   if (provider === "openai") {
-    // Import OpenAI SDK
     const { default: OpenAI } = await import("openai");
 
     const openai = new OpenAI({
@@ -73,29 +149,18 @@ async function createProcessor(options: TurboV2Options): Promise<ProcessorFuncti
 
     const modelName = model ?? "gpt-4o-mini";
 
-    // Return processor function
     return async (name: string, context: string): Promise<{ newName: string; confidence: number }> => {
       try {
-        // Build prompt
-        const prompt = `You are renaming a JavaScript identifier in deobfuscated code.
+        const prompt = buildPrompt(processorType, name, context);
 
-Current name: ${name}
-Surrounding code:
-${context}
-
-Provide a semantic variable name that describes what this represents.
-Respond with JSON: { "name": "<new_name>", "confidence": <0-1> }`;
-
-        // Call OpenAI
         const response = await openai.chat.completions.create({
           model: modelName,
           messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
+          temperature: processorType === "refine" ? 0.4 : 0.3, // Slightly higher temp for refine
           max_tokens: 100,
           response_format: { type: "json_object" },
         });
 
-        // Parse response
         const content = response.choices[0]?.message?.content;
         if (!content) {
           throw new Error("Empty response from OpenAI");
@@ -103,12 +168,11 @@ Respond with JSON: { "name": "<new_name>", "confidence": <0-1> }`;
 
         const parsed = JSON.parse(content);
         return {
-          newName: parsed.name || name, // Fall back to original if missing
+          newName: parsed.name || name,
           confidence: parsed.confidence ?? 0.5,
         };
       } catch (error: any) {
-        console.warn(`Failed to rename ${name}: ${error.message}`);
-        // Return unchanged on error
+        console.warn(`Failed to ${processorType} ${name}: ${error.message}`);
         return {
           newName: name,
           confidence: 0,
@@ -122,6 +186,23 @@ Respond with JSON: { "name": "<new_name>", "confidence": <0-1> }`;
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }
+}
+
+/**
+ * Create processors for each pass type in the pipeline
+ */
+async function createProcessors(
+  options: TurboV2Options,
+  passConfigs: PassConfig[]
+): Promise<Map<ProcessorType, ProcessorFunction>> {
+  const processors = new Map<ProcessorType, ProcessorFunction>();
+  const neededTypes = new Set(passConfigs.map((p) => p.processor as ProcessorType));
+
+  for (const type of neededTypes) {
+    processors.set(type, await createProcessor(options, type));
+  }
+
+  return processors;
 }
 
 /**
@@ -195,8 +276,8 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
     checkpointDir,
   };
 
-  // Create processor function
-  const processor = await createProcessor(options);
+  // Create processor functions for each pass type in the pipeline
+  const processors = await createProcessors(options, passConfigs);
 
   // Create multi-pass orchestrator
   const multiPass = new MultiPass(vault, ledger, {
@@ -217,13 +298,14 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
       console.log(`\n[turbo-v2] Starting job: ${jobId}`);
       console.log(`  Input: ${options.inputPath}`);
       console.log(`  Passes: ${passConfigs.length}`);
+      console.log(`  Pipeline: ${passConfigs.map(p => p.processor).join(" → ")}`);
       console.log(`  Provider: ${options.provider} (${options.model ?? "default"})`);
       console.log();
     }
 
     // Execute pipeline
     renderer.start();
-    const result = await multiPass.execute(processor);
+    const result = await multiPass.execute(processors);
     renderer.complete();
 
     // Display summary

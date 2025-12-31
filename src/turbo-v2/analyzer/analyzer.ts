@@ -310,4 +310,28 @@ export class Analyzer {
   private hashCode(code: string): string {
     return createHash("sha256").update(code).digest("hex");
   }
+
+  /**
+   * Extract context for a specific location with custom window size
+   * Used for adaptive context sizing on low-confidence identifiers
+   */
+  static extractContextAtLocation(
+    code: string,
+    line: number,
+    column: number,
+    windowSize: number
+  ): string {
+    const lines = code.split("\n");
+    let offset = 0;
+    for (let i = 0; i < line - 1; i++) {
+      offset += lines[i].length + 1; // +1 for newline
+    }
+    offset += column;
+
+    const halfWindow = Math.floor(windowSize / 2);
+    const start = Math.max(0, offset - halfWindow);
+    const end = Math.min(code.length, offset + halfWindow);
+
+    return code.substring(start, end);
+  }
 }

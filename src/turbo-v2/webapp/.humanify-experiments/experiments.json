@@ -1,0 +1,17 @@
+{
+  "experiments": {
+    "exp-test-mjts90uj-0x8v": {
+      "id": "exp-test-mjts90uj-0x8v",
+      "name": "test",
+      "preset": "fast",
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "pending",
+      "createdAt": "2025-12-31T08:57:23.851Z"
+    }
+  },
+  "results": {
+    "exp-test-mjts90uj-0x8v": []
+  }
+}

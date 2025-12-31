@@ -4,7 +4,7 @@
   "originalIdentifierCount": 60,
   "unminifiedIdentifierCount": 80,
   "score": 75,
-  "explanation": "The deobfuscated names generally capture the semantic meaning of the original identifiers, with many names being close synonyms or reasonable interpretations. For example, 'allowDots' and 'charset' are directly matched, and 'arrayFormatFunction' is a reasonable interpretation of 'arrayFormat'. However, there are some generic names like 'element', 'event', and 'inputData' that do not clearly convey the specific role of the original identifiers such as 'arr' or 'obj'. Additionally, some names like 'sideChannelCache' and 'sideChannelInstance' are slightly more generic compared to 'getSideChannel'. Overall, the AI demonstrates a good semantic understanding with minor misses.",
-  "tokensUsed": 883,
-  "cost": 0.0044150000000000005
+  "explanation": "The deobfuscated names generally capture the semantic meaning of the original identifiers, with many names being close synonyms or reasonable interpretations (e.g., 'arrayFormatFunction' for 'arrayFormat', 'encoderFunction' for 'encoder'). However, there are several instances where the names are more generic or slightly off, such as 'currentFilterableKey' for 'key', 'elementToAdd' for 'push', and 'processedResults' for 'stringify'. These discrepancies indicate a good but not perfect semantic understanding, warranting a score in the 70-89 range.",
+  "tokensUsed": 864,
+  "cost": 0.00432
 }

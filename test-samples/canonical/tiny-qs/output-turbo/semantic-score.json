@@ -3,8 +3,8 @@
   "unminifiedFile": "test-samples/canonical/tiny-qs/output-turbo/deobfuscated.js",
   "originalIdentifierCount": 60,
   "unminifiedIdentifierCount": 80,
-  "score": 65,
-  "explanation": "The deobfuscated names show a moderate understanding of the original identifiers. Some names like 'allowDots', 'charset', and 'formats' are correctly captured, indicating a grasp of the semantic meaning. However, many names are generic or incorrect, such as '__currentObjectValue', '_event', and 'inputValue', which do not clearly convey the specific roles or actions of the original identifiers like 'adjustedPrefix', 'allowEmptyArrays', or 'encodeDotInKeys'. The use of generic terms like 'currentValue' and 'currentItem' further detracts from the semantic clarity. Overall, while there is some alignment, the deobfuscation lacks precision in capturing the specific functions and roles of the original identifiers.",
-  "tokensUsed": 881,
-  "cost": 0.004405
+  "score": 75,
+  "explanation": "The deobfuscated names demonstrate a good semantic understanding of the original identifiers, with many names capturing the intended meaning. However, there are several instances where the names are either too generic or slightly off in terms of specificity. For example, '__currentObjectValue' and '_currentObjectValue' are used multiple times, which could lead to confusion. Some names like 'cyclicCheckCounter' and 'isCyclicValue' are more descriptive than necessary, while others like 'event' and 'handleEvent' are too generic. Overall, the AI-generated names reflect a reasonable grasp of the code's semantics, but there are areas for improvement in specificity and consistency.",
+  "tokensUsed": 868,
+  "cost": 0.00434
 }

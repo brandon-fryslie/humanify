@@ -1,0 +1,10 @@
+{
+  "originalFile": "test-samples/canonical/small-axios/original.js",
+  "unminifiedFile": "test-samples/canonical/small-axios/output-turbo-v2/output.js",
+  "originalIdentifierCount": 164,
+  "unminifiedIdentifierCount": 126,
+  "score": 65,
+  "explanation": "The deobfuscated names show a moderate understanding of the semantic meaning of the code. Some names are well-matched, such as 'ArrayBuffer', 'Symbol', and 'WorkerGlobalScope'. However, there are several instances where the names are either too generic or incorrect, such as 'BlobTypeChecker' for 'AxiosURLSearchParams', 'CharacterCategories' for 'CancelToken', and 'DIGIT_CHARACTERS' for '_arrayWithHoles'. Additionally, some names like 'HttpRequestError' and 'HttpStatus' are not present in the original identifiers, indicating potential misinterpretations. Overall, while there is some alignment, there are enough discrepancies to suggest only a moderate level of semantic understanding.",
+  "tokensUsed": 1449,
+  "cost": 0.007245000000000001
+}

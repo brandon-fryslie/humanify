@@ -1,0 +1,6 @@
+Agent: project-evaluator | 2025-12-31-001830
+Scope: turbo-v2-experiments/infrastructure
+Completion: 15% | Gaps: 6 critical | Test Quality: N/A
+Reused: 0 findings | Fresh: All findings new
+Cache updated: No eval-cache updates (scope too narrow)
+Ambiguities: 6 found | Workflow: PAUSE

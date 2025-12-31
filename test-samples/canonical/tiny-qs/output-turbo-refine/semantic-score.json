@@ -4,7 +4,7 @@
   "originalIdentifierCount": 60,
   "unminifiedIdentifierCount": 80,
   "score": 75,
-  "explanation": "The deobfuscated names generally capture the semantic meaning of the original identifiers, with many names being close synonyms or descriptive of their function. For example, 'adjustedPrefix' is similar to 'formattedKey', and 'allowDots' is similar to 'isDotsAllowed'. However, there are some misses, such as '_____inputValue' for 'value', which is overly generic, and 'eventObject' for 'obj', which could be misleading. Overall, the AI demonstrates a good understanding of the code's semantics, but there are several instances where the names could be more precise or better aligned with the original intent.",
-  "tokensUsed": 921,
-  "cost": 0.004605000000000001
+  "explanation": "The AI-generated names generally capture the semantic meaning of the original identifiers, with many names being clear and descriptive. For example, 'arrayFormatHandlers' and 'arrayFormatPreference' are good matches for 'arrayFormat' and 'arrayPrefixGenerators'. However, there are some misses, such as '_____inputValue' and 'primitiveInputValue' which are less clear compared to 'value' and 'valueOrArray'. Additionally, some names like 'cyclicReferenceTrackerMap' and 'sideChannelInstance' are more complex than necessary, potentially obscuring their purpose. Overall, the deobfuscator demonstrates a good semantic understanding with minor inaccuracies.",
+  "tokensUsed": 926,
+  "cost": 0.0046300000000000004
 }

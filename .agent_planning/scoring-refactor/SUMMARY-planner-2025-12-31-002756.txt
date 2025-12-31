@@ -1,0 +1,4 @@
+Agent: status-planner | 2025-12-31-002756
+Topic: scoring-refactor
+Files: PLAN-2025-12-31-002756.md, DOD-2025-12-31-002756.md
+Items: 2 (P0: 1, P1: 1, P2: 1 deferred)
