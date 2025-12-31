@@ -26,15 +26,21 @@ score_baseline() {
   local sample=$1
   local mode=$2
   local original="$SAMPLES_DIR/$sample/original.js"
-  local output="$SAMPLES_DIR/$sample/output-$mode/deobfuscated.js"
-  local score_file="$SAMPLES_DIR/$sample/output-$mode/semantic-score.json"
+  local output_dir="$SAMPLES_DIR/$sample/output-$mode"
+  local score_file="$output_dir/semantic-score.json"
+
+  # Check for output.js first (preferred), then deobfuscated.js (legacy)
+  local output="$output_dir/output.js"
+  if [ ! -f "$output" ]; then
+    output="$output_dir/deobfuscated.js"
+  fi
 
   echo "---------------------------------------------------"
   echo "Scoring: $sample / $mode"
   echo "---------------------------------------------------"
 
   if [ ! -f "$output" ]; then
-    echo "ERROR: Output file not found: $output"
+    echo "ERROR: Output file not found in: $output_dir"
     echo "Skipping..."
     return 1
   fi

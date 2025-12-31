@@ -25,9 +25,15 @@ score_baseline() {
   local sample=$1
   local mode=$2
   local original="test-samples/canonical/$sample/original.js"
-  local output="test-samples/canonical/$sample/output-$mode/deobfuscated.js"
-  local score_file="test-samples/canonical/$sample/output-$mode/semantic-score.json"
+  local output_dir="test-samples/canonical/$sample/output-$mode"
+  local score_file="$output_dir/semantic-score.json"
   local log_file="/tmp/score-output-$sample-$mode.txt"
+
+  # Check for output.js first (preferred), then deobfuscated.js (legacy)
+  local output="$output_dir/output.js"
+  if [ ! -f "$output" ]; then
+    output="$output_dir/deobfuscated.js"
+  fi
 
   if [ ! -f "$output" ]; then
     echo "[SKIP] $sample/$mode - output file not found"
