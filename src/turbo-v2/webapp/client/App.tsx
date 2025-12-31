@@ -1,95 +1,168 @@
 import React, { useEffect, useState } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Container, Typography, Box, Button } from "@mui/material";
+import {
+  CssBaseline,
+  Container,
+  Typography,
+  Box,
+  AppBar,
+  Toolbar,
+  Button,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { ExperimentList } from "./components/ExperimentList";
+import { ExperimentForm } from "./components/ExperimentForm";
+import { CompareView } from "./components/CompareView";
+import { api } from "./api";
+import type { ExperimentConfig } from "../shared/types";
 
 const theme = createTheme({
   palette: {
     mode: "light",
+    primary: {
+      main: "#1976d2",
+    },
   },
 });
 
 function App() {
-  const [health, setHealth] = useState<any>(null);
-  const [experiments, setExperiments] = useState<any[]>([]);
+  const [experiments, setExperiments] = useState<ExperimentConfig[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Load experiments
+  const loadExperiments = async () => {
+    try {
+      const data = await api.listExperiments();
+      setExperiments(data);
+    } catch (err: any) {
+      setError(`Failed to load experiments: ${err.message}`);
+    }
+  };
 
   useEffect(() => {
-    // Test API connection
-    fetch("/api/health")
-      .then((res) => res.json())
-      .then((data) => setHealth(data))
-      .catch((err) => console.error("Health check failed:", err));
+    loadExperiments();
+  }, [refreshKey]);
 
-    // Load experiments
-    fetch("/api/experiments")
-      .then((res) => res.json())
-      .then((data) => setExperiments(data.experiments || []))
-      .catch((err) => console.error("Failed to load experiments:", err));
-  }, []);
-
-  const createTestExperiment = async () => {
+  const handleCreate = async (name: string, preset: string, samples: string[]) => {
     try {
-      const response = await fetch("/api/experiments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "Test Experiment",
-          preset: "fast",
-          samples: ["tiny-qs"],
-        }),
+      await api.createExperiment({
+        name,
+        preset: preset as any,
+        samples: samples as any,
       });
-
-      const data = await response.json();
-      console.log("Created experiment:", data);
-
-      // Reload experiments
-      const listResponse = await fetch("/api/experiments");
-      const listData = await listResponse.json();
-      setExperiments(listData.experiments || []);
-    } catch (error) {
-      console.error("Failed to create experiment:", error);
+      setFormOpen(false);
+      setRefreshKey((k) => k + 1);
+    } catch (err: any) {
+      setError(`Failed to create experiment: ${err.message}`);
     }
+  };
+
+  const handleRun = async (id: string) => {
+    try {
+      await api.runExperiment(id);
+      // Start polling for status
+      const pollInterval = setInterval(async () => {
+        const status = await api.getStatus(id);
+        if (status.status !== "running") {
+          clearInterval(pollInterval);
+          setRefreshKey((k) => k + 1);
+        }
+      }, 2000);
+    } catch (err: any) {
+      setError(`Failed to run experiment: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this experiment?")) {
+      return;
+    }
+
+    try {
+      await api.deleteExperiment(id);
+      setRefreshKey((k) => k + 1);
+    } catch (err: any) {
+      setError(`Failed to delete experiment: ${err.message}`);
+    }
+  };
+
+  const handleCompare = () => {
+    if (selectedIds.length < 2) {
+      setError("Select at least 2 experiments to compare");
+      return;
+    }
+    setCompareOpen(true);
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="lg">
-        <Box sx={{ my: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
+
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Turbo-V2 Experiment Dashboard
           </Typography>
+          <Button color="inherit" onClick={() => setFormOpen(true)}>
+            + New Experiment
+          </Button>
+        </Toolbar>
+      </AppBar>
 
-          <Typography variant="h5" sx={{ mt: 3 }}>
-            Sprint 1: Backend API Test
-          </Typography>
-
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1">
-              <strong>Server Status:</strong>{" "}
-              {health ? `OK (${health.timestamp})` : "Loading..."}
-            </Typography>
-
-            <Typography variant="body1" sx={{ mt: 1 }}>
-              <strong>Experiments:</strong> {experiments.length}
-            </Typography>
-
-            <Button
-              variant="contained"
-              onClick={createTestExperiment}
-              sx={{ mt: 2 }}
-            >
-              Create Test Experiment
-            </Button>
-
-            {experiments.length > 0 && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="h6">Experiment List:</Typography>
-                <pre>{JSON.stringify(experiments, null, 2)}</pre>
-              </Box>
-            )}
-          </Box>
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => setRefreshKey((k) => k + 1)}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            disabled={selectedIds.length < 2}
+            onClick={handleCompare}
+          >
+            Compare Selected ({selectedIds.length})
+          </Button>
         </Box>
+
+        <ExperimentList
+          experiments={experiments}
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          onRun={handleRun}
+          onDelete={handleDelete}
+          onRefresh={() => setRefreshKey((k) => k + 1)}
+        />
       </Container>
+
+      <ExperimentForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onCreate={handleCreate}
+      />
+
+      <CompareView
+        open={compareOpen}
+        experimentIds={selectedIds}
+        onClose={() => setCompareOpen(false)}
+      />
+
+      <Snackbar
+        open={error !== null}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

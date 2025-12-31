@@ -273,3 +273,7 @@ score-medium-chart-turbo-v2:
 # Score all samples in all modes (with aggregated summary)
 score-all:
     ./scripts/run-semantic-scoring-all.sh
+
+# Start the Turbo-V2 experiment dashboard webapp
+experiment-dashboard:
+    cd src/turbo-v2/webapp && npm run dev
