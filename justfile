@@ -116,6 +116,12 @@ run-seq sample:
 run-turbo sample concurrency="10":
     ./scripts/run-turbo.sh {{sample}} {{concurrency}}
 
+# Run a sample in turbo-v2 mode (new multi-pass parallel)
+# Usage: just run-turbo-v2 <sample> [preset]
+# Example: just run-turbo-v2 tiny-qs fast
+run-turbo-v2 sample preset="fast":
+    ./scripts/run-turbo-v2.sh {{sample}} {{preset}}
+
 # Run tiny-qs sample (sequential)
 run-tiny-qs-seq:
     ./scripts/run-sequential.sh tiny-qs
@@ -123,6 +129,10 @@ run-tiny-qs-seq:
 # Run tiny-qs sample (turbo)
 run-tiny-qs-turbo concurrency="10":
     ./scripts/run-turbo.sh tiny-qs {{concurrency}}
+
+# Run tiny-qs sample (turbo-v2)
+run-tiny-qs-turbo-v2 preset="fast":
+    ./scripts/run-turbo-v2.sh tiny-qs {{preset}}
 
 # Run small-axios sample (sequential)
 run-small-axios-seq:
@@ -132,6 +142,10 @@ run-small-axios-seq:
 run-small-axios-turbo concurrency="10":
     ./scripts/run-turbo.sh small-axios {{concurrency}}
 
+# Run small-axios sample (turbo-v2)
+run-small-axios-turbo-v2 preset="fast":
+    ./scripts/run-turbo-v2.sh small-axios {{preset}}
+
 # Run medium-chart sample (sequential)
 run-medium-chart-seq:
     ./scripts/run-sequential.sh medium-chart
@@ -139,6 +153,10 @@ run-medium-chart-seq:
 # Run medium-chart sample (turbo)
 run-medium-chart-turbo concurrency="15":
     ./scripts/run-turbo.sh medium-chart {{concurrency}}
+
+# Run medium-chart sample (turbo-v2)
+run-medium-chart-turbo-v2 preset="fast":
+    ./scripts/run-turbo-v2.sh medium-chart {{preset}}
 
 # Run all samples in sequential mode
 run-all-seq:
@@ -153,6 +171,13 @@ run-all-turbo:
     ./scripts/run-turbo.sh tiny-qs 10
     ./scripts/run-turbo.sh small-axios 10
     ./scripts/run-turbo.sh medium-chart 15
+
+# Run all samples in turbo-v2 mode
+run-all-turbo-v2 preset="fast":
+    @echo "Running all samples in turbo-v2 mode (preset: {{preset}})..."
+    ./scripts/run-turbo-v2.sh tiny-qs {{preset}}
+    ./scripts/run-turbo-v2.sh small-axios {{preset}}
+    ./scripts/run-turbo-v2.sh medium-chart {{preset}}
 
 # Run a sample in turbo mode WITH refinement (2nd pass)
 # Usage: just run-turbo-refine <sample> [max-concurrent]
@@ -231,18 +256,24 @@ score-turbo-refine sample:
       "test-samples/canonical/{{sample}}/original.js" \
       "test-samples/canonical/{{sample}}/output-turbo-refine/deobfuscated.js"
 
-# Score all samples in both modes
+# Score turbo-v2 output
+score-turbo-v2 sample:
+    npx tsx scripts/score-semantic.ts \
+      "test-samples/canonical/{{sample}}/original.js" \
+      "test-samples/canonical/{{sample}}/output-turbo-v2/deobfuscated.js"
+
+# Score tiny-qs sample (turbo-v2 mode)
+score-tiny-qs-turbo-v2:
+    just score-turbo-v2 tiny-qs
+
+# Score small-axios sample (turbo-v2 mode)
+score-small-axios-turbo-v2:
+    just score-turbo-v2 small-axios
+
+# Score medium-chart sample (turbo-v2 mode)
+score-medium-chart-turbo-v2:
+    just score-turbo-v2 medium-chart
+
+# Score all samples in all modes (with aggregated summary)
 score-all:
-    @echo "Scoring all canonical samples..."
-    @echo ""
-    @echo "=== tiny-qs (sequential) ===" && ./scripts/score-sample.sh tiny-qs sequential || true
-    @echo ""
-    @echo "=== tiny-qs (turbo) ===" && ./scripts/score-sample.sh tiny-qs turbo || true
-    @echo ""
-    @echo "=== small-axios (sequential) ===" && ./scripts/score-sample.sh small-axios sequential || true
-    @echo ""
-    @echo "=== small-axios (turbo) ===" && ./scripts/score-sample.sh small-axios turbo || true
-    @echo ""
-    @echo "=== medium-chart (sequential) ===" && ./scripts/score-sample.sh medium-chart sequential || true
-    @echo ""
-    @echo "=== medium-chart (turbo) ===" && ./scripts/score-sample.sh medium-chart turbo || true
+    ./scripts/run-semantic-scoring-all.sh
