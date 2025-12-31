@@ -174,7 +174,11 @@ export async function executeTurboV2(options: TurboV2Options): Promise<void> {
 
   // Initialize other components
   const ledger = new Ledger(join(jobDir, "events.jsonl"));
-  const metrics = new MetricsCollector();
+  const metrics = new MetricsCollector({
+    outputDir: join(jobDir, "logs"),
+    quiet: options.quiet,
+    verbose: options.verbose,
+  });
   const renderer = new ProgressRenderer({
     quiet: options.quiet ?? false,
     noColor: options.noColor ?? false,

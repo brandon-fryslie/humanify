@@ -60,22 +60,65 @@ export interface ProgressRendererConfig {
   width?: number; // Terminal width (default: 80)
   showColor?: boolean; // Enable color output (default: true)
   updateIntervalMs?: number; // Min time between updates (default: 100ms)
+  quiet?: boolean; // Disable all output (default: false)
+  noColor?: boolean; // Disable color (default: false)
 }
 
 /**
  * ProgressRenderer: Display fixed-layout progress
  */
 export class ProgressRenderer {
-  private config: Required<ProgressRendererConfig>;
+  private config: {
+    width: number;
+    showColor: boolean;
+    updateIntervalMs: number;
+    quiet: boolean;
+  };
   private lastUpdateTime: number = 0;
   private lineCount: number = 0;
+  private currentState: ProgressState | null = null;
 
   constructor(config: ProgressRendererConfig = {}) {
     this.config = {
       width: config.width ?? 80,
-      showColor: config.showColor ?? true,
+      showColor: config.showColor ?? (config.noColor ? false : true),
       updateIntervalMs: config.updateIntervalMs ?? 100,
+      quiet: config.quiet ?? false,
     };
+  }
+
+  /**
+   * Start the progress display (no-op, for compatibility)
+   */
+  start(): void {
+    // Nothing to do on start
+  }
+
+  /**
+   * Update progress for a pass
+   */
+  updatePass(passNumber: number, processed: number, total: number): void {
+    if (this.config.quiet) return;
+
+    // Simple progress update - could be enhanced to use full render()
+    const percent = total > 0 ? Math.floor((processed / total) * 100) : 0;
+    process.stdout.write(`\r[pass ${passNumber}] ${processed}/${total} (${percent}%)`);
+  }
+
+  /**
+   * Mark progress as complete
+   */
+  complete(): void {
+    if (!this.config.quiet) {
+      console.log(""); // New line after progress updates
+    }
+  }
+
+  /**
+   * Display an error message
+   */
+  error(message: string): void {
+    console.error(this.color(`[turbo-v2] Error: ${message}`, COLORS.RED));
   }
 
   /**

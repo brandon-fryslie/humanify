@@ -123,58 +123,127 @@ export class Transformer {
       nameToRenames.get(originalName)!.push({ id, newName });
     }
 
-    // Traverse AST and apply renames
+    // Pre-compute final names per scope to detect inter-rename collisions
+    // Then apply all renames in a second pass
+    const scopeRenames = new Map<any, Array<{ originalName: string; finalName: string; id: string }>>();
+
+    // Track global/module-level names that have been used
+    // This prevents two different module-level bindings from getting the same name
+    const globalUsedNames = new Set<string>();
+
+    // Get the program scope for reference
+    let programScope: any = null;
+    traverse(ast, {
+      Program(path) {
+        programScope = path.scope;
+        // Collect all existing module-level bindings that won't be renamed
+        for (const [name] of Object.entries(path.scope.bindings)) {
+          if (!nameToRenames.has(name)) {
+            globalUsedNames.add(name);
+          }
+        }
+        path.stop();
+      },
+    });
+
+    // Track which IDs we've already processed (to avoid duplicates from nested scopes)
+    const processedIds = new Set<string>();
+
+    // First pass: compute final names and detect collisions
+    // Only process each binding once (at its "home" scope, typically Program for module-level)
     traverse(ast, {
       Scope(path) {
         const scope = path.scope;
-
-        // Get all bindings in this scope
         const bindings = scope.bindings;
 
+        // Track names we're going to use in this scope
+        const usedNames = new Set<string>();
+
+        // Also track existing bindings that WON'T be renamed
+        for (const [name] of Object.entries(bindings)) {
+          if (!nameToRenames.has(name)) {
+            usedNames.add(name);
+          }
+        }
+
+        const renames: Array<{ originalName: string; finalName: string; id: string }> = [];
+
         for (const [name, binding] of Object.entries(bindings)) {
-          // Check if this binding should be renamed
-          const renames = nameToRenames.get(name);
-          if (!renames || renames.length === 0) {
+          const renameList = nameToRenames.get(name);
+          if (!renameList || renameList.length === 0) {
             continue;
           }
 
-          // For now, use first rename (in single-pass, should only be one)
-          // TODO: In multi-pass, may need to match by location
-          const { id, newName } = renames[0];
+          const { id, newName } = renameList[0];
 
-          try {
-            // Attempt rename
-            let finalName = newName;
-
-            // Check for collision
-            if (scope.hasBinding(newName) && scope.getBinding(newName) !== binding) {
-              // Collision! Prefix with underscore
-              let attempt = 1;
-              while (scope.hasBinding(`_${finalName}`)) {
-                finalName = `_`.repeat(attempt) + newName;
-                attempt++;
-                if (attempt > 10) {
-                  // Safety: avoid infinite loop
-                  console.warn(`[transformer] Too many collisions for ${name} -> ${newName}, skipping`);
-                  skipped.add(id);
-                  continue;
-                }
-              }
-              collisions.add(id);
-            }
-
-            // Apply rename via Babel's scope.rename()
-            // This safely renames all references
-            scope.rename(name, finalName);
-
-            applied.add(id);
-          } catch (error) {
-            console.warn(`[transformer] Failed to rename ${name} -> ${newName}:`, error);
-            skipped.add(id);
+          // Skip if we've already processed this ID
+          if (processedIds.has(id)) {
+            continue;
           }
+
+          // Check if this binding is at the program (module) level
+          // This handles classes, functions, variables declared at the top level
+          const isGlobalBinding = programScope && programScope.bindings[name] === binding;
+
+          // Compute final name, avoiding collisions
+          let finalName = newName;
+
+          // Check against:
+          // 1. Names used in this scope
+          // 2. Existing bindings in scope hierarchy
+          // 3. Global names (for module-level bindings)
+          const hasLocalCollision = usedNames.has(finalName) || scope.hasBinding(finalName);
+          const hasGlobalCollision = isGlobalBinding && globalUsedNames.has(finalName);
+
+          if (hasLocalCollision || hasGlobalCollision) {
+            let attempt = 1;
+            let candidateName = `_${finalName}`;
+            while (
+              usedNames.has(candidateName) ||
+              scope.hasBinding(candidateName) ||
+              (isGlobalBinding && globalUsedNames.has(candidateName))
+            ) {
+              attempt++;
+              candidateName = `_`.repeat(attempt) + newName;
+              if (attempt > 10) {
+                console.warn(`[transformer] Too many collisions for ${name} -> ${newName}, skipping`);
+                skipped.add(id);
+                continue;
+              }
+            }
+            finalName = candidateName;
+            collisions.add(id);
+          }
+
+          // Mark as processed
+          processedIds.add(id);
+
+          // Reserve this name
+          usedNames.add(finalName);
+          if (isGlobalBinding) {
+            globalUsedNames.add(finalName);
+          }
+          renames.push({ originalName: name, finalName, id });
+        }
+
+        if (renames.length > 0) {
+          scopeRenames.set(scope, renames);
         }
       },
     });
+
+    // Second pass: apply the computed renames
+    for (const [scope, renames] of scopeRenames) {
+      for (const { originalName, finalName, id } of renames) {
+        try {
+          scope.rename(originalName, finalName);
+          applied.add(id);
+        } catch (error) {
+          console.warn(`[transformer] Failed to rename ${originalName} -> ${finalName}:`, error);
+          skipped.add(id);
+        }
+      }
+    }
 
     // Generate code from transformed AST
     const output = generate(ast, {
