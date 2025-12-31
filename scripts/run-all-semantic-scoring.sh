@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run semantic scoring on all baselines
 # Sprint 1 Deliverable D1.1
 
@@ -17,6 +17,9 @@ echo "==================================================="
 echo "Sprint 1 D1.1: Semantic Scoring on All Baselines"
 echo "==================================================="
 echo ""
+
+# Collect scores for summary
+declare -A SCORES
 
 # Function to run scoring and save results
 score_baseline() {
@@ -47,6 +50,9 @@ score_baseline() {
   echo "Score: $score/100"
   echo "Saved to: $score_file"
   echo ""
+
+  # Store score for summary
+  SCORES["$sample-$mode"]=$score
 }
 
 # Run scoring for all samples and modes
@@ -57,7 +63,27 @@ for sample in tiny-qs small-axios medium-chart; do
 done
 
 echo "==================================================="
-echo "Semantic Scoring Complete"
+echo "SCORE SUMMARY"
+echo "==================================================="
+echo ""
+printf "%-20s %12s %12s %10s\n" "Sample" "Sequential" "Turbo" "Diff"
+printf "%-20s %12s %12s %10s\n" "------" "----------" "-----" "----"
+for sample in tiny-qs small-axios medium-chart; do
+  seq_score=${SCORES["$sample-sequential"]:-"N/A"}
+  turbo_score=${SCORES["$sample-turbo"]:-"N/A"}
+  if [[ "$seq_score" != "N/A" && "$turbo_score" != "N/A" ]]; then
+    diff=$((turbo_score - seq_score))
+    if [ $diff -ge 0 ]; then
+      diff_str="+$diff"
+    else
+      diff_str="$diff"
+    fi
+  else
+    diff_str="N/A"
+  fi
+  printf "%-20s %12s %12s %10s\n" "$sample" "$seq_score" "$turbo_score" "$diff_str"
+done
+echo ""
 echo "==================================================="
 echo ""
 echo "Results saved to:"

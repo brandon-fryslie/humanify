@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Score a deobfuscated sample against the original using semantic LLM scoring
 # Usage: ./scripts/score-sample.sh <sample-name> <mode>
 # Example: ./scripts/score-sample.sh tiny-qs sequential

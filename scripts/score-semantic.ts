@@ -22,8 +22,8 @@ const traverse = (_traverse as any).default || _traverse;
 interface ScoringResult {
   originalFile: string;
   unminifiedFile: string;
-  originalIdentifiers: string[];
-  unminifiedIdentifiers: string[];
+  originalIdentifierCount: number;
+  unminifiedIdentifierCount: number;
   score: number;
   explanation: string;
   tokensUsed: number;
@@ -175,12 +175,12 @@ async function main() {
   console.log(`\nTokens used: ${tokensUsed}`);
   console.log(`Estimated cost: $${cost.toFixed(4)}`);
 
-  // JSON output for programmatic use
-  const result: ScoringResult = {
+  // JSON output for programmatic use (without identifier lists - they're too verbose)
+  const result = {
     originalFile: originalPath,
     unminifiedFile: unminifiedPath,
-    originalIdentifiers: sampledOriginal,
-    unminifiedIdentifiers: sampledUnminified,
+    originalIdentifierCount: sampledOriginal.length,
+    unminifiedIdentifierCount: sampledUnminified.length,
     score,
     explanation,
     tokensUsed,

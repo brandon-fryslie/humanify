@@ -1,0 +1,10 @@
+{
+  "originalFile": "test-samples/canonical/small-axios/original.js",
+  "unminifiedFile": "test-samples/canonical/small-axios/output-turbo-refine/deobfuscated.js",
+  "originalIdentifierCount": 164,
+  "unminifiedIdentifierCount": 176,
+  "score": 65,
+  "explanation": "The deobfuscated names show a moderate understanding of the semantic meaning of the code. Some names are well-matched, such as 'ArrayBuffer', 'Symbol', and 'globalThis', which align with the original identifiers. However, many names are generic or incorrect, such as '____eventData', '___inputObject', and 'inputPayload', which do not capture the specific meaning of the original identifiers like 'AxiosError', 'InterceptorManager', or 'CancelToken'. There are also instances where the deobfuscated names are overly verbose or lack precision, such as 'httpRequestAdapterCount' instead of 'adapters'. Overall, while there is some semantic alignment, there are significant areas where the names are too generic or fail to capture the specific functionality or role of the original identifiers.",
+  "tokensUsed": 1655,
+  "cost": 0.008275000000000001
+}
