@@ -18,3 +18,6 @@ bd.db
 !*.jsonl
 !metadata.json
 !config.json
+
+# Ignore beads compaction files (local only)
+beads.base.*
