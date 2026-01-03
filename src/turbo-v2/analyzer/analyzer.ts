@@ -16,6 +16,8 @@ import { parseAsync } from "@babel/core";
 import * as babelTraverse from "@babel/traverse";
 import { Node, Identifier, Binding } from "@babel/types";
 import { createHash } from "crypto";
+// @ts-ignore - source-map-js is not fully typed
+import sourceMapJs from "source-map-js";
 
 // Handle Babel's CommonJS/ESM export quirks
 const traverse: typeof babelTraverse.default.default = (
@@ -80,8 +82,11 @@ export class Analyzer {
   /**
    * Analyze JavaScript/TypeScript code
    * Returns structured analysis with all identifiers
+   * 
+   * @param code The source code to analyze
+   * @param sourceMap Optional source map to map locations back to original source (for stable IDs)
    */
-  async analyze(code: string): Promise<AnalysisResult> {
+  async analyze(code: string, sourceMap?: any): Promise<AnalysisResult> {
     // Parse code to AST
     const ast = await parseAsync(code, {
       sourceType: "unambiguous",
@@ -89,6 +94,16 @@ export class Analyzer {
 
     if (!ast) {
       throw new Error("Failed to parse code to AST");
+    }
+
+    // Initialize source map consumer if provided
+    let consumer: any = null;
+    if (sourceMap) {
+      try {
+        consumer = new sourceMapJs.SourceMapConsumer(sourceMap);
+      } catch (e) {
+        console.warn("[analyzer] Failed to parse source map, falling back to unstable IDs:", e);
+      }
     }
 
     // Collect all binding identifiers
@@ -127,7 +142,7 @@ export class Analyzer {
         const scopeId = scopeIds.get(path.scope) ?? "unknown";
 
         // Generate stable identifier ID
-        const identifierId = self.generateIdentifierId(path.node.name, binding, path);
+        const identifierId = self.generateIdentifierId(path.node.name, binding, path, consumer);
 
         // Extract surrounding context
         const context = self.extractContext(code, path);
@@ -184,14 +199,39 @@ export class Analyzer {
    * Generate stable identifier ID
    * Format: hash(name + binding type + location)
    */
-  private generateIdentifierId(name: string, binding: Binding, path: any): string {
+  private generateIdentifierId(
+    name: string, 
+    binding: Binding, 
+    path: any,
+    consumer?: any
+  ): string {
     const loc = path.node.loc;
     if (!loc) {
       // Fallback for identifiers without location
       return `id:${name}:${Math.random().toString(36).substring(2, 9)}`;
     }
 
-    const payload = `${name}:${binding.kind}:${loc.start.line}:${loc.start.column}`;
+    let originalName = name;
+    let originalLine = loc.start.line;
+    let originalColumn = loc.start.column;
+
+    // If source map consumer is available, map back to original location
+    if (consumer) {
+      const original = consumer.originalPositionFor({
+        line: loc.start.line,
+        column: loc.start.column
+      });
+
+      if (original.source && original.line !== null && original.column !== null) {
+        originalLine = original.line;
+        originalColumn = original.column;
+        if (original.name) {
+          originalName = original.name;
+        }
+      }
+    }
+
+    const payload = `${binding.kind}:${originalLine}:${originalColumn}`;
     const hash = createHash("sha256").update(payload).digest("hex").substring(0, 16);
     return `id:${hash}`;
   }

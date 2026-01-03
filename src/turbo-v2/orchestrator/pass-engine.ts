@@ -64,6 +64,7 @@ export interface PassResult {
   renameMap: RenameMap;
   stats: PassStats;
   confidenceMap: Record<string, number>; // identifier ID -> confidence score
+  sourceMap?: any; // Source map for the transformed code
 }
 
 /**
@@ -166,6 +167,7 @@ export class PassEngine {
    * @param jobId Job identifier
    * @param passConfig Pass configuration
    * @param snapshotPath Path to write snapshot
+   * @param sourceMap Optional source map from previous pass (for stable IDs)
    * @returns Pass result with rename map and stats
    */
   async executePass(
@@ -174,7 +176,8 @@ export class PassEngine {
     passNumber: number,
     jobId: string,
     passConfig: PassConfig,
-    snapshotPath?: string
+    snapshotPath?: string,
+    sourceMap?: any
   ): Promise<PassResult> {
     const startTime = performance.now();
 
@@ -183,7 +186,8 @@ export class PassEngine {
 
     // Step 1: Analyze code
     console.log(`[pass-engine] Analyzing code for pass ${passNumber}...`);
-    const analysis = await this.analyzer.analyze(code);
+    // Use source map if available to ensure stable IDs
+    const analysis = await this.analyzer.analyze(code, sourceMap);
     console.log(`[pass-engine] Found ${analysis.totalIdentifiers} identifiers`);
 
     // Log adaptive context info if enabled
@@ -245,6 +249,7 @@ export class PassEngine {
       let batchUnchanged = 0;
       let batchSkipped = 0;
       let batchErrors = 0;
+      let batchTokens = { prompt: 0, completion: 0, total: 0 };
 
       for (const result of batchResults) {
         totalProcessed++;
@@ -282,6 +287,11 @@ export class PassEngine {
 
         // Accumulate tokens (if available)
         if (result.tokens) {
+          // Track per-batch tokens
+          batchTokens.prompt += result.tokens.prompt;
+          batchTokens.completion += result.tokens.completion;
+          batchTokens.total += result.tokens.total;
+          // And cumulative tokens for pass stats
           totalTokens.prompt += result.tokens.prompt;
           totalTokens.completion += result.tokens.completion;
           totalTokens.total += result.tokens.total;
@@ -296,7 +306,7 @@ export class PassEngine {
         identifiersRenamed: batchRenamed,
         identifiersUnchanged: batchUnchanged,
         identifiersSkipped: batchSkipped,
-        tokensUsed: totalTokens,
+        tokensUsed: batchTokens,  // Use per-batch tokens, not cumulative
         durationMs: batchDuration,
         errors: batchErrors,
       };
@@ -365,6 +375,7 @@ export class PassEngine {
       renameMap,
       stats: passStats,
       confidenceMap,
+      sourceMap: transformResult.map,
     };
   }
 

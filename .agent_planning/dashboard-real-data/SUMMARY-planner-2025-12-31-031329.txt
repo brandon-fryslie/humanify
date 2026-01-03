@@ -1,0 +1,6 @@
+Agent: status-planner | 2025-12-31-031329
+Topic: dashboard-real-data
+Files: PLAN-2025-12-31-031329.md, DOD-2025-12-31-031329.md
+Items: 2 (P0: 2, P1: 0, P2: 0)
+Effort: 7-10 hours (Medium sprint)
+Deferred: 4 items (console logs, live progress, validation, advanced error handling)

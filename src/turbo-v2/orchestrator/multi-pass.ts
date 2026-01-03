@@ -192,8 +192,9 @@ export class MultiPass {
     // Step 5: Execute each pass sequentially
     const passResults: PassResult[] = [];
     let currentCode = inputCode;
-    let previousPassGlossary: GlossaryEntry[] = [];
+    let previousPassGlossary: Map<string, GlossaryEntry> = new Map();
     let previousConfidence: Record<string, number> = {}; // For adaptive context sizing
+    let lastSourceMap: any = undefined; // For stable identifier IDs
 
     for (let passIndex = 0; passIndex < this.config.passes.length; passIndex++) {
       const passNumber = passIndex + 1;
@@ -214,7 +215,7 @@ export class MultiPass {
       const glossary = passNumber > 1 ? previousPassGlossary : [];
 
       console.log(
-        `[multi-pass] Pass ${passNumber} glossary: ${glossary.length} entries from previous pass`
+        `[multi-pass] Pass ${passNumber} glossary: ${glossary.size} entries from previous pass`
       );
 
       // Select the right processor for this pass type
@@ -263,13 +264,17 @@ export class MultiPass {
         passNumber,
         this.config.jobId,
         passConfig,
-        outputSnapshotPath
+        outputSnapshotPath,
+        lastSourceMap
       );
 
       passResults.push(passResult);
 
       // Update confidence map for next pass (for adaptive context sizing)
       previousConfidence = passResult.confidenceMap;
+      
+      // Update source map for next pass (for stable IDs)
+      lastSourceMap = passResult.sourceMap;
 
       // Log adaptive context stats
       const lowConfCount = Object.values(previousConfidence).filter(c => c < LOW_CONFIDENCE_THRESHOLD).length;
@@ -278,8 +283,8 @@ export class MultiPass {
       }
 
       // Build glossary for next pass
-      // Read the analysis again to get reference counts
-      const passAnalysis = await this.analyzer.analyze(currentCode);
+      // Read the analysis again to get reference counts (using updated code and map)
+      const passAnalysis = await this.analyzer.analyze(currentCode, lastSourceMap);
       previousPassGlossary = this.buildGlossary(
         passResult.renameMap,
         passAnalysis.identifiers
@@ -380,14 +385,13 @@ export class MultiPass {
    * Process:
    * 1. For each rename, look up reference count from analysis
    * 2. Create GlossaryEntry with oldName, newName, references, confidence
-   * 3. Sort by reference count (descending)
-   * 4. Take top N entries (maxGlossarySize)
+   * 3. Return Map indexed by oldName for fast lookup
    */
   private buildGlossary(
     renameMap: Record<string, string>,
     identifiers: any[]
-  ): GlossaryEntry[] {
-    const entries: GlossaryEntry[] = [];
+  ): Map<string, GlossaryEntry> {
+    const glossary = new Map<string, GlossaryEntry>();
 
     // Build map of identifier ID -> reference count
     const idToReferences = new Map<string, number>();
@@ -396,27 +400,27 @@ export class MultiPass {
     }
 
     // Create glossary entries
+    let matchCount = 0;
     for (const [id, newName] of Object.entries(renameMap)) {
       // Find original identifier to get old name
       const identifier = identifiers.find((i) => i.id === id);
       if (!identifier) continue;
 
+      matchCount++;
       const oldName = identifier.name;
       const references = idToReferences.get(id) ?? 0;
 
-      entries.push({
+      // Map from OLD name -> Entry
+      // This allows us to find "a" in the context and map it to "config"
+      glossary.set(oldName, {
         oldName,
         newName,
         references,
         confidence: 1.0, // TODO: Track confidence from processor
       });
     }
-
-    // Sort by reference count (descending)
-    entries.sort((a, b) => b.references - a.references);
-
-    // Take top N
-    return entries.slice(0, this.config.maxGlossarySize);
+    
+    return glossary;
   }
 
   /**

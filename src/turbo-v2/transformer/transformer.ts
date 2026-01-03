@@ -41,6 +41,7 @@ export type RenameMap = Record<string, string>;
  */
 export interface TransformResult {
   code: string;
+  map?: any;
   applied: number; // Number of renames applied
   skipped: number; // Number of renames skipped (not found)
   collisions: number; // Number of collision-based prefixes added
@@ -250,9 +251,12 @@ export class Transformer {
       retainLines: false,
       compact: false,
       comments: false,
+      sourceMaps: true,
+      sourceFileName: "source.js", // Placeholder, will be corrected by consumer
     });
 
     const transformedCode = output.code;
+    const sourceMap = output.map;
 
     // Validate output if enabled
     if (this.config.validateOutput) {
@@ -275,13 +279,14 @@ export class Transformer {
     let snapshotHash: string | undefined;
 
     if (this.config.emitSnapshot && this.config.snapshotPath) {
-      const result = await this.emitSnapshot(transformedCode, this.config.snapshotPath);
+      const result = await this.emitSnapshot(transformedCode, this.config.snapshotPath, sourceMap);
       snapshotPath = result.path;
       snapshotHash = result.hash;
     }
 
     return {
       code: transformedCode,
+      map: sourceMap,
       applied: applied.size,
       skipped: skipped.size,
       collisions: collisions.size,
@@ -312,11 +317,13 @@ export class Transformer {
    *
    * @param code Code to write
    * @param path Target path
+   * @param map Source map (optional)
    * @returns Snapshot metadata
    */
   private async emitSnapshot(
     code: string,
-    path: string
+    path: string,
+    map?: any
   ): Promise<{ path: string; hash: string }> {
     // Ensure directory exists
     const dir = dirname(path);
@@ -332,9 +339,19 @@ export class Transformer {
 
       // Write to temp file
       writeFileSync(tempPath, code, "utf-8");
+      
+      // Write map if available
+      if (map) {
+        writeFileSync(`${tempPath}.map`, JSON.stringify(map), "utf-8");
+      }
 
       // Atomic rename
       renameSync(tempPath, path);
+      
+      // Rename map if exists
+      if (map && existsSync(`${tempPath}.map`)) {
+        renameSync(`${tempPath}.map`, `${path}.map`);
+      }
 
       return { path, hash };
     } catch (error) {
@@ -344,6 +361,14 @@ export class Transformer {
           unlinkSync(tempPath);
         } catch {
           // Ignore cleanup errors
+        }
+      }
+      // Cleanup map temp
+      if (existsSync(`${tempPath}.map`)) {
+        try {
+          unlinkSync(`${tempPath}.map`);
+        } catch {
+          // Ignore
         }
       }
       throw error;

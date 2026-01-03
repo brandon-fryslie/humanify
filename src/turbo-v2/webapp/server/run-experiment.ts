@@ -10,10 +10,11 @@ import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { executeTurboV2, TurboV2Options, TurboV2Result } from "../../../turbo-v2/cli/turbo-v2-command.js";
 import { isValidPreset } from "../../../turbo-v2/cli/presets.js";
-import { storage } from "./storage.js";
-import { SampleResult, SampleName, TokenUsage, CostBreakdown, PassConfig } from "../shared/types.js";
+import { storage, runStorage } from "./storage.js";
+import { SampleResult, SampleName, TokenUsage, CostBreakdown, PassConfig, Run } from "../shared/types.js";
 import { extractMetrics } from "./lib/metrics-extractor.js";
 import { calculateCost } from "./lib/cost-calculator.js";
+import { scoreSemantic, ScoringResult } from "../../scorers/semantic.js";
 
 // Get __dirname equivalent for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -48,53 +49,52 @@ function getOutputDir(experimentId: string, sample: SampleName): string {
 
 /**
  * Score output against original using semantic scorer
- * Returns 0 on failure
+ * Returns empty result with 0 score on failure
  */
 async function scoreOutput(
   sample: SampleName,
   outputPath: string
-): Promise<number> {
+): Promise<ScoringResult> {
   const originalPath = join(SAMPLES_DIR, sample, "original.js");
 
   if (!existsSync(originalPath)) {
     console.warn(`[runner] Original file not found: ${originalPath}`);
-    return 0;
+    return {
+      score: 0,
+      explanation: "Original file not found",
+      tokensUsed: 0,
+      cost: 0,
+      originalIdentifierCount: 0,
+      unminifiedIdentifierCount: 0
+    };
   }
 
   if (!existsSync(outputPath)) {
     console.warn(`[runner] Output file not found: ${outputPath}`);
-    return 0;
+    return {
+      score: 0,
+      explanation: "Output file not found",
+      tokensUsed: 0,
+      cost: 0,
+      originalIdentifierCount: 0,
+      unminifiedIdentifierCount: 0
+    };
   }
 
-  // For now, return a placeholder score based on file size
-  // TODO: Integrate semantic scorer when available (as a separate service, not dynamic import)
-  console.log(`[runner] Scoring: ${outputPath} vs ${originalPath}`);
+  console.log(`[runner] Scoring with semantic scorer: ${outputPath} vs ${originalPath}`);
 
   try {
-    // Check if output file exists and has content
-    const outputContent = readFileSync(outputPath, "utf-8");
-    const originalContent = readFileSync(originalPath, "utf-8");
-
-    if (outputContent.length > 0) {
-      // Calculate a basic score based on output file characteristics
-      // This is a placeholder until semantic scorer is integrated as a service
-      const outputSize = outputContent.length;
-      const originalSize = originalContent.length;
-
-      // Files should be similar size (within 2x)
-      const sizeRatio = Math.min(outputSize, originalSize) / Math.max(outputSize, originalSize);
-
-      // Base score of 50 for producing output, up to 75 for good size match
-      const score = Math.round(50 + (sizeRatio * 25));
-
-      console.log(`[runner] Placeholder score: ${score} (size ratio: ${sizeRatio.toFixed(2)})`);
-      return score;
-    }
-
-    return 0;
-  } catch (error) {
+    return await scoreSemantic(originalPath, outputPath);
+  } catch (error: any) {
     console.error(`[runner] Scoring failed:`, error);
-    return 0;
+    return {
+      score: 0,
+      explanation: `Scoring failed: ${error.message}`,
+      tokensUsed: 0,
+      cost: 0,
+      originalIdentifierCount: 0,
+      unminifiedIdentifierCount: 0
+    };
   }
 }
 
@@ -343,15 +343,26 @@ async function runSample(
         }
 
         // Score the output
-        const score = await scoreOutput(sample, finalOutputPath);
+        const scoringResult = await scoreOutput(sample, finalOutputPath);
+
+        // Merge scoring costs with execution costs
+        // Note: scoringResult.cost is just the LLM cost for scoring
+        const totalCost = {
+            inputCost: cost.inputCost, // + scoring cost? We'll keep them separate for now or add them up
+            outputCost: cost.outputCost,
+            totalCost: cost.totalCost + (scoringResult.cost || 0)
+        };
+        
+        // Add scoring tokens to total tokens if needed, but metrics are usually just execution
 
         return {
           sample,
-          score,
+          score: scoringResult.score,
+          explanation: scoringResult.explanation,
           duration,
           outputPath: finalOutputPath,
           tokens: metrics.tokens,
-          cost,
+          cost: totalCost,
           identifiersProcessed: metrics.identifiersProcessed,
           identifiersRenamed: metrics.identifiersRenamed,
         };
@@ -359,11 +370,12 @@ async function runSample(
     }
 
     // Fallback if no job dir or metrics
-    const score = await scoreOutput(sample, finalOutputPath);
+    const scoringResult = await scoreOutput(sample, finalOutputPath);
 
     return {
       sample,
-      score,
+      score: scoringResult.score,
+      explanation: scoringResult.explanation,
       duration,
       outputPath: finalOutputPath,
     };
@@ -386,14 +398,32 @@ async function runSample(
 }
 
 /**
- * Run full experiment
+ * Run full experiment - creates a new Run (or uses existing) and stores results there
+ * Returns the created/updated Run
+ *
+ * @param experimentId The experiment to run
+ * @param existingRunId Optional: Use an existing Run instead of creating a new one
  */
-export async function runExperiment(experimentId: string): Promise<void> {
+export async function runExperiment(experimentId: string, existingRunId?: string): Promise<Run> {
   console.log(`\n[runner] Starting experiment: ${experimentId}`);
 
   const experiment = storage.getExperiment(experimentId);
   if (!experiment) {
     throw new Error(`Experiment ${experimentId} not found`);
+  }
+
+  // Use existing Run or create a new one
+  let run: Run;
+  if (existingRunId) {
+    const existingRun = runStorage.getRun(existingRunId);
+    if (!existingRun) {
+      throw new Error(`Run ${existingRunId} not found`);
+    }
+    run = existingRun;
+    console.log(`\n[runner] Using existing run #${run.runNumber}: ${run.id}`);
+  } else {
+    run = runStorage.createRun(experimentId);
+    console.log(`\n[runner] Created run #${run.runNumber}: ${run.id}`);
   }
 
   const preset = experiment.preset;
@@ -403,7 +433,13 @@ export async function runExperiment(experimentId: string): Promise<void> {
   console.log(`[runner] Samples: ${samples.join(", ")}`);
   console.log(`[runner] Mode: ${experiment.mode}`);
 
-  // Update experiment status to running
+  // Update run status to running
+  runStorage.updateRun(run.id, {
+    status: "running",
+    startedAt: new Date().toISOString(),
+  });
+
+  // Also update experiment status (for backward compatibility)
   storage.updateExperiment(experimentId, {
     status: "running",
     startedAt: new Date().toISOString(),
@@ -432,6 +468,7 @@ export async function runExperiment(experimentId: string): Promise<void> {
   // Run each sample sequentially
   let hasErrors = false;
   let completedCount = 0;
+  let lastJobDir: string | undefined;
 
   for (const sample of samples) {
     console.log(`\n[runner] === Running sample: ${sample} ===`);
@@ -447,37 +484,55 @@ export async function runExperiment(experimentId: string): Promise<void> {
     // which detects the actual job directory as it's created
 
     // Run the sample
-    const result = await runSample(experimentId, sample, preset, model, passConfigs);
+    const result = await runSampleForRun(experimentId, run.id, sample, preset, model, passConfigs);
 
-    // Store result
-    storage.addSampleResult(experimentId, result);
+    // Store result on the Run
+    runStorage.addSampleResult(run.id, result.sampleResult);
+
+    // Also store on experiment for backward compatibility
+    storage.addSampleResult(experimentId, result.sampleResult);
+
+    // Track the job directory
+    if (result.jobDir) {
+      lastJobDir = result.jobDir;
+    }
 
     // Log result
     console.log(`[runner] Sample complete: ${sample}`);
-    console.log(`[runner]   Score: ${result.score}/100`);
-    console.log(`[runner]   Duration: ${result.duration.toFixed(1)}s`);
+    console.log(`[runner]   Score: ${result.sampleResult.score}/100`);
+    if (result.sampleResult.explanation) {
+        console.log(`[runner]   Explanation: ${result.sampleResult.explanation}`);
+    }
+    console.log(`[runner]   Duration: ${result.sampleResult.duration.toFixed(1)}s`);
 
-    if (result.tokens) {
-      console.log(`[runner]   Tokens: ${result.tokens.totalTokens} (prompt: ${result.tokens.promptTokens}, completion: ${result.tokens.completionTokens})`);
+    if (result.sampleResult.tokens) {
+      console.log(`[runner]   Tokens: ${result.sampleResult.tokens.totalTokens} (prompt: ${result.sampleResult.tokens.promptTokens}, completion: ${result.sampleResult.tokens.completionTokens})`);
     }
 
-    if (result.cost) {
-      console.log(`[runner]   Cost: $${result.cost.totalCost.toFixed(4)}`);
+    if (result.sampleResult.cost) {
+      console.log(`[runner]   Cost: $${result.sampleResult.cost.totalCost.toFixed(4)}`);
     }
 
-    if (result.identifiersProcessed) {
-      console.log(`[runner]   Identifiers: ${result.identifiersProcessed} processed, ${result.identifiersRenamed} renamed`);
+    if (result.sampleResult.identifiersProcessed) {
+      console.log(`[runner]   Identifiers: ${result.sampleResult.identifiersProcessed} processed, ${result.sampleResult.identifiersRenamed} renamed`);
     }
 
-    if (result.error) {
-      console.error(`[runner]   Error: ${result.error}`);
+    if (result.sampleResult.error) {
+      console.error(`[runner]   Error: ${result.sampleResult.error}`);
       hasErrors = true;
     }
 
     completedCount++;
   }
 
-  // Update final status
+  // Update run final status
+  runStorage.updateRun(run.id, {
+    status: hasErrors ? "failed" : "completed",
+    completedAt: new Date().toISOString(),
+    jobDir: lastJobDir,
+  });
+
+  // Update experiment status (for backward compatibility)
   storage.updateExperiment(experimentId, {
     status: hasErrors ? "failed" : "completed",
     completedAt: new Date().toISOString(),
@@ -493,7 +548,32 @@ export async function runExperiment(experimentId: string): Promise<void> {
   // Clear all active jobs
   storage.clearAllActiveJobs(experimentId);
 
-  console.log(`\n[runner] Experiment ${hasErrors ? "completed with errors" : "completed successfully"}: ${experimentId}`);
+  console.log(`\n[runner] Run #${run.runNumber} ${hasErrors ? "completed with errors" : "completed successfully"}: ${run.id}`);
+
+  // Return the updated run
+  return runStorage.getRun(run.id)!;
+}
+
+/**
+ * Run a single sample and return result with jobDir
+ */
+async function runSampleForRun(
+  experimentId: string,
+  runId: string,
+  sample: SampleName,
+  preset: string,
+  model: string = "gpt-4o-mini",
+  passConfigs?: PassConfig[]
+): Promise<{ sampleResult: SampleResult; jobDir?: string }> {
+  const result = await runSample(experimentId, sample, preset, model, passConfigs);
+
+  // Try to find the job directory for this sample
+  const activeJob = storage.getActiveJob(experimentId, sample);
+
+  return {
+    sampleResult: result,
+    jobDir: activeJob?.jobDir,
+  };
 }
 
 /**

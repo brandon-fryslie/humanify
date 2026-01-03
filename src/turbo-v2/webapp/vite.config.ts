@@ -1,13 +1,22 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   root: "client",
+  resolve: {
+    alias: {
+      "@shared": path.resolve(__dirname, "shared"),
+    },
+  },
   server: {
     port: 3457,
     proxy: {
-      "/api": {
+      "/api/": {
         target: "http://localhost:3456",
         changeOrigin: true,
       },

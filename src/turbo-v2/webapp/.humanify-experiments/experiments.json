@@ -7,11 +7,2610 @@
       "samples": [
         "tiny-qs"
       ],
+      "status": "completed",
+      "createdAt": "2025-12-31T08:57:23.851Z",
+      "startedAt": "2025-12-31T09:23:57.224Z",
+      "completedAt": "2025-12-31T09:23:57.227Z"
+    },
+    "exp-needs-to-be-auto-generated-mjtt8ffj-aq2w": {
+      "id": "exp-needs-to-be-auto-generated-mjtt8ffj-aq2w",
+      "name": "needs to be auto generated",
+      "preset": "balanced",
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "completed",
+      "createdAt": "2025-12-31T09:24:55.711Z",
+      "startedAt": "2025-12-31T09:24:57.604Z",
+      "completedAt": "2025-12-31T09:24:57.606Z"
+    },
+    "exp-test-fast-preset-mjttdi5z-5grv": {
+      "id": "exp-test-fast-preset-mjttdi5z-5grv",
+      "name": "test-fast-preset",
+      "preset": "fast",
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "createdAt": "2025-12-31T09:28:52.535Z",
+      "startedAt": "2025-12-31T11:03:44.785Z"
+    },
+    "exp-mjtuqmgm-vvk5": {
+      "id": "exp-mjtuqmgm-vvk5",
+      "name": "fast-turbo-v2-2025-12-31-1007",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T10:07:04.246Z",
+      "startedAt": "2025-12-31T11:05:31.455Z",
+      "completedAt": "2025-12-31T11:06:39.857Z"
+    },
+    "exp-mjtwalyz-dgkk": {
+      "id": "exp-mjtwalyz-dgkk",
+      "name": "fast-turbo-v2-2025-12-31-1050",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "failed",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T10:50:36.347Z",
+      "startedAt": "2025-12-31T10:56:16.928Z",
+      "completedAt": "2025-12-31T11:06:43.612Z"
+    },
+    "exp-mjtx1065-ypxi": {
+      "id": "exp-mjtx1065-ypxi",
+      "name": "fast-turbo-v2-2025-12-31-1111",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:11:07.805Z",
+      "startedAt": "2025-12-31T11:11:15.723Z"
+    },
+    "exp-mjtx4zm6-igak": {
+      "id": "exp-mjtx4zm6-igak",
+      "name": "fast-turbo-v2-2025-12-31-1114",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:14:13.710Z",
+      "startedAt": "2025-12-31T11:14:27.655Z"
+    },
+    "exp-mjtx9ysm-c4ns": {
+      "id": "exp-mjtx9ysm-c4ns",
+      "name": "fast-turbo-v2-2025-12-31-1118",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:18:05.926Z",
+      "startedAt": "2025-12-31T11:18:14.028Z",
+      "completedAt": "2025-12-31T11:18:22.713Z"
+    },
+    "exp-mjtxddsr-ze6v": {
+      "id": "exp-mjtxddsr-ze6v",
+      "name": "fast-turbo-v2-2025-12-31-1120",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios",
+        "medium-chart"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:20:45.339Z",
+      "startedAt": "2025-12-31T11:20:50.245Z"
+    },
+    "exp-mjtxdyt8-510n": {
+      "id": "exp-mjtxdyt8-510n",
+      "name": "balanced-turbo-v2-2025-12-31-1121",
+      "preset": "balanced",
+      "presetConfig": {
+        "id": "balanced",
+        "name": "Balanced",
+        "description": "Good quality/speed trade-off with explicit refinement.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios",
+        "medium-chart"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:21:12.572Z",
+      "startedAt": "2025-12-31T11:21:46.789Z"
+    },
+    "exp-mjtxe8lk-8rru": {
+      "id": "exp-mjtxe8lk-8rru",
+      "name": "thorough-turbo-v2-2025-12-31-1121",
+      "preset": "thorough",
+      "presetConfig": {
+        "id": "thorough",
+        "name": "Thorough",
+        "description": "Three-pass pipeline: rename, rename, refine.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "medium-chart",
+        "small-axios"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:21:25.256Z",
+      "startedAt": "2025-12-31T11:21:47.195Z"
+    },
+    "exp-mjtxefkh-v5n1": {
+      "id": "exp-mjtxefkh-v5n1",
+      "name": "quality-turbo-v2-2025-12-31-1121",
+      "preset": "quality",
+      "presetConfig": {
+        "id": "quality",
+        "name": "Quality",
+        "description": "Maximum quality with 5 passes including analysis and sequential low-confidence.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "analyze",
+            "mode": "parallel",
+            "concurrency": 100
+          },
+          {
+            "processor": "rename",
+            "mode": "sequential",
+            "concurrency": 1,
+            "filter": "low-confidence"
+          },
+          {
+            "processor": "transform",
+            "mode": "parallel",
+            "concurrency": 100
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios",
+        "medium-chart"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:21:34.289Z",
+      "startedAt": "2025-12-31T11:21:47.611Z"
+    },
+    "exp-mjtxeni4-f2ss": {
+      "id": "exp-mjtxeni4-f2ss",
+      "name": "anchor-turbo-v2-2025-12-31-1121",
+      "preset": "anchor",
+      "presetConfig": {
+        "id": "anchor",
+        "name": "Anchor",
+        "description": "Anchor-first strategy for large files with clear hierarchy.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "analyze",
+            "mode": "parallel",
+            "concurrency": 100
+          },
+          {
+            "processor": "rename",
+            "mode": "sequential",
+            "concurrency": 1,
+            "filter": "anchors"
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios",
+        "medium-chart"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:21:44.572Z",
+      "startedAt": "2025-12-31T11:21:48.044Z"
+    },
+    "exp-mjtxlfas-clg5": {
+      "id": "exp-mjtxlfas-clg5",
+      "name": "quality-turbo-v2-2025-12-31-1127",
+      "preset": "quality",
+      "presetConfig": {
+        "id": "quality",
+        "name": "Quality",
+        "description": "Maximum quality with 5 passes including analysis and sequential low-confidence.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "analyze",
+            "mode": "parallel",
+            "concurrency": 100
+          },
+          {
+            "processor": "rename",
+            "mode": "sequential",
+            "concurrency": 1,
+            "filter": "low-confidence"
+          },
+          {
+            "processor": "transform",
+            "mode": "parallel",
+            "concurrency": 100
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "medium-chart",
+        "small-axios"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:27:00.532Z",
+      "startedAt": "2025-12-31T11:36:39.242Z"
+    },
+    "exp-mjtxlfau-yxr6": {
+      "id": "exp-mjtxlfau-yxr6",
+      "name": "fast-turbo-v2-2025-12-31-1127",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:27:00.534Z",
+      "startedAt": "2025-12-31T11:36:38.630Z"
+    },
+    "exp-mjtxna71-85fj": {
+      "id": "exp-mjtxna71-85fj",
+      "name": "preset-mjtxmx89-yx6x-turbo-v2-2025-12-31-1128",
+      "preset": "preset-mjtxmx89-yx6x",
+      "presetConfig": {
+        "id": "preset-mjtxmx89-yx6x",
+        "name": "555",
+        "description": "",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "analyze",
+            "mode": "sequential",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "refine",
+            "mode": "streaming",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          }
+        ],
+        "isBuiltIn": false,
+        "createdAt": "2025-12-31T11:28:10.425Z"
+      },
+      "samples": [
+        "tiny-qs",
+        "medium-chart",
+        "small-axios"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:28:27.230Z",
+      "startedAt": "2025-12-31T11:41:12.965Z",
+      "completedAt": "2025-12-31T11:34:16.255Z"
+    },
+    "exp-mjtxy8mg-russ": {
+      "id": "exp-mjtxy8mg-russ",
+      "name": "preset-mjtxmx89-yx6x-turbo-v2-2025-12-31-1136",
+      "preset": "preset-mjtxmx89-yx6x",
+      "presetConfig": {
+        "id": "preset-mjtxmx89-yx6x",
+        "name": "555",
+        "description": "",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "analyze",
+            "mode": "sequential",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "refine",
+            "mode": "streaming",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          }
+        ],
+        "isBuiltIn": false,
+        "createdAt": "2025-12-31T11:28:10.425Z"
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T11:36:58.408Z",
+      "startedAt": "2025-12-31T11:41:12.152Z",
+      "completedAt": "2025-12-31T11:41:28.881Z"
+    },
+    "exp-mjty0ukf-6286": {
+      "id": "exp-mjty0ukf-6286",
+      "name": "preset-mjtxmx89-yx6x-turbo-v2-2025-12-31-1139",
+      "preset": "preset-mjtxmx89-yx6x",
+      "presetConfig": {
+        "id": "preset-mjtxmx89-yx6x",
+        "name": "555",
+        "description": "",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "analyze",
+            "mode": "sequential",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "refine",
+            "mode": "streaming",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          }
+        ],
+        "isBuiltIn": false,
+        "createdAt": "2025-12-31T11:28:10.425Z"
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios",
+        "medium-chart"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:39:00.159Z",
+      "startedAt": "2025-12-31T11:39:01.507Z"
+    },
+    "exp-mjty4foj-5fif": {
+      "id": "exp-mjty4foj-5fif",
+      "name": "fast-turbo-v2-2025-12-31-1141",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "medium-chart"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:41:47.491Z",
+      "startedAt": "2025-12-31T11:41:48.775Z",
+      "completedAt": "2025-12-31T11:48:20.929Z"
+    },
+    "exp-mjtyb0kd-wzlk": {
+      "id": "exp-mjtyb0kd-wzlk",
+      "name": "preset-mjtxmx89-yx6x-turbo-v2-2025-12-31-1146",
+      "preset": "preset-mjtxmx89-yx6x",
+      "presetConfig": {
+        "id": "preset-mjtxmx89-yx6x",
+        "name": "555",
+        "description": "",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "analyze",
+            "mode": "sequential",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "refine",
+            "mode": "streaming",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          }
+        ],
+        "isBuiltIn": false,
+        "createdAt": "2025-12-31T11:28:10.425Z"
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T11:46:54.493Z",
+      "startedAt": "2025-12-31T11:56:46.569Z",
+      "completedAt": "2025-12-31T11:56:58.850Z"
+    },
+    "exp-mjucrjjv-9hpk": {
+      "id": "exp-mjucrjjv-9hpk",
+      "name": "z.ai-test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:31:40.219Z",
+      "startedAt": "2025-12-31T18:32:12.651Z",
+      "completedAt": "2025-12-31T18:32:15.790Z"
+    },
+    "exp-mjud2l0k-a49p": {
+      "id": "exp-mjud2l0k-a49p",
+      "name": "z.ai-test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:40:15.332Z",
+      "startedAt": "2025-12-31T18:40:20.910Z",
+      "completedAt": "2025-12-31T18:40:53.823Z"
+    },
+    "exp-mjud5xyp-289q": {
+      "id": "exp-mjud5xyp-289q",
+      "name": "z.ai-test-v2",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:42:52.081Z",
+      "startedAt": "2025-12-31T18:42:57.067Z"
+    },
+    "exp-mjud8ab9-wkzv": {
+      "id": "exp-mjud8ab9-wkzv",
+      "name": "z.ai-test-v3",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:44:41.397Z",
+      "startedAt": "2025-12-31T18:44:47.482Z"
+    },
+    "exp-mjud9ru1-rdoz": {
+      "id": "exp-mjud9ru1-rdoz",
+      "name": "z.ai-debug",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:45:50.761Z",
+      "startedAt": "2025-12-31T18:46:10.667Z"
+    },
+    "exp-mjudbkkz-cwxp": {
+      "id": "exp-mjudbkkz-cwxp",
+      "name": "z.ai-test-v4",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:47:14.675Z",
+      "startedAt": "2025-12-31T18:47:35.480Z"
+    },
+    "exp-mjude9gc-3739": {
+      "id": "exp-mjude9gc-3739",
+      "name": "z.ai-simplified-prompt",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:49:20.220Z",
+      "startedAt": "2025-12-31T18:49:39.400Z"
+    },
+    "exp-mjudkxco-1uzn": {
+      "id": "exp-mjudkxco-1uzn",
+      "name": "z.ai-json-first",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:54:31.128Z",
+      "startedAt": "2025-12-31T18:54:31.146Z"
+    },
+    "exp-mjudp615-eekl": {
+      "id": "exp-mjudp615-eekl",
+      "name": "z.ai-final-test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T18:57:49.001Z",
+      "startedAt": "2025-12-31T18:57:55.014Z",
+      "completedAt": "2025-12-31T19:13:57.862Z"
+    },
+    "exp-mjuet5c1-n4ip": {
+      "id": "exp-mjuet5c1-n4ip",
+      "name": "API Key Test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T19:28:54.337Z",
+      "startedAt": "2025-12-31T19:28:59.436Z",
+      "completedAt": "2025-12-31T19:29:00.828Z"
+    },
+    "exp-mjuew9m7-nakd": {
+      "id": "exp-mjuew9m7-nakd",
+      "name": "Real Data Test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T19:31:19.855Z",
+      "startedAt": "2025-12-31T19:31:24.144Z",
+      "completedAt": "2025-12-31T19:31:25.917Z"
+    },
+    "exp-mjuexqyp-1y0p": {
+      "id": "exp-mjuexqyp-1y0p",
+      "name": "Fixed Key Test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T19:32:28.993Z",
+      "startedAt": "2025-12-31T22:08:52.677Z",
+      "completedAt": "2025-12-31T22:09:02.506Z"
+    },
+    "exp-mjugmvj9-hqa3": {
+      "id": "exp-mjugmvj9-hqa3",
+      "name": "Quota Test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T20:20:00.933Z",
+      "startedAt": "2025-12-31T20:20:09.383Z",
+      "completedAt": "2025-12-31T20:20:19.145Z"
+    },
+    "exp-mjuhfd16-0buv": {
+      "id": "exp-mjuhfd16-0buv",
+      "name": "fast-turbo-v2-2025-12-31-2042",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T20:42:09.978Z",
+      "startedAt": "2025-12-31T20:42:36.318Z",
+      "completedAt": "2025-12-31T20:43:45.531Z"
+    },
+    "exp-mjuhfu1n-vl5r": {
+      "id": "exp-mjuhfu1n-vl5r",
+      "name": "fast-turbo-v2-2025-12-31-2042",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
       "status": "pending",
-      "createdAt": "2025-12-31T08:57:23.851Z"
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T20:42:32.027Z"
+    },
+    "exp-mjuhikj5-ycuv": {
+      "id": "exp-mjuhikj5-ycuv",
+      "name": "preset-mjtxmx89-yx6x-turbo-v2-2025-12-31-2044",
+      "preset": "preset-mjtxmx89-yx6x",
+      "presetConfig": {
+        "id": "preset-mjtxmx89-yx6x",
+        "name": "555",
+        "description": "",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "analyze",
+            "mode": "sequential",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          },
+          {
+            "processor": "refine",
+            "mode": "streaming",
+            "concurrency": 50,
+            "model": "gpt-4o-mini"
+          }
+        ],
+        "isBuiltIn": false,
+        "createdAt": "2025-12-31T11:28:10.425Z"
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T20:44:39.665Z",
+      "startedAt": "2025-12-31T20:44:41.625Z",
+      "completedAt": "2025-12-31T20:46:23.481Z"
+    },
+    "exp-mjuhm8kb-3m9x": {
+      "id": "exp-mjuhm8kb-3m9x",
+      "name": "Fix Test",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T20:47:30.779Z",
+      "startedAt": "2025-12-31T20:47:35.968Z",
+      "completedAt": "2025-12-31T20:47:43.093Z"
+    },
+    "exp-mjukcapt-hlds": {
+      "id": "exp-mjukcapt-hlds",
+      "name": "quality-turbo-v2-2025-12-31-2203",
+      "preset": "quality",
+      "presetConfig": {
+        "id": "quality",
+        "name": "Quality",
+        "description": "Maximum quality with 5 passes including analysis and sequential low-confidence.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "analyze",
+            "mode": "parallel",
+            "concurrency": 100
+          },
+          {
+            "processor": "rename",
+            "mode": "sequential",
+            "concurrency": 1,
+            "filter": "low-confidence"
+          },
+          {
+            "processor": "transform",
+            "mode": "parallel",
+            "concurrency": 100
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "running",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T22:03:45.857Z",
+      "startedAt": "2025-12-31T22:03:54.259Z"
+    },
+    "exp-mjukjjf1-vjwh": {
+      "id": "exp-mjukjjf1-vjwh",
+      "name": "thorough-turbo-v2-2025-12-31-2209",
+      "preset": "thorough",
+      "presetConfig": {
+        "id": "thorough",
+        "name": "Thorough",
+        "description": "Three-pass pipeline: rename, rename, refine.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2025-12-31T22:09:23.725Z",
+      "startedAt": "2025-12-31T22:09:30.906Z",
+      "completedAt": "2025-12-31T22:11:05.289Z"
+    },
+    "exp-mjukkovq-ys8h": {
+      "id": "exp-mjukkovq-ys8h",
+      "name": "balanced-turbo-v2-2025-12-31-2210",
+      "preset": "balanced",
+      "presetConfig": {
+        "id": "balanced",
+        "name": "Balanced",
+        "description": "Good quality/speed trade-off with explicit refinement.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "refine",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "medium-chart"
+      ],
+      "status": "completed",
+      "mode": "turbo-v2",
+      "isBaseline": true,
+      "createdAt": "2025-12-31T22:10:17.462Z",
+      "startedAt": "2025-12-31T22:10:19.683Z",
+      "completedAt": "2025-12-31T22:17:02.278Z"
+    },
+    "exp-mjyx0853-wgmi": {
+      "id": "exp-mjyx0853-wgmi",
+      "name": "fast-turbo-v2-2026-01-03-2309",
+      "preset": "fast",
+      "presetConfig": {
+        "id": "fast",
+        "name": "Fast",
+        "description": "Maximum speed with good quality. 2-pass parallel rename.",
+        "isBuiltIn": true,
+        "createdAt": "2025-01-01T00:00:00Z",
+        "passes": [
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          },
+          {
+            "processor": "rename",
+            "mode": "parallel",
+            "concurrency": 50
+          }
+        ]
+      },
+      "samples": [
+        "tiny-qs",
+        "small-axios"
+      ],
+      "mode": "turbo-v2",
+      "isBaseline": false,
+      "createdAt": "2026-01-03T23:09:22.360Z",
+      "gitCommitSha": "a694dfde26cdc0540e8e5215d5315273e0d69725",
+      "parameterHash": "24fe89a9ee6a8d49",
+      "runCount": 1,
+      "lastRunId": "run-mjyx14d7-c383",
+      "lastRunAt": "2026-01-03T23:10:04.123Z",
+      "status": "running",
+      "startedAt": "2026-01-03T23:10:04.138Z"
     }
   },
   "results": {
-    "exp-test-mjts90uj-0x8v": []
+    "exp-test-mjts90uj-0x8v": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.00004225000000019463,
+        "error": "Sample file not found: test-samples/canonical/tiny-qs/minified.js"
+      }
+    ],
+    "exp-needs-to-be-auto-generated-mjtt8ffj-aq2w": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.00004250000000320142,
+        "error": "Sample file not found: test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.000050625000003492456,
+        "error": "Sample file not found: test-samples/canonical/small-axios/minified.js"
+      }
+    ],
+    "exp-test-fast-preset-mjttdi5z-5grv": [],
+    "exp-mjtuqmgm-vvk5": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 10.312782207999996,
+        "error": "EISDIR: illegal operation on a directory, read"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 58.082730125000005,
+        "error": "EISDIR: illegal operation on a directory, read"
+      }
+    ],
+    "exp-mjtwalyz-dgkk": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/tiny-qs/minified.js"
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0,
+        "error": "Sample file not found: /Users/bmf/code/test-samples/canonical/small-axios/minified.js"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.1105522920000003,
+        "error": "The OPENAI_API_KEY environment variable is missing or empty; either provide it, or instantiate the OpenAI client with an apiKey option, like new OpenAI({ apiKey: 'My API Key' })."
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.001387957999999344,
+        "error": "The OPENAI_API_KEY environment variable is missing or empty; either provide it, or instantiate the OpenAI client with an apiKey option, like new OpenAI({ apiKey: 'My API Key' })."
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.0012064170000012382,
+        "error": "The OPENAI_API_KEY environment variable is missing or empty; either provide it, or instantiate the OpenAI client with an apiKey option, like new OpenAI({ apiKey: 'My API Key' })."
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.0008540839999986928,
+        "error": "The OPENAI_API_KEY environment variable is missing or empty; either provide it, or instantiate the OpenAI client with an apiKey option, like new OpenAI({ apiKey: 'My API Key' })."
+      }
+    ],
+    "exp-mjtx1065-ypxi": [],
+    "exp-mjtx4zm6-igak": [],
+    "exp-mjtx9ysm-c4ns": [
+      {
+        "sample": "tiny-qs",
+        "score": 75,
+        "duration": 8.677190666000003,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtx9ysm-c4ns/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      }
+    ],
+    "exp-mjtxddsr-ze6v": [
+      {
+        "sample": "tiny-qs",
+        "score": 74,
+        "duration": 7.630926333999989,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxddsr-ze6v/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      },
+      {
+        "sample": "small-axios",
+        "score": 65,
+        "duration": 55.193946416000024,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxddsr-ze6v/small-axios/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjtxdyt8-510n": [
+      {
+        "sample": "tiny-qs",
+        "score": 74,
+        "duration": 10.975806542000035,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxdyt8-510n/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      },
+      {
+        "sample": "small-axios",
+        "score": 65,
+        "duration": 60.781544041999965,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxdyt8-510n/small-axios/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjtxe8lk-8rru": [
+      {
+        "sample": "tiny-qs",
+        "score": 71,
+        "duration": 15.782851499999989,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxe8lk-8rru/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjtxefkh-v5n1": [
+      {
+        "sample": "tiny-qs",
+        "score": 73,
+        "duration": 86.57786875000002,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxefkh-v5n1/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjtxeni4-f2ss": [
+      {
+        "sample": "tiny-qs",
+        "score": 72,
+        "duration": 82.08945920800005,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxeni4-f2ss/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjtxlfas-clg5": [],
+    "exp-mjtxlfau-yxr6": [],
+    "exp-mjtxna71-85fj": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.0005798749999999018,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "medium-chart",
+        "score": 0,
+        "duration": 0.00014545799999996233,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.00015612499999997454,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.0009626250000001164,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "medium-chart",
+        "score": 0,
+        "duration": 0.00008062500000050931,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.00006870899999921675,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.00084520799999882,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "medium-chart",
+        "score": 0,
+        "duration": 0.00020054099999833853,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "small-axios",
+        "score": 0,
+        "duration": 0.0001745840000003227,
+        "error": "Unknown preset: \"preset-mjtxmx89-yx6x\". Use --help to see available presets."
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 70,
+        "duration": 16.456312999999994,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxna71-85fj/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 42331,
+          "completionTokens": 1677,
+          "totalTokens": 44008
+        },
+        "cost": {
+          "inputCost": 0.00635,
+          "outputCost": 0.001006,
+          "totalCost": 0.007356
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 51
+      }
+    ],
+    "exp-mjtxy8mg-russ": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 0.0011076670000002196,
+        "error": "Error in --pass argument #1: Invalid filter: \"model=gpt-4o-mini\". Valid options: anchors, low-confidence, all, or omit for no filter"
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 69,
+        "duration": 17.204512291000007,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxy8mg-russ/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 33857,
+          "completionTokens": 1316,
+          "totalTokens": 35173
+        },
+        "cost": {
+          "inputCost": 0.005079,
+          "outputCost": 0.00079,
+          "totalCost": 0.005868
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 42
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 68,
+        "duration": 16.720330208999993,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtxy8mg-russ/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 37709,
+          "completionTokens": 1431,
+          "totalTokens": 39140
+        },
+        "cost": {
+          "inputCost": 0.005656,
+          "outputCost": 0.000859,
+          "totalCost": 0.006515
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 43
+      }
+    ],
+    "exp-mjty0ukf-6286": [
+      {
+        "sample": "tiny-qs",
+        "score": 71,
+        "duration": 19.870725292000003,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjty0ukf-6286/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 43288,
+          "completionTokens": 1730,
+          "totalTokens": 45018
+        },
+        "cost": {
+          "inputCost": 0.006493,
+          "outputCost": 0.001038,
+          "totalCost": 0.007531
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 55
+      }
+    ],
+    "exp-mjty4foj-5fif": [
+      {
+        "sample": "medium-chart",
+        "score": 65,
+        "duration": 392.152485584,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjty4foj-5fif/medium-chart/output.js",
+        "tokens": {
+          "promptTokens": 178328,
+          "completionTokens": 9960,
+          "totalTokens": 188288
+        },
+        "cost": {
+          "inputCost": 0.026749,
+          "outputCost": 0.005976,
+          "totalCost": 0.032725
+        },
+        "identifiersProcessed": 9300,
+        "identifiersRenamed": 508
+      }
+    ],
+    "exp-mjtyb0kd-wzlk": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 12.273660166000017,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjtyb0kd-wzlk/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjucrjjv-9hpk": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 3.1320204999999985,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjucrjjv-9hpk/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjud2l0k-a49p": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 32.900020624999996,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjud2l0k-a49p/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 330,
+          "completionTokens": 44,
+          "totalTokens": 374
+        },
+        "cost": {
+          "inputCost": 0.00005,
+          "outputCost": 0.000026,
+          "totalCost": 0.000076
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 1
+      }
+    ],
+    "exp-mjud5xyp-289q": [],
+    "exp-mjud8ab9-wkzv": [],
+    "exp-mjud9ru1-rdoz": [],
+    "exp-mjudbkkz-cwxp": [],
+    "exp-mjude9gc-3739": [],
+    "exp-mjudkxco-1uzn": [],
+    "exp-mjudp615-eekl": [
+      {
+        "sample": "tiny-qs",
+        "score": 0,
+        "duration": 962.828740792,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjudp615-eekl/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 0,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjuet5c1-n4ip": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 1.3847816250000033,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuet5c1-n4ip/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjuew9m7-nakd": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 1.7653940419999998,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuew9m7-nakd/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 0
+      }
+    ],
+    "exp-mjuexqyp-1y0p": [
+      {
+        "sample": "tiny-qs",
+        "score": 64,
+        "duration": 10.209746500000001,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuexqyp-1y0p/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        },
+        "cost": {
+          "inputCost": 0,
+          "outputCost": 0,
+          "totalCost": 0
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 0
+      },
+      {
+        "sample": "tiny-qs",
+        "score": 74,
+        "duration": 9.816820000000007,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuexqyp-1y0p/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 134636,
+          "completionTokens": 3110,
+          "totalTokens": 137746
+        },
+        "cost": {
+          "inputCost": 0.020195,
+          "outputCost": 0.001866,
+          "totalCost": 0.022061
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      }
+    ],
+    "exp-mjugmvj9-hqa3": [
+      {
+        "sample": "tiny-qs",
+        "score": 74,
+        "duration": 9.752254542000125,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjugmvj9-hqa3/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 134380,
+          "completionTokens": 3151,
+          "totalTokens": 137531
+        },
+        "cost": {
+          "inputCost": 0.020157,
+          "outputCost": 0.001891,
+          "totalCost": 0.022048
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      }
+    ],
+    "exp-mjuhfd16-0buv": [
+      {
+        "sample": "tiny-qs",
+        "score": 75,
+        "duration": 14.5271917499993,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuhfd16-0buv/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 134533,
+          "completionTokens": 3094,
+          "totalTokens": 137627
+        },
+        "cost": {
+          "inputCost": 0.02018,
+          "outputCost": 0.001856,
+          "totalCost": 0.022036
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 159
+      },
+      {
+        "sample": "small-axios",
+        "score": 65,
+        "duration": 54.66306216700003,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuhfd16-0buv/small-axios/output.js",
+        "tokens": {
+          "promptTokens": 1310094,
+          "completionTokens": 26180,
+          "totalTokens": 1336274
+        },
+        "cost": {
+          "inputCost": 0.196514,
+          "outputCost": 0.015708,
+          "totalCost": 0.212222
+        },
+        "identifiersProcessed": 1360,
+        "identifiersRenamed": 1360
+      }
+    ],
+    "exp-mjuhfu1n-vl5r": [],
+    "exp-mjuhikj5-ycuv": [
+      {
+        "sample": "tiny-qs",
+        "score": 74,
+        "duration": 15.252047832999379,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuhikj5-ycuv/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 168479,
+          "completionTokens": 5601,
+          "totalTokens": 174080
+        },
+        "cost": {
+          "inputCost": 0.025272,
+          "outputCost": 0.003361,
+          "totalCost": 0.028632
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 166
+      },
+      {
+        "sample": "small-axios",
+        "score": 65,
+        "duration": 86.58142287500016,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuhikj5-ycuv/small-axios/output.js",
+        "tokens": {
+          "promptTokens": 2368029,
+          "completionTokens": 46861,
+          "totalTokens": 2414890
+        },
+        "cost": {
+          "inputCost": 0.355204,
+          "outputCost": 0.028117,
+          "totalCost": 0.383321
+        },
+        "identifiersProcessed": 2042,
+        "identifiersRenamed": 1614
+      }
+    ],
+    "exp-mjuhm8kb-3m9x": [
+      {
+        "sample": "tiny-qs",
+        "score": 75,
+        "duration": 7.115657083,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjuhm8kb-3m9x/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 133982,
+          "completionTokens": 3140,
+          "totalTokens": 137122
+        },
+        "cost": {
+          "inputCost": 0.020097,
+          "outputCost": 0.001884,
+          "totalCost": 0.021981
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      }
+    ],
+    "exp-mjukcapt-hlds": [
+      {
+        "sample": "tiny-qs",
+        "score": 72,
+        "duration": 85.19764695800002,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjukcapt-hlds/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 275739,
+          "completionTokens": 7329,
+          "totalTokens": 283068
+        },
+        "cost": {
+          "inputCost": 0.041361,
+          "outputCost": 0.004397,
+          "totalCost": 0.045758
+        },
+        "identifiersProcessed": 400,
+        "identifiersRenamed": 245
+      }
+    ],
+    "exp-mjukjjf1-vjwh": [
+      {
+        "sample": "tiny-qs",
+        "score": 71,
+        "duration": 10.967753334000008,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjukjjf1-vjwh/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 258518,
+          "completionTokens": 5418,
+          "totalTokens": 263936
+        },
+        "cost": {
+          "inputCost": 0.038778,
+          "outputCost": 0.003251,
+          "totalCost": 0.042029
+        },
+        "identifiersProcessed": 240,
+        "identifiersRenamed": 238
+      },
+      {
+        "sample": "small-axios",
+        "score": 66,
+        "duration": 83.14805925000002,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjukjjf1-vjwh/small-axios/output.js",
+        "tokens": {
+          "promptTokens": 2509905,
+          "completionTokens": 45451,
+          "totalTokens": 2555356
+        },
+        "cost": {
+          "inputCost": 0.376486,
+          "outputCost": 0.027271,
+          "totalCost": 0.403756
+        },
+        "identifiersProcessed": 2042,
+        "identifiersRenamed": 2042
+      }
+    ],
+    "exp-mjukkovq-ys8h": [
+      {
+        "sample": "medium-chart",
+        "score": 67,
+        "duration": 402.379873792,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjukkovq-ys8h/medium-chart/output.js",
+        "tokens": {
+          "promptTokens": 9583386,
+          "completionTokens": 219427,
+          "totalTokens": 9802813
+        },
+        "cost": {
+          "inputCost": 1.437508,
+          "outputCost": 0.131656,
+          "totalCost": 1.569164
+        },
+        "identifiersProcessed": 9300,
+        "identifiersRenamed": 9236
+      }
+    ],
+    "exp-mjyx0853-wgmi": [
+      {
+        "sample": "tiny-qs",
+        "score": 55,
+        "explanation": "The deobfuscated names show a moderate understanding of the original identifiers, but many names are generic or incorrect. While some names like 'allowDotsEnabled' and 'arrayFormatOption' capture the semantic meaning, others like '_currentObjectReference' and 'cyclicObjectReferenceTracker' are too generic or misleading. The AI-generated names often lack the specificity and clarity of the original identifiers, indicating a moderate level of semantic understanding.",
+        "duration": 7.399206375000001,
+        "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjyx0853-wgmi/tiny-qs/output.js",
+        "tokens": {
+          "promptTokens": 53458,
+          "completionTokens": 3157,
+          "totalTokens": 56615
+        },
+        "cost": {
+          "inputCost": 0.008019,
+          "outputCost": 0.001894,
+          "totalCost": 0.013892999999999999
+        },
+        "identifiersProcessed": 160,
+        "identifiersRenamed": 160
+      }
+    ]
+  },
+  "consoleLogs": {
+    "exp-mjtuqmgm-vvk5": [],
+    "exp-mjtwalyz-dgkk": [],
+    "exp-mjtx1065-ypxi": [],
+    "exp-mjtx4zm6-igak": [],
+    "exp-mjtx9ysm-c4ns": [],
+    "exp-mjtxddsr-ze6v": [],
+    "exp-mjtxdyt8-510n": [],
+    "exp-mjtxe8lk-8rru": [],
+    "exp-mjtxefkh-v5n1": [],
+    "exp-mjtxeni4-f2ss": [],
+    "exp-mjtxlfas-clg5": [],
+    "exp-mjtxlfau-yxr6": [],
+    "exp-mjtxna71-85fj": [],
+    "exp-mjtxy8mg-russ": [],
+    "exp-mjty0ukf-6286": [],
+    "exp-mjty4foj-5fif": [],
+    "exp-mjtyb0kd-wzlk": [],
+    "exp-mjucrjjv-9hpk": [],
+    "exp-mjud2l0k-a49p": [],
+    "exp-mjud5xyp-289q": [],
+    "exp-mjud8ab9-wkzv": [],
+    "exp-mjud9ru1-rdoz": [],
+    "exp-mjudbkkz-cwxp": [],
+    "exp-mjude9gc-3739": [],
+    "exp-mjudkxco-1uzn": [],
+    "exp-mjudp615-eekl": [],
+    "exp-mjuet5c1-n4ip": [],
+    "exp-mjuew9m7-nakd": [],
+    "exp-mjuexqyp-1y0p": [],
+    "exp-mjugmvj9-hqa3": [],
+    "exp-mjuhfd16-0buv": [],
+    "exp-mjuhfu1n-vl5r": [],
+    "exp-mjuhikj5-ycuv": [],
+    "exp-mjuhm8kb-3m9x": [],
+    "exp-mjukcapt-hlds": [],
+    "exp-mjukjjf1-vjwh": [],
+    "exp-mjukkovq-ys8h": [],
+    "exp-mjyx0853-wgmi": []
+  },
+  "activeJobs": {
+    "exp-test-fast-preset-mjttdi5z-5grv-tiny-qs": {
+      "experimentId": "exp-test-fast-preset-mjttdi5z-5grv",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-test-fast-preset-mjttdi5z-5grv-tiny-qs",
+      "startedAt": "2025-12-31T11:03:44.787Z"
+    },
+    "exp-mjtx1065-ypxi-tiny-qs": {
+      "experimentId": "exp-mjtx1065-ypxi",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtx1065-ypxi-tiny-qs",
+      "startedAt": "2025-12-31T11:11:15.725Z"
+    },
+    "exp-mjtx4zm6-igak-tiny-qs": {
+      "experimentId": "exp-mjtx4zm6-igak",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtx4zm6-igak-tiny-qs",
+      "startedAt": "2025-12-31T11:14:27.657Z"
+    },
+    "exp-mjtxddsr-ze6v-medium-chart": {
+      "experimentId": "exp-mjtxddsr-ze6v",
+      "sample": "medium-chart",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtxddsr-ze6v-medium-chart",
+      "startedAt": "2025-12-31T11:21:53.102Z"
+    },
+    "exp-mjtxe8lk-8rru-medium-chart": {
+      "experimentId": "exp-mjtxe8lk-8rru",
+      "sample": "medium-chart",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtxe8lk-8rru-medium-chart",
+      "startedAt": "2025-12-31T11:22:02.977Z"
+    },
+    "exp-mjtxdyt8-510n-medium-chart": {
+      "experimentId": "exp-mjtxdyt8-510n",
+      "sample": "medium-chart",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtxdyt8-510n-medium-chart",
+      "startedAt": "2025-12-31T11:22:58.787Z"
+    },
+    "exp-mjtxeni4-f2ss-small-axios": {
+      "experimentId": "exp-mjtxeni4-f2ss",
+      "sample": "small-axios",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtxeni4-f2ss-small-axios",
+      "startedAt": "2025-12-31T11:23:10.123Z"
+    },
+    "exp-mjtxefkh-v5n1-small-axios": {
+      "experimentId": "exp-mjtxefkh-v5n1",
+      "sample": "small-axios",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/exp-mjtxefkh-v5n1-small-axios",
+      "startedAt": "2025-12-31T11:23:14.187Z"
+    },
+    "exp-mjtxlfau-yxr6-tiny-qs": {
+      "experimentId": "exp-mjtxlfau-yxr6",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-ba5dae74-mjtxxtd5",
+      "startedAt": "2025-12-31T11:36:38.852Z"
+    },
+    "exp-mjtxlfas-clg5-tiny-qs": {
+      "experimentId": "exp-mjtxlfas-clg5",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-921fd665-mjtxxtu4",
+      "startedAt": "2025-12-31T11:36:39.344Z"
+    },
+    "exp-mjty0ukf-6286-small-axios": {
+      "experimentId": "exp-mjty0ukf-6286",
+      "sample": "small-axios",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/ed58ccfe8487-40b31600-mjty1ay3",
+      "startedAt": "2025-12-31T11:39:21.491Z"
+    },
+    "exp-mjtxna71-85fj-medium-chart": {
+      "experimentId": "exp-mjtxna71-85fj",
+      "sample": "medium-chart",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/095fced53702-40b31600-mjty41qr",
+      "startedAt": "2025-12-31T11:41:29.802Z"
+    },
+    "exp-mjud5xyp-289q-tiny-qs": {
+      "experimentId": "exp-mjud5xyp-289q",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-ba5dae74-mjud61te",
+      "startedAt": "2025-12-31T18:42:57.375Z"
+    },
+    "exp-mjud8ab9-wkzv-tiny-qs": {
+      "experimentId": "exp-mjud8ab9-wkzv",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-8716c2ea-mjud8f0e",
+      "startedAt": "2025-12-31T18:44:47.683Z"
+    },
+    "exp-mjud9ru1-rdoz-tiny-qs": {
+      "experimentId": "exp-mjud9ru1-rdoz",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-8716c2ea-mjuda773",
+      "startedAt": "2025-12-31T18:46:10.972Z"
+    },
+    "exp-mjudbkkz-cwxp-tiny-qs": {
+      "experimentId": "exp-mjudbkkz-cwxp",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-8716c2ea-mjudc0n0",
+      "startedAt": "2025-12-31T18:47:35.785Z"
+    },
+    "exp-mjude9gc-3739-tiny-qs": {
+      "experimentId": "exp-mjude9gc-3739",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-8716c2ea-mjudeo9b",
+      "startedAt": "2025-12-31T18:49:39.615Z"
+    },
+    "exp-mjudkxco-1uzn-tiny-qs": {
+      "experimentId": "exp-mjudkxco-1uzn",
+      "sample": "tiny-qs",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/bd3c00716ed9-8716c2ea-mjudkxd9",
+      "startedAt": "2025-12-31T18:54:31.338Z"
+    },
+    "exp-mjukcapt-hlds-small-axios": {
+      "experimentId": "exp-mjukcapt-hlds",
+      "sample": "small-axios",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/ed58ccfe8487-921fd665-mjukeay5",
+      "startedAt": "2025-12-31T22:05:19.603Z"
+    },
+    "exp-mjyx0853-wgmi-small-axios": {
+      "experimentId": "exp-mjyx0853-wgmi",
+      "sample": "small-axios",
+      "jobDir": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-checkpoints/ed58ccfe8487-ba5dae74-mjyx1b6b",
+      "startedAt": "2026-01-03T23:10:13.048Z"
+    }
+  },
+  "progress": {
+    "exp-test-fast-preset-mjttdi5z-5grv": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjtuqmgm-vvk5": {
+      "completedSamples": 2,
+      "totalSamples": 2,
+      "progress": 100
+    },
+    "exp-mjtx1065-ypxi": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjtx4zm6-igak": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjtx9ysm-c4ns": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjtxddsr-ze6v": {
+      "completedSamples": 2,
+      "totalSamples": 3,
+      "progress": 67,
+      "currentSample": "medium-chart"
+    },
+    "exp-mjtxdyt8-510n": {
+      "completedSamples": 2,
+      "totalSamples": 3,
+      "progress": 67,
+      "currentSample": "medium-chart"
+    },
+    "exp-mjtxe8lk-8rru": {
+      "completedSamples": 1,
+      "totalSamples": 3,
+      "progress": 33,
+      "currentSample": "medium-chart"
+    },
+    "exp-mjtxefkh-v5n1": {
+      "completedSamples": 1,
+      "totalSamples": 3,
+      "progress": 33,
+      "currentSample": "small-axios"
+    },
+    "exp-mjtxeni4-f2ss": {
+      "completedSamples": 1,
+      "totalSamples": 3,
+      "progress": 33,
+      "currentSample": "small-axios"
+    },
+    "exp-mjtxna71-85fj": {
+      "completedSamples": 1,
+      "totalSamples": 3,
+      "progress": 33,
+      "currentSample": "medium-chart"
+    },
+    "exp-mjtxlfau-yxr6": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjtxlfas-clg5": {
+      "completedSamples": 0,
+      "totalSamples": 3,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjtxy8mg-russ": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjty0ukf-6286": {
+      "completedSamples": 1,
+      "totalSamples": 3,
+      "progress": 33,
+      "currentSample": "small-axios"
+    },
+    "exp-mjty4foj-5fif": {
+      "completedSamples": 1,
+      "totalSamples": 0,
+      "progress": 100
+    },
+    "exp-mjtyb0kd-wzlk": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjucrjjv-9hpk": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjud2l0k-a49p": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjud5xyp-289q": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjud8ab9-wkzv": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjud9ru1-rdoz": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjudbkkz-cwxp": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjude9gc-3739": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjudkxco-1uzn": {
+      "completedSamples": 0,
+      "totalSamples": 1,
+      "progress": 0,
+      "currentSample": "tiny-qs"
+    },
+    "exp-mjudp615-eekl": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjuet5c1-n4ip": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjuew9m7-nakd": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjuexqyp-1y0p": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjugmvj9-hqa3": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjuhfd16-0buv": {
+      "completedSamples": 2,
+      "totalSamples": 2,
+      "progress": 100
+    },
+    "exp-mjuhikj5-ycuv": {
+      "completedSamples": 2,
+      "totalSamples": 2,
+      "progress": 100
+    },
+    "exp-mjuhm8kb-3m9x": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjukcapt-hlds": {
+      "completedSamples": 1,
+      "totalSamples": 2,
+      "progress": 50,
+      "currentSample": "small-axios"
+    },
+    "exp-mjukjjf1-vjwh": {
+      "completedSamples": 2,
+      "totalSamples": 2,
+      "progress": 100
+    },
+    "exp-mjukkovq-ys8h": {
+      "completedSamples": 1,
+      "totalSamples": 1,
+      "progress": 100
+    },
+    "exp-mjyx0853-wgmi": {
+      "completedSamples": 1,
+      "totalSamples": 2,
+      "progress": 50,
+      "currentSample": "small-axios"
+    }
   }
 }

@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from "express";
-import { storage } from "../storage.js";
+import { storage, runStorage } from "../storage.js";
 import { runExperiment } from "../run-experiment.js";
 import {
   RunExperimentResponse,
@@ -13,12 +13,12 @@ import {
 
 export const runnerRouter = Router();
 
-// Track running experiments
-const runningExperiments = new Set<string>();
+// Track running experiments (maps experimentId to runId)
+const runningExperiments = new Map<string, string>();
 
 /**
  * POST /api/experiments/:id/run
- * Execute experiment
+ * Execute experiment - creates a new Run
  */
 runnerRouter.post("/:id/run", async (req: Request, res: Response) => {
   try {
@@ -34,31 +34,39 @@ runnerRouter.post("/:id/run", async (req: Request, res: Response) => {
       return;
     }
 
+    // Create a pending Run first (so we can return its ID immediately)
+    const pendingRun = runStorage.createRun(req.params.id);
+
     // Update status to running
     storage.updateExperiment(req.params.id, {
       status: "running",
       startedAt: new Date().toISOString(),
     });
 
-    runningExperiments.add(req.params.id);
+    runStorage.updateRun(pendingRun.id, {
+      status: "running",
+      startedAt: new Date().toISOString(),
+    });
+
+    runningExperiments.set(req.params.id, pendingRun.id);
 
     const response: RunExperimentResponse = {
       message: "Experiment started",
       experimentId: req.params.id,
+      runId: pendingRun.id,
+      runNumber: pendingRun.runNumber,
     };
 
     res.status(202).json(response);
 
-    // Run experiment in background
-    runExperiment(req.params.id)
-      .then(() => {
-        storage.updateExperiment(req.params.id, {
-          status: "completed",
+    // Run experiment in background (but skip Run creation since we already did it)
+    runExperimentWithRun(req.params.id, pendingRun.id)
+      .catch((error) => {
+        console.error(`Experiment ${req.params.id} run ${pendingRun.id} failed:`, error);
+        runStorage.updateRun(pendingRun.id, {
+          status: "failed",
           completedAt: new Date().toISOString(),
         });
-      })
-      .catch((error) => {
-        console.error(`Experiment ${req.params.id} failed:`, error);
         storage.updateExperiment(req.params.id, {
           status: "failed",
           completedAt: new Date().toISOString(),
@@ -71,6 +79,14 @@ runnerRouter.post("/:id/run", async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+/**
+ * Internal function to run experiment with a pre-created Run
+ */
+async function runExperimentWithRun(experimentId: string, runId: string): Promise<void> {
+  // Pass the runId so runExperiment uses the existing Run instead of creating a new one
+  await runExperiment(experimentId, runId);
+}
 
 /**
  * GET /api/experiments/:id/status

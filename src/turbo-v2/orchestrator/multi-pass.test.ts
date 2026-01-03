@@ -157,7 +157,7 @@ describe("MultiPass Integration Tests", () => {
   before(() => {
     inputPath = setupTestEnvironment();
     vault = new Vault(TEST_VAULT_DIR);
-    ledger = new Ledger(join(TEST_JOB_DIR, "events.jsonl"));
+    ledger = new Ledger(TEST_JOB_DIR);
   });
 
   after(() => {

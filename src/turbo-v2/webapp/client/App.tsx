@@ -10,12 +10,17 @@ import {
   Button,
   Snackbar,
   Alert,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { ExperimentList } from "./components/ExperimentList";
 import { ExperimentForm } from "./components/ExperimentForm";
 import { CompareView } from "./components/CompareView";
+import { ExperimentDetail } from "./components/ExperimentDetail";
+import { PresetManager } from "./components/PresetManager";
 import { api } from "./api";
-import type { ExperimentConfig } from "../shared/types";
+import type { ExperimentConfig, ProcessingMode, SampleName } from "@shared/types";
 
 const theme = createTheme({
   palette: {
@@ -30,7 +35,10 @@ function App() {
   const [experiments, setExperiments] = useState<ExperimentConfig[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [presetManagerOpen, setPresetManagerOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [detailExperimentId, setDetailExperimentId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -48,12 +56,20 @@ function App() {
     loadExperiments();
   }, [refreshKey]);
 
-  const handleCreate = async (name: string, preset: string, samples: string[]) => {
+  const handleCreate = async (config: {
+    name?: string;
+    preset: string;
+    samples: SampleName[];
+    mode: ProcessingMode;
+    isBaseline: boolean;
+  }) => {
     try {
       await api.createExperiment({
-        name,
-        preset: preset as any,
-        samples: samples as any,
+        name: config.name,
+        preset: config.preset,
+        samples: config.samples,
+        mode: config.mode,
+        isBaseline: config.isBaseline,
       });
       setFormOpen(false);
       setRefreshKey((k) => k + 1);
@@ -91,12 +107,26 @@ function App() {
     }
   };
 
+  const handleClone = async (id: string) => {
+    try {
+      await api.cloneExperiment(id);
+      setRefreshKey((k) => k + 1);
+    } catch (err: any) {
+      setError(`Failed to clone experiment: ${err.message}`);
+    }
+  };
+
   const handleCompare = () => {
     if (selectedIds.length < 2) {
       setError("Select at least 2 experiments to compare");
       return;
     }
     setCompareOpen(true);
+  };
+
+  const handleViewDetails = (id: string) => {
+    setDetailExperimentId(id);
+    setDetailOpen(true);
   };
 
   return (
@@ -108,6 +138,11 @@ function App() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Turbo-V2 Experiment Dashboard
           </Typography>
+          <Tooltip title="Manage Presets">
+            <IconButton color="inherit" onClick={() => setPresetManagerOpen(true)}>
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
           <Button color="inherit" onClick={() => setFormOpen(true)}>
             + New Experiment
           </Button>
@@ -138,7 +173,9 @@ function App() {
           onSelectionChange={setSelectedIds}
           onRun={handleRun}
           onDelete={handleDelete}
+          onClone={handleClone}
           onRefresh={() => setRefreshKey((k) => k + 1)}
+          onViewDetails={handleViewDetails}
         />
       </Container>
 
@@ -152,6 +189,22 @@ function App() {
         open={compareOpen}
         experimentIds={selectedIds}
         onClose={() => setCompareOpen(false)}
+      />
+
+      <ExperimentDetail
+        open={detailOpen}
+        experimentId={detailExperimentId}
+        onClose={() => {
+          setDetailOpen(false);
+          setDetailExperimentId(null);
+        }}
+        onRun={handleRun}
+        onRefresh={() => setRefreshKey((k) => k + 1)}
+      />
+
+      <PresetManager
+        open={presetManagerOpen}
+        onClose={() => setPresetManagerOpen(false)}
       />
 
       <Snackbar

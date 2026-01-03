@@ -15,4 +15,16 @@ leftover-agent-garbage/
 
 # Dependency graph cache
 .humanify-cache/
+
+# Experiment data (local)
+.humanify-checkpoints/
+.humanify-experiments/
+
+# Local MCP config
+.mcp.json
+mcpi.toml
+
+# Beads compaction files (local)
+.beads/beads.base.*
+
 output
