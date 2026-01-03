@@ -1,0 +1,51 @@
+{
+  "runs": {
+    "run-mjyx14d7-c383": {
+      "id": "run-mjyx14d7-c383",
+      "experimentId": "exp-mjyx0853-wgmi",
+      "runNumber": 1,
+      "status": "running",
+      "createdAt": "2026-01-03T23:10:04.123Z",
+      "gitCommitSha": "a694dfde26cdc0540e8e5215d5315273e0d69725",
+      "results": [
+        {
+          "sample": "tiny-qs",
+          "score": 55,
+          "explanation": "The deobfuscated names show a moderate understanding of the original identifiers, but many names are generic or incorrect. While some names like 'allowDotsEnabled' and 'arrayFormatOption' capture the semantic meaning, others like '_currentObjectReference' and 'cyclicObjectReferenceTracker' are too generic or misleading. The AI-generated names often lack the specificity and clarity of the original identifiers, indicating a moderate level of semantic understanding.",
+          "duration": 7.399206375000001,
+          "outputPath": "/Users/bmf/code/brandon-fryslie_humanify/.humanify-experiments/exp-mjyx0853-wgmi/tiny-qs/output.js",
+          "tokens": {
+            "promptTokens": 53458,
+            "completionTokens": 3157,
+            "totalTokens": 56615
+          },
+          "cost": {
+            "inputCost": 0.008019,
+            "outputCost": 0.001894,
+            "totalCost": 0.013892999999999999
+          },
+          "identifiersProcessed": 160,
+          "identifiersRenamed": 160
+        }
+      ],
+      "startedAt": "2026-01-03T23:10:04.137Z",
+      "averageScore": 55,
+      "totalDuration": 7.399206375000001,
+      "totalTokens": {
+        "promptTokens": 53458,
+        "completionTokens": 3157,
+        "totalTokens": 56615
+      },
+      "totalCost": {
+        "inputCost": 0.008019,
+        "outputCost": 0.001894,
+        "totalCost": 0.013892999999999999
+      }
+    }
+  },
+  "byExperiment": {
+    "exp-mjyx0853-wgmi": [
+      "run-mjyx14d7-c383"
+    ]
+  }
+}
